@@ -1,0 +1,5 @@
+<resources>
+    <string name="facebook_app_id">293320568283992</string>
+    <string name="fb_login_protocol_scheme">fb293320568283992</string>
+    <string name="app_name">Schedly</string>
+</resources>
