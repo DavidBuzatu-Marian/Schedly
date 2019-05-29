@@ -3,9 +3,7 @@ package com.example.schedly;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.Manifest;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -17,18 +15,14 @@ import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
-import com.facebook.FacebookSdk;
-import com.facebook.appevents.AppEventsLogger;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
-import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
@@ -37,16 +31,23 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.hbb20.CountryCodePicker;
 
 public class MainActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
-    private FirebaseAuth.AuthStateListener mAuthListener;
     private CallbackManager mCallbackManager;
-    private GoogleApiClient mGoogleApiClient;
     private final String TAG = "RES";
+    /* google sign in code */
     private final int RC_SIGN_IN = 1001;
+    /* first step back code */
+    private final int PH_CANCEL = 2001;
+    /* second step back code */
+    private final int SP_CANCEL = 2002;
+    /* calendar back press */
+    private final int CA_CANCEL = 2003;
     private GoogleSignInClient mGoogleSignInClient;
+
 
     @Override
     public void onStart() {
@@ -54,16 +55,41 @@ public class MainActivity extends AppCompatActivity {
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if(currentUser != null) {
+            Log.d("Firebase", "Logged");
             check_details(currentUser);
+            if(currentUser.getPhoneNumber().isEmpty()) {
+                Log.d("next_intent", "init");
+                getToInitActivity(currentUser);
+            }
+            else {
+                Log.d("next_intent", "calendar");
+                getToCalendarActivity(currentUser);
+            }
         }
 
         // Check for existing Google Sign In account, if the user is already signed in
         // the GoogleSignInAccount will be non-null.
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
         if(account == null) {
-            Log.d("Google_Logged", "not logged");
+            Log.d("Google", "not logged");
         }
-        //updateUI(account);
+        else {
+
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if(currentUser != null) {
+            if(currentUser.getPhoneNumber().isEmpty()) {
+                getToInitActivity(currentUser);
+            }
+            else {
+                getToCalendarActivity(currentUser);
+            }
+        }
     }
 
 
@@ -114,13 +140,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.act_main_BUT_Google).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                switch (v.getId()) {
-                    case R.id.act_main_BUT_Google:
-                        signIn();
-                        break;
-                    default:
-                        return;
-                }
+                signIn();
             }
         });
 
@@ -169,6 +189,16 @@ public class MainActivity extends AppCompatActivity {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             handleSignInResult(task);
         }
+        if(requestCode == PH_CANCEL || requestCode == SP_CANCEL) {
+            mGoogleSignInClient.signOut();
+            LoginManager.getInstance().logOut();
+            FirebaseAuth.getInstance().signOut();
+            Toast.makeText(MainActivity.this,"All fields are required!", Toast.LENGTH_LONG).show();
+        }
+        if(requestCode == CA_CANCEL) {
+            this.finish();
+            System.exit(0);
+        }
 
     }
 
@@ -184,16 +214,19 @@ public class MainActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d("successWithCredential", "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            //updateUI(user);
+                            boolean isNewUser = task.getResult().getAdditionalUserInfo().isNewUser();
+                            if(!isNewUser) {
+                                getToCalendarActivity(user);
+                            }
+                            else {
+                                getToInitActivity(user);
+                            }
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.d("successWithCredential", "signInWithCredential:failure", task.getException());
                             Toast.makeText(MainActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
-                            //updateUI(null);
                         }
-
-                        // ...
                     }
                 });
     }
@@ -209,12 +242,8 @@ public class MainActivity extends AppCompatActivity {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
             //String idToken = account.getIdToken();
             firebaseAuthWithGoogle(account);
-            Toast.makeText(MainActivity.this, "Logged in!", Toast.LENGTH_SHORT);
-
-            //updateUI(account);
         } catch (ApiException e) {
             Log.w(TAG, "handleSignInResult:error", e);
-            //updateUI(null);
         }
     }
 
@@ -230,16 +259,19 @@ public class MainActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            //updateUI(user);
+                            boolean isNewUser = task.getResult().getAdditionalUserInfo().isNewUser();
+                            if(!isNewUser) {
+                                getToCalendarActivity(user);
+                            }
+                            else {
+                                getToInitActivity(user);
+                            }
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
                             Toast.makeText(MainActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
-                            //updateUI(null);
                         }
-
-                        // ...
                     }
                 });
     }
@@ -254,16 +286,19 @@ public class MainActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            //updateUI(user);
+                            boolean isNewUser = task.getResult().getAdditionalUserInfo().isNewUser();
+                            if(!isNewUser) {
+                                getToCalendarActivity(user);
+                            }
+                            else {
+                                getToInitActivity(user);
+                            }
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithEmail:failure", task.getException());
                             Toast.makeText(MainActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
-                            //updateUI(null);
                         }
-
-                        // ...
                     }
                 });
     }
@@ -275,20 +310,37 @@ public class MainActivity extends AppCompatActivity {
             // Name, email address, and profile photo Url
             String name = currentUser.getDisplayName();
             String email = currentUser.getEmail();
+            String phnumber = currentUser.getPhoneNumber();
 
             // Check if user's email is verified
             boolean emailVerified = currentUser.isEmailVerified();
 
-            // The user's ID, unique to the Firebase project. Do NOT use this value to
-            // authenticate with your backend server, if you have one. Use
-            // FirebaseUser.getIdToken() instead.
-            String uid = currentUser.getUid();
 
-
-            Log.d("name", name);
-            Log.d("email", email);
-            Log.d("emailV", emailVerified == true ? "YES": "NO");
-            Log.d("id", uid);
+            Log.d("info", name);
+            Log.d("info", email);
+            Log.d("info", emailVerified ? "YES": "NO");
+            Log.d("info", phnumber);
+            Log.d("info", currentUser.getUid());
         }
+    }
+
+
+    private void getToInitActivity(FirebaseUser user) {
+        if(user.getPhoneNumber() == null) {
+            Intent firstStep = new Intent(MainActivity.this, SetPhoneNumberActivity.class);
+            firstStep.putExtra("userID", user.getUid());
+            startActivityForResult(firstStep, PH_CANCEL);
+        }
+        else {
+            Intent secondStep = new Intent(MainActivity.this, SetProffesionActivity.class);
+            secondStep.putExtra("userID", user.getUid());
+            startActivityForResult(secondStep, SP_CANCEL);
+        }
+    }
+
+    private void getToCalendarActivity(FirebaseUser user) {
+        Intent CalendarActivity = new Intent(MainActivity.this, CalendarActivity.class);
+        CalendarActivity.putExtra("userID", user.getUid());
+        startActivityForResult(CalendarActivity, CA_CANCEL);
     }
 }

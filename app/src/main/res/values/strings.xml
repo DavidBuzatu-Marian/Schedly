@@ -1,13 +1,15 @@
 <resources>
     <string name="facebook_app_id">293320568283992</string>
     <string name="fb_login_protocol_scheme">fb293320568283992</string>
-    <string name="default_web_client_ID" >125094146390-m0fk6oqclr1edebu3gdaldiq3r52cika.apps.googleusercontent.com</string>
+    <string name="default_web_client_ID">125094146390-m0fk6oqclr1edebu3gdaldiq3r52cika.apps.googleusercontent.com</string>
     <string name="app_name">Schedly</string>
     <string name="sign_up_button">Sign Up</string>
     <string name="sign_in_button">Sign In</string>
     <string name="hint_login_email">Email</string>
     <string name="hint_login_password">Password</string>
     <string name="Welcome">Welcome</string>
-    <string name="sign_up_button_main">Sign Up Here</string>
+    <string name="register_button_main">Register Here</string>
     <string name="register_text">Want to register with email?</string>
+    <string name="act_main_google">Sign In With Google</string>
+    <string name="act_SPNumber_Number">Please insert your phone number</string>
 </resources>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SetPhoneNumberActivity"
+    android:background="@drawable/set_phone_background">
+
+    <TextView
+        style="@style/RequestPhoneNumberTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/act_SPNumber_Number"
+        android:layout_above="@id/act_SPNumber_LL"/>
+
+    <LinearLayout
+        android:id="@+id/act_SPNumber_LL"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true">
+
+        <com.hbb20.CountryCodePicker
+            android:id="@+id/act_SPNumber_cpp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:ccp_contentColor="@color/colorText"
+            app:ccp_flagBorderColor="@color/colorText"
+            app:ccp_autoDetectCountry="true"
+            app:ccpDialog_searchEditTextTint="@color/colorText"
+            app:ccpDialog_backgroundColor="@color/colorPrimaryDark"
+            app:ccpDialog_textColor="@color/colorText"
+            android:layout_marginStart="18dp"
+            />
+
+        <EditText
+            android:id="@+id/act_SPNumber_ET_carrierNumber"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="phone"
+            android:singleLine="true"
+            android:layout_marginEnd="48dp"
+            android:layout_marginStart="48dp"/>
+    </LinearLayout>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:backgroundTint="@color/colorText">
+
+        <!-- Main content -->
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/act_SPNumber_floating_action_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|right"
+            android:layout_margin="16dp"
+            app:backgroundTint="@color/colorPrimaryDark"
+            app:srcCompat="@drawable/ic_baseline_arrow_forward_24px"/>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+</RelativeLayout>

@@ -1,22 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/login_background">
 
-    <EditText
-        android:id="@+id/act_signup_ET_email"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content" />
-    <EditText
-        android:id="@+id/act_signup_ET_password"
+    <TextView
+        style="@style/TextViewSignUp"
+        android:id="@+id/act_SUWEmail_TV_Welcome"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Register"/>
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/act_SUWEmail_TIL_email"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:inputType="textPassword"
-        android:layout_below="@id/act_signup_ET_email"/>
+        android:layout_marginEnd="48dp"
+        android:layout_marginStart="48dp"
+        android:layout_marginTop="18dp"
+        android:hint="@string/hint_login_email"
+        android:textColorHint="@color/colorText"
+        app:boxCornerRadiusBottomEnd="@dimen/input_button_border_radius"
+        app:boxCornerRadiusBottomStart="@dimen/input_button_border_radius"
+        app:boxCornerRadiusTopEnd="@dimen/input_button_border_radius"
+        app:boxCornerRadiusTopStart="@dimen/input_button_border_radius"
+        android:layout_below="@id/act_SUWEmail_TV_Welcome"
+        app:boxStrokeColor="@color/colorText"
+        >
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/act_SUWEmail_TIET_email"
+            style="@style/InputEditText"
+            android:layout_width="match_parent"
+            android:layout_height="50dp" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/act_SUWEmail_TIL_password"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="48dp"
+        android:layout_marginStart="48dp"
+        android:layout_marginTop="24dp"
+        android:hint="@string/hint_login_password"
+        android:textColorHint="@color/colorText"
+        app:boxCornerRadiusBottomEnd="@dimen/input_button_border_radius"
+        app:boxCornerRadiusBottomStart="@dimen/input_button_border_radius"
+        app:boxCornerRadiusTopEnd="@dimen/input_button_border_radius"
+        app:boxCornerRadiusTopStart="@dimen/input_button_border_radius"
+        android:layout_below="@id/act_SUWEmail_LL">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/act_SUWEmail_TIET_password"
+            style="@style/InputEditText"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:inputType="textPassword" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <LinearLayout
+        android:id="@+id/act_SUWEmail_LL"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_below="@id/act_SUWEmail_TIL_email">
+
+        <com.hbb20.CountryCodePicker
+            android:id="@+id/ccp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:ccp_contentColor="@color/colorText"
+            app:ccp_flagBorderColor="@color/colorText"
+            app:ccp_autoDetectCountry="true"
+            app:ccpDialog_searchEditTextTint="@color/colorText"
+            app:ccpDialog_backgroundColor="@color/colorPrimaryDark"
+            app:ccpDialog_textColor="@color/colorText"
+            android:layout_marginStart="18dp"
+            />
+
+        <EditText
+            android:id="@+id/act_SUWEmail_ET_carrierNumber"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="phone"
+            android:singleLine="true"
+            android:layout_marginEnd="48dp"
+            android:layout_marginStart="48dp"
+            android:layout_marginTop="8dp"/>
+    </LinearLayout>
+
     <Button
+        style="@style/ButtonRegisterSubmit"
         android:id="@+id/act_signup_BUT_signup"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="150dp"
+        android:layout_height="50dp"
         android:text="@string/sign_up_button"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_below="@id/act_SUWEmail_TIL_password"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/button_submit"
+        android:stateListAnimator="@animator/button_click_animator"/>
 </RelativeLayout>

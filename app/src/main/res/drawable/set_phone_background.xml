@@ -1,11 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<!--<gradient
-    android:angle="45"
-    android:endColor="#9E8DC2"
-    android:startColor="#4527A0"
-    android:type="linear" />
--->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <shape xmlns:android="http://schemas.android.com/apk/res/android"
@@ -18,6 +11,5 @@
             <corners android:radius="0dp" />
         </shape>
     </item>
-    <item android:drawable="@drawable/ic_background" />
 </layer-list>
 
