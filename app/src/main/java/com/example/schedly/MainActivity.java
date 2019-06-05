@@ -4,11 +4,13 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.facebook.AccessToken;
@@ -25,12 +27,18 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.hbb20.CountryCodePicker;
 
 public class MainActivity extends AppCompatActivity {
@@ -46,6 +54,11 @@ public class MainActivity extends AppCompatActivity {
     private final int SP_CANCEL = 2002;
     /* calendar back press */
     private final int CA_CANCEL = 2003;
+    /* firestore */
+    FirebaseFirestore firebaseFirestore;
+    /* store user info */
+    private String userPhoneNumber;
+    private String userProfession;
     private GoogleSignInClient mGoogleSignInClient;
 
 
@@ -54,17 +67,12 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
+        firebaseFirestore = FirebaseFirestore.getInstance();
         if(currentUser != null) {
             Log.d("Firebase", "Logged");
-            check_details(currentUser);
-            if(currentUser.getPhoneNumber().isEmpty()) {
-                Log.d("next_intent", "init");
-                getToInitActivity(currentUser);
-            }
-            else {
-                Log.d("next_intent", "calendar");
-                getToCalendarActivity(currentUser);
-            }
+
+            /* get user info */
+            getUserDetails(currentUser);
         }
 
         // Check for existing Google Sign In account, if the user is already signed in
@@ -74,7 +82,6 @@ public class MainActivity extends AppCompatActivity {
             Log.d("Google", "not logged");
         }
         else {
-
         }
     }
 
@@ -83,12 +90,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if(currentUser != null) {
-            if(currentUser.getPhoneNumber().isEmpty()) {
-                getToInitActivity(currentUser);
-            }
-            else {
-                getToCalendarActivity(currentUser);
-            }
+            getUserDetails(currentUser);
         }
     }
 
@@ -164,12 +166,26 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 EditText editTextEmail = findViewById(R.id.act_main_TIET_email);
                 EditText editTextPass = findViewById(R.id.act_main_TIET_password);
+                TextInputLayout textInputLayoutEmail = findViewById(R.id.act_main_TIL_email);
+                TextInputLayout textInputLayoutPass = findViewById(R.id.act_main_TIL_password);
+                boolean errorFoundTrue = false;
                 final String ET_Email = editTextEmail.getText().toString();
                 final String ET_Password = editTextPass.getText().toString();
-                if(ET_Email.isEmpty() || ET_Password.isEmpty()) {
-                    Toast.makeText(MainActivity.this, "Empty fields", Toast.LENGTH_SHORT).show();
+                if(ET_Email.isEmpty()) {
+                    errorFoundTrue = true;
+                    textInputLayoutEmail.setError("Field required!");
                 }
                 else {
+                    textInputLayoutEmail.setErrorEnabled(false);
+                }
+                if(ET_Password.isEmpty()) {
+                    errorFoundTrue = true;
+                    textInputLayoutPass.setError("Filed required!");
+                }
+                else {
+                    textInputLayoutPass.setErrorEnabled(false);
+                }
+                if(!errorFoundTrue) {
                     signInWithEmailAndPassword(ET_Email, ET_Password);
                 }
             }
@@ -214,13 +230,7 @@ public class MainActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d("successWithCredential", "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            boolean isNewUser = task.getResult().getAdditionalUserInfo().isNewUser();
-                            if(!isNewUser) {
-                                getToCalendarActivity(user);
-                            }
-                            else {
-                                getToInitActivity(user);
-                            }
+                            getUserDetails(user);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.d("successWithCredential", "signInWithCredential:failure", task.getException());
@@ -259,13 +269,7 @@ public class MainActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            boolean isNewUser = task.getResult().getAdditionalUserInfo().isNewUser();
-                            if(!isNewUser) {
-                                getToCalendarActivity(user);
-                            }
-                            else {
-                                getToInitActivity(user);
-                            }
+                            getUserDetails(user);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -286,13 +290,7 @@ public class MainActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            boolean isNewUser = task.getResult().getAdditionalUserInfo().isNewUser();
-                            if(!isNewUser) {
-                                getToCalendarActivity(user);
-                            }
-                            else {
-                                getToInitActivity(user);
-                            }
+                            getUserDetails(user);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithEmail:failure", task.getException());
@@ -303,30 +301,49 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    /* get phone number and domain of activity
+    IF BOTH EXISTS -> it will go to calendar activity
+    IF ONE DOESN'T -> it goes to one of the init activity
+     */
+    private void getUserDetails(@NonNull FirebaseUser currentUser) {
+        final FirebaseUser localUser = currentUser;
+        DocumentReference documentReference = firebaseFirestore.collection("users").document(localUser.getUid());
+        documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        userPhoneNumber = document.get("phoneNumber") != null ? document.get("phoneNumber").toString() : null;
+                        userProfession = document.get("profession") != null ? document.get("profession").toString() : null;
+                        Log.d(TAG, "DocumentSnapshot data: " + userPhoneNumber);
+                        Log.d(TAG, "DocumentSnapshot data: " + userProfession);
+                    } else {
+                        userPhoneNumber = null;
+                        Log.d(TAG, "No such document");
+                    }
+                } else {
+                    userPhoneNumber = null;
+                    Log.d(TAG, "get failed with ", task.getException());
+                }
 
-    private void check_details(FirebaseUser currentUser) {
-
-        if (currentUser != null) {
-            // Name, email address, and profile photo Url
-            String name = currentUser.getDisplayName();
-            String email = currentUser.getEmail();
-            String phnumber = currentUser.getPhoneNumber();
-
-            // Check if user's email is verified
-            boolean emailVerified = currentUser.isEmailVerified();
-
-
-            Log.d("info", name);
-            Log.d("info", email);
-            Log.d("info", emailVerified ? "YES": "NO");
-            Log.d("info", phnumber);
-            Log.d("info", currentUser.getUid());
-        }
+                /* REDIRECT */
+                if(userPhoneNumber == null) {
+                    Log.d("next_intent", "init");
+                    getToInitActivity(localUser);
+                }
+                else {
+                    Log.d("next_intent", "calendar");
+                    getToCalendarActivity(localUser);
+                }
+            }
+        });
     }
 
 
     private void getToInitActivity(FirebaseUser user) {
-        if(user.getPhoneNumber() == null) {
+        Log.d("PhoneNumber", userPhoneNumber == null ? "null" : userPhoneNumber);
+        if(userPhoneNumber == null) {
             Intent firstStep = new Intent(MainActivity.this, SetPhoneNumberActivity.class);
             firstStep.putExtra("userID", user.getUid());
             startActivityForResult(firstStep, PH_CANCEL);

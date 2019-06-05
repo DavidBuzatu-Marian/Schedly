@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".SetPhoneNumberActivity"
-    android:background="@drawable/set_phone_background">
+    android:background="@drawable/login_background">
 
     <TextView
         style="@style/RequestPhoneNumberTextView"
@@ -28,8 +28,8 @@
             android:id="@+id/act_SPNumber_cpp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:ccp_contentColor="@color/colorText"
-            app:ccp_flagBorderColor="@color/colorText"
+            app:ccp_contentColor="@color/colorPrimaryDark"
+            app:ccp_flagBorderColor="@color/colorPrimaryDark"
             app:ccp_autoDetectCountry="true"
             app:ccpDialog_searchEditTextTint="@color/colorText"
             app:ccpDialog_backgroundColor="@color/colorPrimaryDark"
@@ -44,7 +44,8 @@
             android:inputType="phone"
             android:singleLine="true"
             android:layout_marginEnd="48dp"
-            android:layout_marginStart="48dp"/>
+            android:layout_marginStart="48dp"
+            android:textColor="@color/colorPrimaryDark"/>
     </LinearLayout>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout

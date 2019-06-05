@@ -8,8 +8,6 @@
     android:background="@drawable/login_background"
     tools:context=".MainActivity">
 
-
-
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/act_main_TIL_email"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -19,11 +17,12 @@
         android:layout_marginStart="48dp"
         android:layout_marginTop="18dp"
         android:hint="@string/hint_login_email"
-        android:textColorHint="@color/colorText"
+        android:textColorHint="@color/colorPrimaryDark"
         app:boxCornerRadiusBottomEnd="@dimen/input_button_border_radius"
         app:boxCornerRadiusBottomStart="@dimen/input_button_border_radius"
         app:boxCornerRadiusTopEnd="@dimen/input_button_border_radius"
         app:boxCornerRadiusTopStart="@dimen/input_button_border_radius"
+        app:errorEnabled="true"
         android:layout_above="@id/act_main_TIL_password"
         >
 
@@ -43,14 +42,16 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="48dp"
         android:layout_marginStart="48dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="8dp"
         android:hint="@string/hint_login_password"
-        android:textColorHint="@color/colorText"
+        android:textColorHint="@color/colorPrimaryDark"
         app:boxCornerRadiusBottomEnd="@dimen/input_button_border_radius"
         app:boxCornerRadiusBottomStart="@dimen/input_button_border_radius"
         app:boxCornerRadiusTopEnd="@dimen/input_button_border_radius"
         app:boxCornerRadiusTopStart="@dimen/input_button_border_radius"
-        android:layout_above="@id/act_main_BUT_signin">
+        app:errorEnabled="true"
+        android:layout_above="@id/act_main_BUT_signin"
+        >
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/act_main_TIET_password"

@@ -5,34 +5,34 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorAccent">@color/colorPrimaryDark</item>
         <item name="android:autofilledHighlight">@android:color/transparent</item>
-        <item name="android:colorControlHighlight">#C0C0C0</item>
-        <item name="android:colorControlActivated">#C0C0C0</item>
-        <item name="android:colorControlNormal">#C0C0C0</item>
+        <item name="android:colorControlHighlight">@color/colorPrimaryDark</item>
+        <item name="android:colorControlActivated">@color/colorPrimaryDark</item>
+        <item name="android:colorControlNormal">@color/colorPrimaryDark</item>
     </style>
 
     <style name="InputFields">
         <item name="android:layout_marginTop">20dp</item>
         <item name="android:layout_margin">8dp</item>
         <item name="android:padding">4dp</item>
-        <item name="android:textSize">24dp</item>
-        <item name="android:textColorHint">#C0C0C0</item>
-        <item name="android:colorAccent">#C0C0C0</item>
-        <item name="android:backgroundTint">#C0C0C0</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:textColorHint">@color/colorPrimaryDark</item>
+        <item name="android:colorAccent">@color/colorPrimaryDark</item>
+        <item name="android:backgroundTint">@color/colorPrimaryDark</item>
     </style>
 
     <style name="TextViewLogin">
         <item name="android:layout_marginBottom">24dp</item>
         <item name="android:layout_marginTop">30dp</item>
         <item name="android:layout_marginLeft">8dp</item>
-        <item name="android:textSize">18dp</item>
+        <item name="android:textSize">18sp</item>
         <item name="android:padding">4dp</item>
         <item name="android:textColor">#000000</item>
     </style>
 
     <style name="ButtonSubmit">
-        <item name="android:textSize">18dp</item>
+        <item name="android:textSize">18sp</item>
         <item name="android:padding">4dp</item>
         <item name="android:textColor">#FFFFFF</item>
         <item name="android:textAllCaps">false</item>
@@ -41,7 +41,7 @@
         <item name="android:layout_marginTop">18dp</item>
     </style>
     <style name="ButtonRegister">
-        <item name="android:textSize">20dp</item>
+        <item name="android:textSize">20sp</item>
         <item name="android:padding">4dp</item>
         <item name="android:textColor">#FFFFFF</item>
         <item name="android:textAllCaps">false</item>
@@ -49,12 +49,12 @@
     </style>
 
     <style name="InputEditText">
-        <item name="android:textSize">18dp</item>
-        <item name="android:textColor">@color/colorText</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/colorPrimaryDark</item>
     </style>
 
     <style name="RegisterTextView">
-        <item name="android:textSize">18dp</item>
+        <item name="android:textSize">18sp</item>
         <item name="android:textColor">@color/colorText</item>
         <item name="android:layout_marginTop">30dp</item>
     </style>
@@ -65,17 +65,17 @@
         <item name="android:layout_marginBottom">75dp</item>
         <item name="android:layout_marginTop">30dp</item>
         <item name="android:layout_marginLeft">8dp</item>
-        <item name="android:textSize">40dp</item>
+        <item name="android:textSize">40sp</item>
         <item name="android:padding">4dp</item>
         <item name="android:textColor">#FFFFFF</item>
     </style>
 
     <style name="ButtonRegisterSubmit">
-        <item name="android:textSize">20dp</item>
+        <item name="android:textSize">20sp</item>
         <item name="android:padding">4dp</item>
         <item name="android:textColor">#FFFFFF</item>
         <item name="android:textAllCaps">false</item>
-        <item name="android:layout_marginTop">20dp</item>
+        <item name="android:layout_marginTop">18dp</item>
     </style>
 
     <style name="LoginTextInputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
@@ -84,8 +84,35 @@
 
     <!-- phone number -->
     <style name="RequestPhoneNumberTextView">
-        <item name="android:textSize">18dp</item>
+        <item name="android:textSize">18sp</item>
         <item name="android:textColor">@color/colorText</item>
         <item name="android:layout_marginStart">18dp</item>
+    </style>
+
+
+    <!-- calendar -->
+    <style name="Theme.Custom" parent="AppTheme">
+        <item name="android:calendarViewStyle">@style/Widget.CalendarView.Custom</item>
+    </style>
+
+    <style name="Widget.CalendarView.Custom" parent="android:Widget.CalendarView">
+        <item name="android:focusedMonthDateColor">@color/colorPrimaryDark</item>
+        <item name="android:weekNumberColor">@color/colorPrimary</item>
+        <item name="android:weekDayTextAppearance">@style/TextAppearance</item>
+        <item name="android:dateTextAppearance">@style/TextAppearance</item>
+    </style>
+
+    <style name="TextAppearance">
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <!-- set profession -->
+
+    <style name="ButtonProfession">
+        <item name="android:textSize">16sp</item>
+        <item name="android:padding">4dp</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:layout_marginTop">18dp</item>
     </style>
 </resources>

@@ -4,7 +4,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,6 +16,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -65,15 +68,27 @@ public class SignUpWithEmailActivity extends AppCompatActivity {
     }
 
     private boolean inputValidation(String email, String password) {
+        TextInputLayout textInputLayoutEmail = findViewById(R.id.act_SUWEmail_TIL_email);
+        TextInputLayout textInputLayoutPass = findViewById(R.id.act_SUWEmail_TIL_password);
         boolean hasDigit_TRUE = false;
-        if(email.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this,"empty fields", Toast.LENGTH_SHORT).show();
+        /* email validation */
+        if(email.isEmpty()) {
+            textInputLayoutEmail.setError("Field required!");
             return false;
         }
+        if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            textInputLayoutEmail.setError("Invalid Email");
+            return false;
+        }
+        textInputLayoutEmail.setErrorEnabled(false);
         /* password validation */
+        if(password.isEmpty()) {
+            textInputLayoutPass.setError("Field required!");
+            return false;
+        }
         /* check if length is between limits */
         if(password.length() < 8 || password.length() > 20) {
-            Toast.makeText(this,"length pass", Toast.LENGTH_SHORT).show();
+            textInputLayoutPass.setError("Password must be between 8 and 20 characters");
             return false;
         }
         /* it has digits */
@@ -83,14 +98,16 @@ public class SignUpWithEmailActivity extends AppCompatActivity {
             }
         }
         if(!hasDigit_TRUE) {
-            Toast.makeText(this,"no digits", Toast.LENGTH_SHORT).show();
+            textInputLayoutPass.setError("Password must have digits");
             return false;
         }
         /* it has uppercase/ lowercase letter */
         if(password.equals(password.toLowerCase()) || password.equals(password.toUpperCase())) {
-            Toast.makeText(this,"upper-lower", Toast.LENGTH_SHORT).show();
+            textInputLayoutPass.setError("Password needs lowercase and uppercase letters");
             return false;
         }
+        textInputLayoutPass.setErrorEnabled(false);
+
         /* number is not okay */
         if(!ccp.isValidFullNumber()) {
             Toast.makeText(this,"Invalid number", Toast.LENGTH_SHORT).show();
@@ -127,21 +144,10 @@ public class SignUpWithEmailActivity extends AppCompatActivity {
     private void add_userData_to_Database(FirebaseUser user) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         Map<String, Object> userToAdd = new HashMap<>();
-        userToAdd.put("userID", user.getUid());
         userToAdd.put("phoneNumber", ccp.getFullNumberWithPlus());
+        userToAdd.put("profession", null);
         db.collection("users")
-                .add(userToAdd)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error adding document", e);
-                    }
-                });
+                .document(user.getUid())
+                .set(userToAdd);
     }
 }

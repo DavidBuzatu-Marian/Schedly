@@ -22,13 +22,14 @@
         android:layout_marginStart="48dp"
         android:layout_marginTop="18dp"
         android:hint="@string/hint_login_email"
-        android:textColorHint="@color/colorText"
+        android:textColorHint="@color/colorPrimaryDark"
         app:boxCornerRadiusBottomEnd="@dimen/input_button_border_radius"
         app:boxCornerRadiusBottomStart="@dimen/input_button_border_radius"
         app:boxCornerRadiusTopEnd="@dimen/input_button_border_radius"
         app:boxCornerRadiusTopStart="@dimen/input_button_border_radius"
+        app:errorEnabled="true"
         android:layout_below="@id/act_SUWEmail_TV_Welcome"
-        app:boxStrokeColor="@color/colorText"
+        app:boxStrokeColor="@color/colorPrimaryDark"
         >
 
         <com.google.android.material.textfield.TextInputEditText
@@ -47,13 +48,14 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="48dp"
         android:layout_marginStart="48dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="18dp"
         android:hint="@string/hint_login_password"
-        android:textColorHint="@color/colorText"
+        android:textColorHint="@color/colorPrimaryDark"
         app:boxCornerRadiusBottomEnd="@dimen/input_button_border_radius"
         app:boxCornerRadiusBottomStart="@dimen/input_button_border_radius"
         app:boxCornerRadiusTopEnd="@dimen/input_button_border_radius"
         app:boxCornerRadiusTopStart="@dimen/input_button_border_radius"
+        app:errorEnabled="true"
         android:layout_below="@id/act_SUWEmail_LL">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -78,13 +80,14 @@
             android:id="@+id/ccp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:ccp_contentColor="@color/colorText"
-            app:ccp_flagBorderColor="@color/colorText"
+            app:ccp_contentColor="@color/colorPrimaryDark"
+            app:ccp_flagBorderColor="@color/colorPrimaryDark"
             app:ccp_autoDetectCountry="true"
             app:ccpDialog_searchEditTextTint="@color/colorText"
             app:ccpDialog_backgroundColor="@color/colorPrimaryDark"
             app:ccpDialog_textColor="@color/colorText"
-            android:layout_marginStart="18dp"
+            android:layout_marginStart="48dp"
+            android:layout_marginTop="8dp"
             />
 
         <EditText
@@ -94,8 +97,9 @@
             android:inputType="phone"
             android:singleLine="true"
             android:layout_marginEnd="48dp"
-            android:layout_marginStart="48dp"
-            android:layout_marginTop="8dp"/>
+            android:layout_marginTop="8dp"
+            android:textColor="@color/colorPrimaryDark"
+            android:importantForAutofill="no"/>
     </LinearLayout>
 
     <Button
