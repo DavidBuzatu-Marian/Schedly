@@ -24,8 +24,6 @@ import java.util.Map;
 public class SetProffesionActivity extends AppCompatActivity implements View.OnClickListener{
 
     private String userID;
-    private FirebaseFirestore mFireStore;
-    private FirebaseAuth mAuth;
     private final int SWH_CANCEL = 2004;
     private String TAG = "RES";
     private int selectedProfession;
@@ -85,7 +83,7 @@ public class SetProffesionActivity extends AppCompatActivity implements View.OnC
                         Log.w(TAG, "Error writing document", e);
                     }
                 });
-        Intent workingHoursIntent = new Intent(SetProffesionActivity.this, SetWorkingHours.class);
+        Intent workingHoursIntent = new Intent(SetProffesionActivity.this, SetWorkingHoursActivity.class);
         workingHoursIntent.putExtra("userID", userID);
         startActivityForResult(workingHoursIntent, SWH_CANCEL);
     }

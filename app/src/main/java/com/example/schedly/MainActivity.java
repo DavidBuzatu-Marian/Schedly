@@ -26,6 +26,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthCredential;
@@ -40,6 +42,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.hbb20.CountryCodePicker;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -83,17 +88,18 @@ public class MainActivity extends AppCompatActivity {
             Log.d("Google", "not logged");
         }
         else {
+
         }
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser != null) {
-            getUserDetails(currentUser);
-        }
-    }
+//    @Override
+//    public void onResume() {
+//        super.onResume();
+//        FirebaseUser currentUser = mAuth.getCurrentUser();
+//        if(currentUser != null) {
+//            getUserDetails(currentUser);
+//        }
+//    }
 
 
     @Override
@@ -101,9 +107,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         mAuth = FirebaseAuth.getInstance();
-
 
         /* FACEBOOK LOGIN */
         mCallbackManager = CallbackManager.Factory.create();
@@ -231,6 +235,7 @@ public class MainActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d("successWithCredential", "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
+                            addUserToDatabase(user);
                             getUserDetails(user);
                         } else {
                             // If sign in fails, display a message to the user.
@@ -259,8 +264,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
-        Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
-
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -270,6 +273,7 @@ public class MainActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
+                            addUserToDatabase(user);
                             getUserDetails(user);
                         } else {
                             // If sign in fails, display a message to the user.
@@ -306,7 +310,7 @@ public class MainActivity extends AppCompatActivity {
     IF BOTH EXISTS -> it will go to calendar activity
     IF ONE DOESN'T -> it goes to one of the init activity
      */
-    private void getUserDetails(@NonNull FirebaseUser currentUser) {
+    private void getUserDetails(@NonNull final FirebaseUser currentUser) {
         final FirebaseUser localUser = currentUser;
         DocumentReference documentReference = firebaseFirestore.collection("users").document(localUser.getUid());
         documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -315,6 +319,7 @@ public class MainActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
+                        addUserWorkingDaysID(currentUser);
                         userPhoneNumber = document.get("phoneNumber") != null ? document.get("phoneNumber").toString() : null;
                         userProfession = document.get("profession") != null ? document.get("profession").toString() : null;
                         Log.d(TAG, "DocumentSnapshot data: " + userPhoneNumber);
@@ -332,20 +337,73 @@ public class MainActivity extends AppCompatActivity {
 
                 /* REDIRECT */
                 if(userPhoneNumber == null || userProfession == null) {
-                    Log.d("next_intent", "init");
                     getToInitActivity(localUser);
                 }
                 else {
-                    Log.d("next_intent", "calendar");
                     getToCalendarActivity(localUser);
                 }
             }
         });
     }
 
+    private void addUserToDatabase(FirebaseUser user) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        Map<String, Object> userToAdd = new HashMap<>();
+        userToAdd.put("phoneNumber", null);
+        userToAdd.put("profession", null);
+        db.collection("users")
+                .document(user.getUid())
+                .set(userToAdd);
+    }
+
+    private void addUserWorkingDaysID(final FirebaseUser currentUser) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        /* add days of the week to collection */
+        Map<String, Object> daysOfTheWeek = new HashMap<>();
+        daysOfTheWeek.put("monday", null);
+        daysOfTheWeek.put("tuesday", null);
+        daysOfTheWeek.put("wednesday", null);
+        daysOfTheWeek.put("thursday", null);
+        daysOfTheWeek.put("friday", null);
+        daysOfTheWeek.put("saturday", null);
+        daysOfTheWeek.put("sunday", null);
+        db.collection("workingDays")
+                .add(daysOfTheWeek)
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        FirebaseFirestore mFireStore = FirebaseFirestore.getInstance();
+                        Map<String, Object> userToAdd = new HashMap<>();
+                        Log.d(TAG, "DocumentSnapshot written:" + documentReference.getId());
+                        final String workingDaysID = documentReference.getId();
+                        userToAdd.put("workingDaysID", workingDaysID);
+                        mFireStore.collection("users")
+                                .document(currentUser.getUid())
+                                .update(userToAdd)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Log.d(TAG, "DocumentSnapshot successfully written!");
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.w(TAG, "Error writing document", e);
+                                    }
+                                });
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error adding document", e);
+                    }
+                });
+    }
+
 
     private void getToInitActivity(FirebaseUser user) {
-        Log.d("PhoneNumber", userPhoneNumber == null ? "null" : userPhoneNumber);
         if(userPhoneNumber == null) {
             Intent firstStep = new Intent(MainActivity.this, SetPhoneNumberActivity.class);
             firstStep.putExtra("userID", user.getUid());

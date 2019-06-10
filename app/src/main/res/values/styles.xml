@@ -85,7 +85,8 @@
     <style name="RequestPhoneNumberTextView">
         <item name="android:textSize">40sp</item>
         <item name="android:textColor">@color/set_up</item>
-        <item name="android:layout_marginStart">40dp</item>
+        <item name="android:layout_marginStart">18dp</item>
+        <item name="android:layout_marginEnd">18dp</item>
         <item name="android:layout_marginTop">140dp</item>
         <item name="android:fontFamily">sans-serif-medium</item>
     </style>
@@ -93,7 +94,8 @@
     <style name="RequestPhoneNumberTextViewExtra">
         <item name="android:textSize">18sp</item>
         <item name="android:textColor">@color/set_up</item>
-        <item name="android:layout_marginStart">40dp</item>
+        <item name="android:layout_marginStart">18dp</item>
+        <item name="android:layout_marginEnd">18dp</item>
         <item name="android:layout_marginTop">10dp</item>
         <item name="android:fontFamily">sans-serif-condensed-light</item>
     </style>
@@ -118,7 +120,8 @@
     <style name="RequestProfessionTextView">
         <item name="android:textSize">40sp</item>
         <item name="android:textColor">@color/set_up</item>
-        <item name="android:layout_marginStart">40dp</item>
+        <item name="android:layout_marginStart">18dp</item>
+        <item name="android:layout_marginEnd">18dp</item>
         <item name="android:layout_marginTop">140dp</item>
         <item name="android:fontFamily">sans-serif-medium</item>
     </style>
@@ -126,7 +129,8 @@
     <style name="RequestProfessionTextViewExtra">
         <item name="android:textSize">18sp</item>
         <item name="android:textColor">@color/set_up</item>
-        <item name="android:layout_marginStart">40dp</item>
+        <item name="android:layout_marginStart">18dp</item>
+        <item name="android:layout_marginEnd">18dp</item>
         <item name="android:layout_marginTop">10dp</item>
         <item name="android:fontFamily">sans-serif-condensed-light</item>
     </style>
@@ -137,6 +141,26 @@
         <item name="android:textAllCaps">false</item>
         <item name="android:layout_marginStart">5dp</item>
         <item name="android:layout_marginEnd">5dp</item>
+    </style>
+
+    <!-- set working hours -->
+    <style name="RequestWorkingHoursTextView">
+        <item name="android:textSize">40sp</item>
+        <item name="android:textColor">@color/set_up</item>
+        <item name="android:layout_marginStart">18dp</item>
+        <item name="android:layout_marginEnd">18dp</item>
+        <item name="android:layout_marginTop">140dp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="RequestWorkingHoursTextViewExtra">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/set_up</item>
+        <item name="android:layout_marginStart">18dp</item>
+        <item name="android:layout_marginEnd">18dp</item>
+        <item name="android:layout_marginBottom">18dp</item>
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:fontFamily">sans-serif-condensed-light</item>
     </style>
 
     <color name="set_up">#000000</color>

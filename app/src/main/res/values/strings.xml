@@ -21,4 +21,6 @@
     <string name="act_SPNumber_NumberExtra">Please insert your phone number</string>
     <string name="act_SProfession_TV_Extra">You can change this anytime</string>
     <string name="act_SProfession_BUT_Other">Other</string>
+    <string name="act_SWHours_TV_Title">Your working hours</string>
+    <string name="act_SWHours_TV_TitleExtra">Please select your working days and insert your working hours. You can change these settings at any time!</string>
 </resources>
