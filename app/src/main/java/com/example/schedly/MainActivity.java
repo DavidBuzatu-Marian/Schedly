@@ -70,9 +70,10 @@ public class MainActivity extends AppCompatActivity {
         firebaseFirestore = FirebaseFirestore.getInstance();
         if(currentUser != null) {
             Log.d("Firebase", "Logged");
-
             /* get user info */
+            //FirebaseAuth.getInstance().signOut();
             getUserDetails(currentUser);
+
         }
 
         // Check for existing Google Sign In account, if the user is already signed in
@@ -320,15 +321,17 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(TAG, "DocumentSnapshot data: " + userProfession);
                     } else {
                         userPhoneNumber = null;
+                        userProfession = null;
                         Log.d(TAG, "No such document");
                     }
                 } else {
                     userPhoneNumber = null;
+                    userProfession = null;
                     Log.d(TAG, "get failed with ", task.getException());
                 }
 
                 /* REDIRECT */
-                if(userPhoneNumber == null) {
+                if(userPhoneNumber == null || userProfession == null) {
                     Log.d("next_intent", "init");
                     getToInitActivity(localUser);
                 }

@@ -11,11 +11,14 @@
     <string name="register_button_main">Register Here</string>
     <string name="register_text">Want to register with email?</string>
     <string name="act_main_google">Sign In With Google</string>
-    <string name="act_SPNumber_Number">Please insert your phone number</string>
-    <string name="select_profession">Please select your profession</string>
+    <string name="act_SPNumber_Number">Phone number</string>
+    <string name="select_profession">Select your profession</string>
     <string name="act_SProfession_BUT_Hairstylist">Hairstylist</string>
     <string name="act_SProfession_BUT_Dentist">Dentist</string>
     <string name="act_SProfession_BUT_Freelancer">Freelancer</string>
     <string name="act_SProfession_BUT_HouseSitter">House Sitter</string>
     <string name="act_SProfession_BUT_PersonalTrainer">Personal Trainer</string>
+    <string name="act_SPNumber_NumberExtra">Please insert your phone number</string>
+    <string name="act_SProfession_TV_Extra">You can change this anytime</string>
+    <string name="act_SProfession_BUT_Other">Other</string>
 </resources>

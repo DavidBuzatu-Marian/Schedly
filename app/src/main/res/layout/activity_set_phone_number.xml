@@ -5,14 +5,26 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".SetPhoneNumberActivity"
-    android:background="@drawable/login_background">
+    android:background="@drawable/set_up_background">
 
     <TextView
+        android:id="@+id/act_SPNumber_TV_Primary"
         style="@style/RequestPhoneNumberTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/act_SPNumber_Number"
-        android:layout_above="@id/act_SPNumber_LL"/>
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        />
+    <TextView
+        style="@style/RequestPhoneNumberTextViewExtra"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/act_SPNumber_NumberExtra"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:layout_below="@id/act_SPNumber_TV_Primary"
+        />
 
     <LinearLayout
         android:id="@+id/act_SPNumber_LL"
@@ -61,7 +73,7 @@
             android:id="@+id/act_SPNumber_floating_action_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|right"
+            android:layout_gravity="bottom|end"
             android:layout_margin="16dp"
             app:backgroundTint="@color/colorPrimaryDark"
             app:srcCompat="@drawable/ic_baseline_arrow_forward_24px"/>

@@ -31,12 +31,10 @@ import java.util.Set;
 public class SetPhoneNumberActivity extends AppCompatActivity {
 
     private String userID;
-    private FirebaseFirestore mFireStore;
-    private FirebaseAuth mAuth;
     private String TAG = "Database";
     private CountryCodePicker ccp;
     private EditText editTextCarrierNumber;
-    private final int CA_CANCEL = 2003;
+    private final int SP_CANCEL = 2002;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,21 +56,19 @@ public class SetPhoneNumberActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // Write phone number to database
-                mAuth = FirebaseAuth.getInstance();
-                FirebaseUser user = mAuth.getCurrentUser();
-                add_userData_to_Database(user);
+                addUserDataToDatabase(userID);
             }
         });
     }
 
 
-    private void add_userData_to_Database(FirebaseUser user) {
+    private void addUserDataToDatabase(String userID) {
         FirebaseFirestore mFireStore = FirebaseFirestore.getInstance();
         Map<String, Object> userToAdd = new HashMap<>();
         userToAdd.put("phoneNumber", ccp.getFullNumberWithPlus());
         userToAdd.put("profession", null);
         mFireStore.collection("users")
-                .document(user.getUid())
+                .document(userID)
                 .set(userToAdd, SetOptions.merge())
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -86,9 +82,9 @@ public class SetPhoneNumberActivity extends AppCompatActivity {
                         Log.w(TAG, "Error writing document", e);
                     }
                 });
-        Intent calendarIntent = new Intent(SetPhoneNumberActivity.this, CalendarActivity.class);
-        calendarIntent.putExtra("userID", user.getUid());
-        startActivityForResult(calendarIntent, CA_CANCEL);
+        Intent setPhoneNumberIntent = new Intent(SetPhoneNumberActivity.this, SetProffesionActivity.class);
+        setPhoneNumberIntent.putExtra("userID", userID);
+        startActivityForResult(setPhoneNumberIntent, SP_CANCEL);
     }
 
     @Override
@@ -96,9 +92,8 @@ public class SetPhoneNumberActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
-        if (requestCode == CA_CANCEL) {
-            this.finish();
-            System.exit(0);
+        if (requestCode == SP_CANCEL) {
+            editTextCarrierNumber.setText(ccp.getFullNumber());
         }
     }
 
