@@ -23,4 +23,58 @@
     <string name="act_SProfession_BUT_Other">Other</string>
     <string name="act_SWHours_TV_Title">Your working hours</string>
     <string name="act_SWHours_TV_TitleExtra">Please select your working days and insert your working hours. You can change these settings at any time!</string>
+    <string name="act_SWHours_CB_DiffHours">Different schedule each day</string>
+    <string name="act_SWHours_Spinner_TitleStart">Opening hour</string>
+    <string name="act_SWHours_Spinner_TitleEnd">Closing hour</string>
+    <string name="act_SWHours_TV_AllDay">All week days</string>
+    <string name="act_SWHours_TV_Sunday">Sunday</string>
+    <string name="act_SWHours_TV_Saturday">Saturday</string>
+    <string name="act_SWHours_SundayClosed">Free</string>
+    <string name="act_SWHours_SaturdayClosed">Free</string>
+    <string name="act_SWHours_TV_Friday">Friday</string>
+    <string name="act_SWHours_TV_Tuesday">Tuesday</string>
+    <string name="act_SWHours_TV_Wednesday">Wednesday</string>
+    <string name="act_SWHours_TV_Thursday">Thursday</string>
+    <string name="act_SWHours_TV_Monday">Monday</string>
+    <string-array name="hours_array">
+        <item>5:30</item>
+        <item>6:00</item>
+        <item>6:30</item>
+        <item>7:00</item>
+        <item>7:30</item>
+        <item>8:00</item>
+        <item>8:30</item>
+        <item>9:00</item>
+        <item>9:30</item>
+        <item>10:00</item>
+        <item>10:30</item>
+        <item>11:00</item>
+        <item>11:30</item>
+        <item>12:00</item>
+        <item>12:30</item>
+        <item>13:00</item>
+        <item>13:30</item>
+        <item>14:00</item>
+        <item>14:30</item>
+        <item>15:00</item>
+        <item>15:30</item>
+        <item>16:00</item>
+        <item>16:30</item>
+        <item>17:00</item>
+        <item>17:30</item>
+        <item>18:00</item>
+        <item>18:30</item>
+        <item>19:00</item>
+        <item>19:30</item>
+        <item>20:00</item>
+        <item>20:30</item>
+        <item>21:00</item>
+        <item>21:30</item>
+        <item>22:00</item>
+        <item>22:30</item>
+        <item>23:00</item>
+        <item>23:30</item>
+        <item>0:00</item>
+    </string-array>
+
 </resources>

@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -35,6 +36,7 @@ public class SetPhoneNumberActivity extends AppCompatActivity {
     private CountryCodePicker ccp;
     private EditText editTextCarrierNumber;
     private final int SP_CANCEL = 2002;
+    private boolean mValidNumber = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,14 +51,24 @@ public class SetPhoneNumberActivity extends AppCompatActivity {
         editTextCarrierNumber = findViewById(R.id.act_SPNumber_ET_carrierNumber);
         ccp.registerCarrierNumberEditText(editTextCarrierNumber);
 
-        Log.d("ID", userID);
+        ccp.setPhoneNumberValidityChangeListener(new CountryCodePicker.PhoneNumberValidityChangeListener() {
+            @Override
+            public void onValidityChanged(boolean isValidNumber) {
+                mValidNumber = isValidNumber;
+            }
+        });
 
         FloatingActionButton floatingActionButton = findViewById(R.id.act_SPNumber_floating_action_button);
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Write phone number to database
-                addUserDataToDatabase(userID);
+                // Write phone number to database if valid
+                if(mValidNumber) {
+                    addUserDataToDatabase(userID);
+                }
+                else {
+                    Toast.makeText(SetPhoneNumberActivity.this, "Phone number is invalid!", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -93,7 +105,7 @@ public class SetPhoneNumberActivity extends AppCompatActivity {
 
         // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
         if (requestCode == SP_CANCEL) {
-            editTextCarrierNumber.setText(ccp.getFullNumber());
+            editTextCarrierNumber.setText(ccp.getFormattedFullNumber());
         }
     }
 

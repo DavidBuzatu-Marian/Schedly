@@ -235,7 +235,6 @@ public class MainActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d("successWithCredential", "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            addUserToDatabase(user);
                             getUserDetails(user);
                         } else {
                             // If sign in fails, display a message to the user.
@@ -256,7 +255,6 @@ public class MainActivity extends AppCompatActivity {
     private void handleSignInResult(@NonNull Task<GoogleSignInAccount> completedTask) {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-            //String idToken = account.getIdToken();
             firebaseAuthWithGoogle(account);
         } catch (ApiException e) {
             Log.w(TAG, "handleSignInResult:error", e);
@@ -273,7 +271,6 @@ public class MainActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            addUserToDatabase(user);
                             getUserDetails(user);
                         } else {
                             // If sign in fails, display a message to the user.
@@ -319,7 +316,6 @@ public class MainActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        addUserWorkingDaysID(currentUser);
                         userPhoneNumber = document.get("phoneNumber") != null ? document.get("phoneNumber").toString() : null;
                         userProfession = document.get("profession") != null ? document.get("profession").toString() : null;
                         Log.d(TAG, "DocumentSnapshot data: " + userPhoneNumber);
@@ -327,7 +323,8 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         userPhoneNumber = null;
                         userProfession = null;
-                        Log.d(TAG, "No such document");
+                        addUserToDatabase(currentUser);
+                        addUserWorkingDaysID(currentUser);
                     }
                 } else {
                     userPhoneNumber = null;
@@ -360,13 +357,20 @@ public class MainActivity extends AppCompatActivity {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         /* add days of the week to collection */
         Map<String, Object> daysOfTheWeek = new HashMap<>();
-        daysOfTheWeek.put("monday", null);
-        daysOfTheWeek.put("tuesday", null);
-        daysOfTheWeek.put("wednesday", null);
-        daysOfTheWeek.put("thursday", null);
-        daysOfTheWeek.put("friday", null);
-        daysOfTheWeek.put("saturday", null);
-        daysOfTheWeek.put("sunday", null);
+        daysOfTheWeek.put("MondayStart", null);
+        daysOfTheWeek.put("MondayEnd", null);
+        daysOfTheWeek.put("TuesdayStart", null);
+        daysOfTheWeek.put("TuesdayEnd", null);
+        daysOfTheWeek.put("WednesdayStart", null);
+        daysOfTheWeek.put("WednesdayEnd", null);
+        daysOfTheWeek.put("ThursdayStart", null);
+        daysOfTheWeek.put("ThursdayEnd", null);
+        daysOfTheWeek.put("FridayStart", null);
+        daysOfTheWeek.put("FridayEnd", null);
+        daysOfTheWeek.put("SaturdayStart", null);
+        daysOfTheWeek.put("SaturdayEnd", null);
+        daysOfTheWeek.put("SundayStart", null);
+        daysOfTheWeek.put("SundayEnd", null);
         db.collection("workingDays")
                 .add(daysOfTheWeek)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {

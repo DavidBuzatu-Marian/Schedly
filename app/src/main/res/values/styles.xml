@@ -149,7 +149,7 @@
         <item name="android:textColor">@color/set_up</item>
         <item name="android:layout_marginStart">18dp</item>
         <item name="android:layout_marginEnd">18dp</item>
-        <item name="android:layout_marginTop">140dp</item>
+        <item name="android:layout_marginTop">100dp</item>
         <item name="android:fontFamily">sans-serif-medium</item>
     </style>
 
@@ -159,8 +159,14 @@
         <item name="android:layout_marginStart">18dp</item>
         <item name="android:layout_marginEnd">18dp</item>
         <item name="android:layout_marginBottom">18dp</item>
-        <item name="android:layout_marginTop">10dp</item>
         <item name="android:fontFamily">sans-serif-condensed-light</item>
+    </style>
+    <style name="RequestWorkingHoursDiffHours">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/set_up</item>
+        <item name="android:layout_marginStart">18dp</item>
+        <item name="android:layout_marginEnd">10dp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
     </style>
 
     <color name="set_up">#000000</color>
