@@ -16,6 +16,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -53,16 +54,19 @@ public class SignUpWithEmailActivity extends AppCompatActivity {
         final Button buttonSignUp = findViewById(R.id.act_signup_BUT_signup);
         buttonSignUp.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Log.d("number", ccp.getFullNumber());
                 final EditText editTextEmail = findViewById(R.id.act_SUWEmail_TIET_email);
                 final EditText editTextPass = findViewById(R.id.act_SUWEmail_TIET_password);
                 if(inputValidation(editTextEmail.getText().toString(), editTextPass.getText().toString())) {
-                    Log.d("Sign_up", "yes");
                     signUpWithEmailAndPassword(editTextEmail.getText().toString(), editTextPass.getText().toString());
                 }
-                else {
-                    Log.d("Sign_up", "no");
-                }
+            }
+        });
+
+        FloatingActionButton floatingActionButton = findViewById(R.id.act_SUWEmail_floating_action_button);
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SignUpWithEmailActivity.this.finish();
             }
         });
     }
@@ -127,13 +131,10 @@ public class SignUpWithEmailActivity extends AppCompatActivity {
                             Log.d(TAG, "createUserWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
                             add_userData_to_Database(user);
-
-                            //updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "createUserWithEmail:failure", task.getException());
                             Toast.makeText(SignUpWithEmailActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
-                            //updateUI(null);
                         }
 
                         // ...

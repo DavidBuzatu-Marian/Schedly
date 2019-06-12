@@ -133,7 +133,6 @@ public class SetProffesionActivity extends AppCompatActivity implements View.OnC
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == SWH_CANCEL) {
-
         }
     }
 }

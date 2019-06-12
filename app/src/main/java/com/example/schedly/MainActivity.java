@@ -57,11 +57,14 @@ public class MainActivity extends AppCompatActivity {
     private final int PH_CANCEL = 2001;
     /* second step back code */
     private final int SP_CANCEL = 2002;
+    /* third step back code */
+    private final int SWH_CANCEL = 2003;
     /* calendar back press */
-    private final int CA_CANCEL = 2003;
+    private final int CA_CANCEL = 2004;
     /* firestore */
     FirebaseFirestore firebaseFirestore;
     /* store user info */
+    private String userWorkingHoursID;
     private String userPhoneNumber;
     private String userProfession;
     private GoogleSignInClient mGoogleSignInClient;
@@ -210,7 +213,7 @@ public class MainActivity extends AppCompatActivity {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             handleSignInResult(task);
         }
-        if(requestCode == PH_CANCEL || requestCode == SP_CANCEL) {
+        if(requestCode == PH_CANCEL || requestCode == SP_CANCEL || requestCode == SWH_CANCEL) {
             mGoogleSignInClient.signOut();
             LoginManager.getInstance().logOut();
             FirebaseAuth.getInstance().signOut();
@@ -318,8 +321,7 @@ public class MainActivity extends AppCompatActivity {
                     if (document.exists()) {
                         userPhoneNumber = document.get("phoneNumber") != null ? document.get("phoneNumber").toString() : null;
                         userProfession = document.get("profession") != null ? document.get("profession").toString() : null;
-                        Log.d(TAG, "DocumentSnapshot data: " + userPhoneNumber);
-                        Log.d(TAG, "DocumentSnapshot data: " + userProfession);
+                        userWorkingHoursID = document.get("workingDaysID") != null ? document.get("workingDaysID").toString() : null;
                     } else {
                         userPhoneNumber = null;
                         userProfession = null;
@@ -337,10 +339,30 @@ public class MainActivity extends AppCompatActivity {
                     getToInitActivity(localUser);
                 }
                 else {
-                    getToCalendarActivity(localUser);
+                    checkWorkingDaysSetup(localUser);
                 }
             }
         });
+    }
+
+    private void checkWorkingDaysSetup(FirebaseUser currentUser) {
+        final FirebaseUser localUser = currentUser;
+        FirebaseFirestore mFireStore = FirebaseFirestore.getInstance();
+        mFireStore.collection("workingDays")
+                .document(userWorkingHoursID)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        DocumentSnapshot document = task.getResult();
+                        if(document.getData().containsValue(null)) {
+                            getToInitActivity(localUser);
+                        }
+                        else {
+                            getToCalendarActivity(localUser);
+                        }
+                    }
+                });
     }
 
     private void addUserToDatabase(FirebaseUser user) {
@@ -379,8 +401,8 @@ public class MainActivity extends AppCompatActivity {
                         FirebaseFirestore mFireStore = FirebaseFirestore.getInstance();
                         Map<String, Object> userToAdd = new HashMap<>();
                         Log.d(TAG, "DocumentSnapshot written:" + documentReference.getId());
-                        final String workingDaysID = documentReference.getId();
-                        userToAdd.put("workingDaysID", workingDaysID);
+                        userWorkingHoursID = documentReference.getId();
+                        userToAdd.put("workingDaysID", userWorkingHoursID);
                         mFireStore.collection("users")
                                 .document(currentUser.getUid())
                                 .update(userToAdd)
@@ -413,11 +435,16 @@ public class MainActivity extends AppCompatActivity {
             firstStep.putExtra("userID", user.getUid());
             startActivityForResult(firstStep, PH_CANCEL);
         }
-        else {
+        else
+            if(userProfession == null) {
             Intent secondStep = new Intent(MainActivity.this, SetProffesionActivity.class);
             secondStep.putExtra("userID", user.getUid());
             startActivityForResult(secondStep, SP_CANCEL);
-        }
+        } else {
+                Intent thirdStep = new Intent(MainActivity.this, SetWorkingHoursActivity.class);
+                thirdStep.putExtra("userID", user.getUid());
+                startActivityForResult(thirdStep, SWH_CANCEL);
+            }
     }
 
     private void getToCalendarActivity(FirebaseUser user) {

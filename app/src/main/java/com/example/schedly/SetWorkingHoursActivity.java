@@ -33,7 +33,7 @@ import java.util.Map;
 public class SetWorkingHoursActivity extends AppCompatActivity {
     private String userID;
     private String TAG = "RES";
-    private final int SWH_CANCEL = 2005;
+    private final int CA_CANCEL = 2004;
     private String workingDaysID;
     /* Spinners */
     private HashMap<String, Spinner> mSpinnerArray = new HashMap<>();
@@ -306,7 +306,7 @@ public class SetWorkingHoursActivity extends AppCompatActivity {
                 });
         Intent calendarIntent = new Intent(SetWorkingHoursActivity.this, CalendarActivity.class);
         calendarIntent.putExtra("userID", userID);
-        startActivityForResult(calendarIntent, SWH_CANCEL);
+        startActivityForResult(calendarIntent, CA_CANCEL);
     }
 
     public void setCheckChanged(CheckBox checkBox, final String startKey, final String endKey) {
@@ -323,5 +323,15 @@ public class SetWorkingHoursActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == CA_CANCEL) {
+            this.finish();
+            System.exit(0);
+        }
     }
 }
