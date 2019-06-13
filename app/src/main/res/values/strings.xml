@@ -37,6 +37,8 @@
     <string name="act_SWHours_TV_Thursday">Thursday</string>
     <string name="act_SWHours_TV_Monday">Monday</string>
     <string name="act_SUWEmail_TV_Register">Sign up to get started</string>
+    <string name="act_main_TV_SignIn">Sign in with one of your accounts</string>
+    <string name="act_main_TV_ForgotPassword">Forgot password?</string>
     <string-array name="hours_array">
         <item>5:30</item>
         <item>6:00</item>

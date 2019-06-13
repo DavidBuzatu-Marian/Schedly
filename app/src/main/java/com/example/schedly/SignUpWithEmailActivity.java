@@ -17,6 +17,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -34,6 +35,7 @@ public class SignUpWithEmailActivity extends AppCompatActivity {
     private final String TAG = "RES";
     /* country getter */
     private CountryCodePicker ccp;
+    private final int SUWESuccess = 2000;
     private EditText editTextCarrierNumber;
 
     @Override
@@ -131,6 +133,7 @@ public class SignUpWithEmailActivity extends AppCompatActivity {
                             Log.d(TAG, "createUserWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
                             add_userData_to_Database(user);
+                            SignUpWithEmailActivity.this.finish();
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "createUserWithEmail:failure", task.getException());

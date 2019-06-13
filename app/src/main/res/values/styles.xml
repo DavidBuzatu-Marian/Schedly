@@ -39,6 +39,34 @@
         <item name="android:layout_marginStart">48dp</item>
         <item name="android:layout_marginTop">18dp</item>
     </style>
+    <style name="ButtonGoogle">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:text">@string/common_signin_button_text_long</item>
+        <item name="android:textColor">#757575</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:layout_marginEnd">48dp</item>
+        <item name="android:layout_marginStart">48dp</item>
+        <item name="android:layout_marginTop">18dp</item>
+        <item name="android:background">@drawable/button_google</item>
+        <item name="android:drawableStart">@drawable/googleg_standard_color_18</item>
+        <item name="android:drawablePadding">24dp</item>
+        <item name="android:padding">8dp</item>
+    </style>
+    <style name="ButtonFacebook">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:text">@string/act_main_BUT_facebook</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:layout_marginEnd">48dp</item>
+        <item name="android:layout_marginStart">48dp</item>
+        <item name="android:layout_marginTop">18dp</item>
+        <item name="android:background">@drawable/button_facebook</item>
+        <item name="android:drawableStart">@drawable/com_facebook_button_icon</item>
+        <item name="android:drawablePadding">24dp</item>
+        <item name="android:padding">8dp</item>
+    </style>
     <style name="ButtonRegister">
         <item name="android:textSize">20sp</item>
         <item name="android:padding">4dp</item>
@@ -52,10 +80,12 @@
         <item name="android:textColor">@color/colorPrimaryDark</item>
     </style>
 
-    <style name="RegisterTextView">
+
+    <style name="ForgottenPassword">
         <item name="android:textSize">18sp</item>
-        <item name="android:textColor">@color/colorText</item>
+        <item name="android:textColor">@color/colorPrimaryDark</item>
         <item name="android:layout_marginTop">30dp</item>
+        <item name="android:layout_centerHorizontal">true</item>
     </style>
 
 
@@ -110,14 +140,22 @@
     <style name="Widget.CalendarView.Custom" parent="android:Widget.CalendarView">
         <item name="android:focusedMonthDateColor">@color/colorPrimaryDark</item>
         <item name="android:weekNumberColor">@color/colorPrimary</item>
-        <item name="android:weekDayTextAppearance">@style/TextAppearance</item>
-        <item name="android:dateTextAppearance">@style/TextAppearance</item>
+        <item name="android:dayOfWeekBackground">@color/set_up</item>
+        <item name="android:weekDayTextAppearance">@style/TextAppearanceWeekDay</item>
+        <item name="android:dateTextAppearance">@style/TextAppearanceDateText</item>
+        <item name="android:textColorPrimary">@color/set_up</item>
+        <item name="android:textColorSecondary">@color/set_up</item>
+        <item name="android:textColor">@color/set_up</item>
+        <item name="android:background">#FFFFFF</item>
     </style>
 
-    <style name="TextAppearance">
+    <style name="TextAppearanceWeekDay">
         <item name="android:textSize">18sp</item>
     </style>
 
+    <style name="TextAppearanceDateText">
+        <item name="android:textSize">18sp</item>
+    </style>
     <!-- set profession -->
     <style name="RequestProfessionTextView">
         <item name="android:textSize">40sp</item>
@@ -172,4 +210,5 @@
     </style>
 
     <color name="set_up">#000000</color>
+    <string name="act_main_BUT_facebook">Sign in with Facebook</string>
 </resources>

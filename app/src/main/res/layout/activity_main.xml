@@ -8,6 +8,13 @@
     android:background="@drawable/login_background"
     tools:context=".MainActivity">
 
+    <TextView
+        style="@style/TextViewSignUp"
+        android:id="@+id/act_main_TV_SignIn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/act_main_TV_SignIn"/>
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/act_main_TIL_email"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -77,51 +84,60 @@
     <com.facebook.login.widget.LoginButton
         android:id="@+id/buttonFacebookLogin"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="40dp"
         android:layout_below="@id/act_main_BUT_signin"
         android:layout_centerHorizontal="true"
         android:layout_marginEnd="48dp"
         android:layout_marginStart="48dp"
         android:layout_marginTop="18dp"
+        android:stateListAnimator="@animator/button_click_animator"
+        android:visibility="invisible"/>
+
+    <Button
+        android:id="@+id/act_main_BUT_Facebook"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        style="@style/ButtonFacebook"
+        android:layout_below="@id/act_main_BUT_signin"
+        android:onClick="doLoginFacebook"
         android:stateListAnimator="@animator/button_click_animator" />
 
     <Button
         android:id="@+id/act_main_BUT_Google"
-        style="@style/ButtonSubmit"
+        android:layout_below="@id/act_main_BUT_Facebook"
+        style="@style/ButtonGoogle"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_below="@id/buttonFacebookLogin"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:background="@drawable/common_google_signin_btn_text_light"
-        android:text="@string/act_main_google"
-        android:textColor="#757575"
-        />
-    <!--<com.google.android.gms.common.SignInButton-->
+        android:layout_height="40dp"
+        android:stateListAnimator="@animator/button_click_animator" />
+
+    <!--<Button-->
         <!--android:id="@+id/act_main_BUT_Google"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
+        <!--style="@style/ButtonSubmit"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="50dp"-->
         <!--android:layout_below="@id/buttonFacebookLogin"-->
         <!--android:layout_centerHorizontal="true"-->
         <!--android:layout_centerVertical="true"-->
-        <!--android:stateListAnimator="@animator/button_click_animator" />-->
+        <!--android:background="@drawable/common_google_signin_btn_text_light"-->
+        <!--android:text="@string/act_main_google"-->
+        <!--android:textColor="#757575"-->
+        <!--/>-->
 
 
     <TextView
-        android:id="@+id/act_main_TV_Register"
-        style="@style/RegisterTextView"
+        android:id="@+id/act_main_TV_ForgotPassword"
+        style="@style/ForgottenPassword"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/act_main_BUT_Google"
-        android:layout_centerHorizontal="true"
-        android:text="@string/register_text" />
+        android:text="@string/act_main_TV_ForgotPassword" />
 
     <Button
         android:id="@+id/act_main_BUT_signup"
         style="@style/ButtonRegister"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:layout_below="@id/act_main_TV_Register"
+        android:layout_below="@id/act_main_TV_ForgotPassword"
         android:layout_centerHorizontal="true"
         android:background="@drawable/button_submit"
         android:stateListAnimator="@animator/button_click_animator"

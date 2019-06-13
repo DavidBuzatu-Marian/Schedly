@@ -255,7 +255,7 @@ public class SetWorkingHoursActivity extends AppCompatActivity {
                 });
     }
 
-    private void addUserDataToDatabase(String userID) {
+    private void addUserDataToDatabase(final String userID) {
         FirebaseFirestore mFireStore = FirebaseFirestore.getInstance();
         Map<String, Object> daysToAdd = new HashMap<>();
         if(mCheckBoxArray[0].isChecked()) {
@@ -295,6 +295,7 @@ public class SetWorkingHoursActivity extends AppCompatActivity {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
+                        startCalendar(userID);
                         Log.d(TAG, "DocumentSnapshot successfully written!");
                     }
                 })
@@ -304,6 +305,10 @@ public class SetWorkingHoursActivity extends AppCompatActivity {
                         Log.w(TAG, "Error writing document", e);
                     }
                 });
+
+    }
+
+    private void startCalendar(String userID) {
         Intent calendarIntent = new Intent(SetWorkingHoursActivity.this, CalendarActivity.class);
         calendarIntent.putExtra("userID", userID);
         startActivityForResult(calendarIntent, CA_CANCEL);
@@ -330,8 +335,8 @@ public class SetWorkingHoursActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == CA_CANCEL) {
+            setResult(CA_CANCEL);
             this.finish();
-            System.exit(0);
         }
     }
 }

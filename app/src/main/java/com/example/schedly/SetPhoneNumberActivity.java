@@ -36,7 +36,10 @@ public class SetPhoneNumberActivity extends AppCompatActivity {
     private CountryCodePicker ccp;
     private EditText editTextCarrierNumber;
     private final int SP_CANCEL = 2002;
+    private final int CA_CANCEL = 2004;
     private boolean mValidNumber = false;
+    private String phoneNumberReturn;
+    private boolean documentSaved = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,8 +77,9 @@ public class SetPhoneNumberActivity extends AppCompatActivity {
     }
 
 
-    private void addUserDataToDatabase(String userID) {
+    private void addUserDataToDatabase(final String userID) {
         FirebaseFirestore mFireStore = FirebaseFirestore.getInstance();
+        phoneNumberReturn = editTextCarrierNumber.getText().toString();
         Map<String, Object> userToAdd = new HashMap<>();
         userToAdd.put("phoneNumber", ccp.getFullNumberWithPlus());
         userToAdd.put("profession", null);
@@ -85,6 +89,7 @@ public class SetPhoneNumberActivity extends AppCompatActivity {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
+                        startSetProfessionActivity(userID);
                         Log.d(TAG, "DocumentSnapshot successfully written!");
                     }
                 })
@@ -94,6 +99,9 @@ public class SetPhoneNumberActivity extends AppCompatActivity {
                         Log.w(TAG, "Error writing document", e);
                     }
                 });
+    }
+
+    private void startSetProfessionActivity(String userID) {
         Intent setPhoneNumberIntent = new Intent(SetPhoneNumberActivity.this, SetProffesionActivity.class);
         setPhoneNumberIntent.putExtra("userID", userID);
         startActivityForResult(setPhoneNumberIntent, SP_CANCEL);
@@ -105,7 +113,10 @@ public class SetPhoneNumberActivity extends AppCompatActivity {
 
         // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
         if (requestCode == SP_CANCEL) {
-            editTextCarrierNumber.setText(ccp.getFormattedFullNumber());
+            editTextCarrierNumber.setText(phoneNumberReturn);
+        }
+        else if(requestCode == CA_CANCEL) {
+            this.finish();
         }
     }
 

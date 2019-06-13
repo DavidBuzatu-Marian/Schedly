@@ -29,6 +29,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
@@ -53,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
     private final String TAG = "RES";
     /* google sign in code */
     private final int RC_SIGN_IN = 1001;
+    private final int SUWESuccess = 2000;
     /* first step back code */
     private final int PH_CANCEL = 2001;
     /* second step back code */
@@ -219,9 +221,8 @@ public class MainActivity extends AppCompatActivity {
             FirebaseAuth.getInstance().signOut();
             Toast.makeText(MainActivity.this,"All fields are required!", Toast.LENGTH_LONG).show();
         }
-        if(requestCode == CA_CANCEL) {
-            this.finish();
-            System.exit(0);
+        if(requestCode == SUWESuccess) {
+            Toast.makeText(MainActivity.this, "Account created successfully!", Toast.LENGTH_SHORT).show();
         }
 
     }
@@ -322,6 +323,9 @@ public class MainActivity extends AppCompatActivity {
                         userPhoneNumber = document.get("phoneNumber") != null ? document.get("phoneNumber").toString() : null;
                         userProfession = document.get("profession") != null ? document.get("profession").toString() : null;
                         userWorkingHoursID = document.get("workingDaysID") != null ? document.get("workingDaysID").toString() : null;
+                        if(userWorkingHoursID == null) {
+                            addUserWorkingDaysID(currentUser);
+                        }
                     } else {
                         userPhoneNumber = null;
                         userProfession = null;
@@ -451,5 +455,10 @@ public class MainActivity extends AppCompatActivity {
         Intent CalendarActivity = new Intent(MainActivity.this, CalendarActivity.class);
         CalendarActivity.putExtra("userID", user.getUid());
         startActivityForResult(CalendarActivity, CA_CANCEL);
+    }
+
+    public void doLoginFacebook(View view) {
+        LoginButton loginButton = findViewById(R.id.buttonFacebookLogin);
+        loginButton.performClick();
     }
 }

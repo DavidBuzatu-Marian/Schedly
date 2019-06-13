@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -23,11 +24,13 @@ import java.util.Map;
 
 public class SetProffesionActivity extends AppCompatActivity implements View.OnClickListener{
 
+    private final int CA_CANCEL = 2004;
     private String userID;
-    private final int SWH_CANCEL = 2004;
+    private final int SWH_CANCEL = 2003;
     private String TAG = "RES";
     private int selectedProfession;
     private String selectedProfessionName;
+    private boolean documentSaved = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,12 +62,17 @@ public class SetProffesionActivity extends AppCompatActivity implements View.OnC
             @Override
             public void onClick(View view) {
                 // Write profession to database
-                addUserDataToDatabase(userID);
+                if(selectedProfessionName != null) {
+                    addUserDataToDatabase(userID);
+                }
+                else {
+                    Toast.makeText(SetProffesionActivity.this, "A profession is required!", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
 
-    private void addUserDataToDatabase(String userID) {
+    private void addUserDataToDatabase(final String userID) {
         FirebaseFirestore mFireStore = FirebaseFirestore.getInstance();
         Map<String, Object> userToAdd = new HashMap<>();
         userToAdd.put("profession", selectedProfessionName);
@@ -74,6 +82,7 @@ public class SetProffesionActivity extends AppCompatActivity implements View.OnC
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
+                        startSetWorkingHours(userID);
                         Log.d(TAG, "DocumentSnapshot successfully written!");
                     }
                 })
@@ -83,6 +92,9 @@ public class SetProffesionActivity extends AppCompatActivity implements View.OnC
                         Log.w(TAG, "Error writing document", e);
                     }
                 });
+    }
+
+    private void startSetWorkingHours(String userID) {
         Intent workingHoursIntent = new Intent(SetProffesionActivity.this, SetWorkingHoursActivity.class);
         workingHoursIntent.putExtra("userID", userID);
         startActivityForResult(workingHoursIntent, SWH_CANCEL);
@@ -131,8 +143,15 @@ public class SetProffesionActivity extends AppCompatActivity implements View.OnC
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == SWH_CANCEL) {
+        Log.d("Code", "" + requestCode + "");
+        switch (requestCode) {
+            case CA_CANCEL:
+                this.finish();
+                break;
+            case SWH_CANCEL:
+                this.finish();
+                break;
         }
+
     }
 }
