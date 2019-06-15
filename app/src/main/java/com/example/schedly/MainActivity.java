@@ -80,32 +80,21 @@ public class MainActivity extends AppCompatActivity {
         firebaseFirestore = FirebaseFirestore.getInstance();
         if(currentUser != null) {
             Log.d("Firebase", "Logged");
-            /* get user info */
-            //FirebaseAuth.getInstance().signOut();
+            /* get user info and redirect */
             getUserDetails(currentUser);
 
         }
-
-        // Check for existing Google Sign In account, if the user is already signed in
-        // the GoogleSignInAccount will be non-null.
-        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
-        if(account == null) {
-            Log.d("Google", "not logged");
-        }
-        else {
-
-        }
-    }
-
-//    @Override
-//    public void onResume() {
-//        super.onResume();
-//        FirebaseUser currentUser = mAuth.getCurrentUser();
-//        if(currentUser != null) {
-//            getUserDetails(currentUser);
+//
+//        // Check for existing Google Sign In account, if the user is already signed in
+//        // the GoogleSignInAccount will be non-null.
+//        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+//        if(account == null) {
+//            Log.d("Google", "not logged");
 //        }
-//    }
-
+//        else {
+//
+//        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -323,8 +312,12 @@ public class MainActivity extends AppCompatActivity {
                         userPhoneNumber = document.get("phoneNumber") != null ? document.get("phoneNumber").toString() : null;
                         userProfession = document.get("profession") != null ? document.get("profession").toString() : null;
                         userWorkingHoursID = document.get("workingDaysID") != null ? document.get("workingDaysID").toString() : null;
+                        Log.d("work", "" + userWorkingHoursID);
                         if(userWorkingHoursID == null) {
                             addUserWorkingDaysID(currentUser);
+                        }
+                        else {
+                            redirectUser(localUser);
                         }
                     } else {
                         userPhoneNumber = null;
@@ -335,15 +328,8 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     userPhoneNumber = null;
                     userProfession = null;
+                    redirectUser(localUser);
                     Log.d(TAG, "get failed with ", task.getException());
-                }
-
-                /* REDIRECT */
-                if(userPhoneNumber == null || userProfession == null) {
-                    getToInitActivity(localUser);
-                }
-                else {
-                    checkWorkingDaysSetup(localUser);
                 }
             }
         });
@@ -413,6 +399,7 @@ public class MainActivity extends AppCompatActivity {
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
+                                        redirectUser(currentUser);
                                         Log.d(TAG, "DocumentSnapshot successfully written!");
                                     }
                                 })
@@ -430,6 +417,16 @@ public class MainActivity extends AppCompatActivity {
                         Log.w(TAG, "Error adding document", e);
                     }
                 });
+    }
+
+    private void redirectUser(final FirebaseUser localUser) {
+        /* REDIRECT */
+        if(userPhoneNumber == null || userProfession == null) {
+            getToInitActivity(localUser);
+        }
+        else {
+            checkWorkingDaysSetup(localUser);
+        }
     }
 
 

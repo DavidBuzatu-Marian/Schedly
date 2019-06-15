@@ -17,9 +17,9 @@
             app:cardUseCompatPadding="true"
             app:cardElevation="2dp"
             app:cardCornerRadius="5dp"
-            android:layout_marginTop="48dp"
-            android:layout_marginStart="12dp"
-            android:layout_marginEnd="12dp">
+            android:layout_marginTop="60dp"
+            android:layout_marginStart="18dp"
+            android:layout_marginEnd="18dp">
             <CalendarView
                 android:id="@+id/act_Calendar_CV"
                 android:layout_width="match_parent"

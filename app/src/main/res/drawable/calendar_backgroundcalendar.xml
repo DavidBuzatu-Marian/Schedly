@@ -15,7 +15,7 @@
                 />
         </shape>
     </item>
-    <item android:height="500dp" android:width="500dp" android:gravity="top|center_horizontal" android:top="-200dp">
+    <item android:gravity="top|center_horizontal" android:top="-200dp">
         <shape xmlns:android="http://schemas.android.com/apk/res/android"
             android:shape="oval">
             <gradient
@@ -25,6 +25,24 @@
                 android:type="linear"
                 />
             <corners android:radius="0dp" />
+            <size android:height="500dp" android:width="500dp"/>
+        </shape>
+    </item>
+
+    <item android:gravity="top|left" android:top="-50dp">
+        <shape
+            android:shape="rectangle">
+            <gradient
+                android:angle="0"
+                android:endColor="#B39DDB"
+                android:startColor="#B39DDB"
+                android:type="linear"
+                />
+            <corners android:bottomLeftRadius="200dp"
+                android:topLeftRadius="50dp"
+                android:topRightRadius="50dp"
+                android:bottomRightRadius="60dp"/>
+            <size android:height="100dp" android:width="100dp"/>
         </shape>
     </item>
 
