@@ -39,6 +39,9 @@
     <string name="act_SUWEmail_TV_Register">Sign up to get started</string>
     <string name="act_main_TV_SignIn">Sign in with one of your accounts</string>
     <string name="act_main_TV_ForgotPassword">Forgot password?</string>
+    <string name="act_SDuration_TV_Title">One last step</string>
+    <string name="act_SDuration_TV_TitleExtra">Please insert how much time does your services usually take. This will be used to make appointments automatically!</string>
+    <string name="act_SDuration_Hint_TI">Duration in minutes</string>
     <string-array name="hours_array">
         <item>5:30</item>
         <item>6:00</item>

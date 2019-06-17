@@ -61,14 +61,17 @@ public class MainActivity extends AppCompatActivity {
     private final int SP_CANCEL = 2002;
     /* third step back code */
     private final int SWH_CANCEL = 2003;
+    /* last step back code */
+    private final int SD_CANCEL = 2004;
     /* calendar back press */
-    private final int CA_CANCEL = 2004;
+    private final int CA_CANCEL = 2005;
     /* firestore */
     FirebaseFirestore firebaseFirestore;
     /* store user info */
     private String userWorkingHoursID;
     private String userPhoneNumber;
     private String userProfession;
+    private String userAppointmentsDuration;
     private GoogleSignInClient mGoogleSignInClient;
 
 
@@ -204,7 +207,7 @@ public class MainActivity extends AppCompatActivity {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             handleSignInResult(task);
         }
-        if(requestCode == PH_CANCEL || requestCode == SP_CANCEL || requestCode == SWH_CANCEL) {
+        if(requestCode == PH_CANCEL || requestCode == SP_CANCEL || requestCode == SWH_CANCEL || requestCode == SD_CANCEL) {
             mGoogleSignInClient.signOut();
             LoginManager.getInstance().logOut();
             FirebaseAuth.getInstance().signOut();
@@ -312,7 +315,8 @@ public class MainActivity extends AppCompatActivity {
                         userPhoneNumber = document.get("phoneNumber") != null ? document.get("phoneNumber").toString() : null;
                         userProfession = document.get("profession") != null ? document.get("profession").toString() : null;
                         userWorkingHoursID = document.get("workingDaysID") != null ? document.get("workingDaysID").toString() : null;
-                        Log.d("work", "" + userWorkingHoursID);
+                        userAppointmentsDuration = document.get("appointmentsDuration") != null ? document.get("appointmentsDuration").toString() : null;
+
                         if(userWorkingHoursID == null) {
                             addUserWorkingDaysID(currentUser);
                         }
@@ -449,9 +453,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getToCalendarActivity(FirebaseUser user) {
-        Intent CalendarActivity = new Intent(MainActivity.this, CalendarActivity.class);
-        CalendarActivity.putExtra("userID", user.getUid());
-        startActivityForResult(CalendarActivity, CA_CANCEL);
+        if(userAppointmentsDuration == null) {
+            Intent ScheduleDuration = new Intent(MainActivity.this, ScheduleDurationActivity.class);
+            ScheduleDuration.putExtra("userID", user.getUid());
+            startActivityForResult(ScheduleDuration, SD_CANCEL);
+        }
+        else {
+            Intent CalendarActivity = new Intent(MainActivity.this, CalendarActivity.class);
+            CalendarActivity.putExtra("userID", user.getUid());
+            startActivityForResult(CalendarActivity, CA_CANCEL);
+        }
     }
 
     public void doLoginFacebook(View view) {

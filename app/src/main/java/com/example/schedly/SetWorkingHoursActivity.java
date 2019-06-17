@@ -35,7 +35,8 @@ import java.util.Map;
 public class SetWorkingHoursActivity extends AppCompatActivity {
     private String userID;
     private String TAG = "RES";
-    private final int CA_CANCEL = 2004;
+    private final int CA_CANCEL = 2005;
+    private final int SD_CANCEL = 2004;
     private String workingDaysID;
     private ArrayAdapter<CharSequence> mAdapterHours;
 
@@ -118,16 +119,16 @@ public class SetWorkingHoursActivity extends AppCompatActivity {
     }
 
     private void startCalendar(String userID) {
-        Intent calendarIntent = new Intent(SetWorkingHoursActivity.this, CalendarActivity.class);
+        Intent calendarIntent = new Intent(SetWorkingHoursActivity.this, ScheduleDurationActivity.class);
         calendarIntent.putExtra("userID", userID);
-        startActivityForResult(calendarIntent, CA_CANCEL);
+        startActivityForResult(calendarIntent, SD_CANCEL);
     }
 
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
+        Log.d("request", requestCode + "");
         if (requestCode == CA_CANCEL) {
             setResult(CA_CANCEL);
             this.finish();

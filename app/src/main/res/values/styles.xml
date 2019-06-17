@@ -209,6 +209,26 @@
         <item name="android:fontFamily">sans-serif-medium</item>
     </style>
 
+    <!-- set working hours -->
+    <style name="RequestScheduleDurationTextView">
+        <item name="android:textSize">40sp</item>
+        <item name="android:textColor">@color/set_up</item>
+        <item name="android:layout_marginStart">18dp</item>
+        <item name="android:layout_marginEnd">18dp</item>
+        <item name="android:layout_marginTop">100dp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="RequestScheduleDurationTextViewExtra">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/set_up</item>
+        <item name="android:layout_marginStart">18dp</item>
+        <item name="android:layout_marginEnd">18dp</item>
+        <item name="android:layout_marginBottom">18dp</item>
+        <item name="android:fontFamily">sans-serif-condensed-light</item>
+    </style>
+
+
     <color name="set_up">#000000</color>
     <string name="act_main_BUT_facebook">Sign in with Facebook</string>
 </resources>

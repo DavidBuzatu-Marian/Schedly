@@ -36,7 +36,7 @@ public class SetPhoneNumberActivity extends AppCompatActivity {
     private CountryCodePicker ccp;
     private EditText editTextCarrierNumber;
     private final int SP_CANCEL = 2002;
-    private final int CA_CANCEL = 2004;
+    private final int CA_CANCEL = 2005;
     private boolean mValidNumber = false;
     private String phoneNumberReturn;
     private boolean documentSaved = false;
@@ -116,6 +116,7 @@ public class SetPhoneNumberActivity extends AppCompatActivity {
             editTextCarrierNumber.setText(phoneNumberReturn);
         }
         else if(requestCode == CA_CANCEL) {
+            setResult(CA_CANCEL);
             this.finish();
         }
     }

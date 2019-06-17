@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/set_up_background"
+    tools:context=".SetWorkingHoursActivity">
+
+    <TextView
+        android:id="@+id/act_SDuration_TV_Title"
+        style="@style/RequestScheduleDurationTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/act_SDuration_TV_Title"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        />
+    <TextView
+        android:id="@+id/act_SDuration_TV_Title_Extra"
+        style="@style/RequestScheduleDurationTextViewExtra"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/act_SDuration_TV_TitleExtra"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:layout_below="@id/act_SDuration_TV_Title"
+        />
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/act_SDuration_TI_MinutesSelector"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="48dp"
+        android:layout_marginStart="48dp"
+        android:layout_marginTop="48dp"
+        android:hint="@string/act_SDuration_Hint_TI"
+        android:textColorHint="@color/colorPrimaryDark"
+        app:boxCornerRadiusBottomEnd="@dimen/input_button_border_radius"
+        app:boxCornerRadiusBottomStart="@dimen/input_button_border_radius"
+        app:boxCornerRadiusTopEnd="@dimen/input_button_border_radius"
+        app:boxCornerRadiusTopStart="@dimen/input_button_border_radius"
+        app:errorEnabled="true"
+        android:layout_below="@id/act_SDuration_TV_Title_Extra"
+        app:boxStrokeColor="@color/colorPrimaryDark"
+        >
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/act_SDuration_TIET_MinutesSelector"
+            style="@style/InputEditText"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:inputType="number"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:backgroundTint="@color/colorText">
+
+        <!-- Main content -->
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/act_SDuration_floating_action_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="16dp"
+            app:backgroundTint="@color/colorPrimaryDark"
+            app:srcCompat="@drawable/ic_baseline_arrow_forward_24px"/>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</RelativeLayout>

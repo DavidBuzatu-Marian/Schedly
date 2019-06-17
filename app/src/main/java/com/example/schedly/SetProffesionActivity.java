@@ -24,7 +24,7 @@ import java.util.Map;
 
 public class SetProffesionActivity extends AppCompatActivity implements View.OnClickListener{
 
-    private final int CA_CANCEL = 2004;
+    private final int CA_CANCEL = 2005;
     private String userID;
     private final int SWH_CANCEL = 2003;
     private String TAG = "RES";
@@ -146,9 +146,7 @@ public class SetProffesionActivity extends AppCompatActivity implements View.OnC
         Log.d("Code", "" + requestCode + "");
         switch (requestCode) {
             case CA_CANCEL:
-                this.finish();
-                break;
-            case SWH_CANCEL:
+                setResult(CA_CANCEL);
                 this.finish();
                 break;
         }

@@ -11,32 +11,46 @@
     <com.google.android.material.appbar.CollapsingToolbarLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <androidx.cardview.widget.CardView
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardUseCompatPadding="true"
-            app:cardElevation="2dp"
-            app:cardCornerRadius="5dp"
-            android:layout_marginTop="60dp"
-            android:layout_marginStart="18dp"
-            android:layout_marginEnd="18dp">
-            <CalendarView
-                android:id="@+id/act_Calendar_CV"
+            android:layout_height="match_parent">
+            <androidx.cardview.widget.CardView
+                android:id="@+id/act_Calendar_CardV"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:theme="@style/Widget.CalendarView.Custom"
-                >
+                app:cardUseCompatPadding="true"
+                app:cardElevation="2dp"
+                app:cardCornerRadius="5dp"
+                android:layout_marginTop="60dp"
+                android:layout_marginStart="18dp"
+                android:layout_marginEnd="18dp">
+                <CalendarView
+                    android:id="@+id/act_Calendar_CalendarV"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:theme="@style/Widget.CalendarView.Custom"
+                    >
 
-            </CalendarView>
+                </CalendarView>
 
-        </androidx.cardview.widget.CardView>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/act_Calendar_RV_Schedule"
+                android:layout_width="match_parent"
+                android:layout_height="fill_parent"
+                android:layout_below="@id/act_Calendar_CardV">
+
+            </androidx.recyclerview.widget.RecyclerView>
+        </RelativeLayout>
     </com.google.android.material.appbar.CollapsingToolbarLayout>
+
 
 
     <Button
         android:id="@+id/act_Calendar_BUT_SignOut"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:layout_alignParentTop="true"
         />
 </RelativeLayout>
