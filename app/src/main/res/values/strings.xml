@@ -42,6 +42,9 @@
     <string name="act_SDuration_TV_Title">One last step</string>
     <string name="act_SDuration_TV_TitleExtra">Please insert how much time does your services usually take. This will be used to make appointments automatically!</string>
     <string name="act_SDuration_Hint_TI">Duration in minutes</string>
+    <string name="permission_alert_dialog_SMS">SMS Permission</string>
+    <string name="permission_dialog_SMS_body">Schedly will now request send/read SMS permission on your device. This is essential in order for Schedly to work properly!</string>
+    <string name="permission_alert_dialog_OK">OK</string>
     <string-array name="hours_array">
         <item>5:30</item>
         <item>6:00</item>

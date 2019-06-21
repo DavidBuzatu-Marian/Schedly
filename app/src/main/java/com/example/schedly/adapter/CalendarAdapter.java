@@ -1,9 +1,12 @@
 package com.example.schedly.adapter;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,7 +21,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
 
 
     private ArrayList<Appointment> mDataSet;
-    private AppCompatActivity mActivity;;
+    private AppCompatActivity mActivity;
 
     public CalendarAdapter(AppCompatActivity activity, ArrayList<Appointment> dataset) {
         mActivity = activity;
@@ -47,12 +50,23 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
 
     public class CalendarScheduleViewHolder extends RecyclerView.ViewHolder {
 
+        private TextView mTextViewHour;
+        private TextView mTextViewName;
+        private TextView mTextViewPhoneNumber;
+
         public CalendarScheduleViewHolder(@NonNull View itemView) {
             super(itemView);
+
+            mTextViewHour = itemView.findViewById(R.id.appointment_item_TV_Hour);
+            mTextViewName = itemView.findViewById(R.id.appointment_item_TV_Name);
+            mTextViewPhoneNumber = itemView.findViewById(R.id.appointment_item_TV_PhoneNumber);
+
         }
 
         public void updateDay(Appointment appointment) {
-
+            mTextViewHour.setText(appointment.getmHour());
+            mTextViewName.setText(appointment.getmName());
+            mTextViewPhoneNumber.setText(appointment.getmPhoneNumber());
         }
     }
 

@@ -15,66 +15,78 @@
         android:layout_height="wrap_content"
         android:text="@string/act_main_TV_SignIn"/>
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/act_main_TIL_email"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+    <androidx.cardview.widget.CardView
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/act_main_CV"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        card_view:cardBackgroundColor="@android:color/white"
         android:layout_marginEnd="48dp"
         android:layout_marginStart="48dp"
-        android:layout_marginTop="18dp"
-        android:hint="@string/hint_login_email"
-        android:textColorHint="@color/colorPrimaryDark"
-        app:boxCornerRadiusBottomEnd="@dimen/input_button_border_radius"
-        app:boxCornerRadiusBottomStart="@dimen/input_button_border_radius"
-        app:boxCornerRadiusTopEnd="@dimen/input_button_border_radius"
-        app:boxCornerRadiusTopStart="@dimen/input_button_border_radius"
-        app:errorEnabled="true"
-        android:layout_above="@id/act_main_TIL_password"
-        >
+        android:elevation="1dp"
+        android:layout_above="@id/act_main_BUT_signin">
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/act_main_TIET_email"
-            style="@style/InputEditText"
-            android:layout_width="match_parent"
-            android:layout_height="50dp" />
+            <androidx.cardview.widget.CardView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                card_view:cardBackgroundColor="@android:color/white">
+                <EditText
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/hint_login_email"
+                    android:textColor="@color/set_up"
+                    />
+            </androidx.cardview.widget.CardView>
 
-    </com.google.android.material.textfield.TextInputLayout>
+            <!--<com.google.android.material.textfield.TextInputLayout-->
+                <!--android:id="@+id/act_main_TIL_email"-->
+                <!--android:layout_width="fill_parent"-->
+                <!--android:layout_height="wrap_content"-->
+
+                <!--android:hint="@string/hint_login_email"-->
+                <!--android:textColorHint="@color/colorPrimaryDark"-->
+                <!--app:errorEnabled="true"-->
+                <!--&gt;-->
+
+                <!--<com.google.android.material.textfield.TextInputEditText-->
+                    <!--android:id="@+id/act_main_TIET_email"-->
+                    <!--style="@style/InputEditText"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content" />-->
+
+            <!--</com.google.android.material.textfield.TextInputLayout>-->
 
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/act_main_TIL_password"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="48dp"
-        android:layout_marginStart="48dp"
-        android:layout_marginTop="8dp"
-        android:hint="@string/hint_login_password"
-        android:textColorHint="@color/colorPrimaryDark"
-        app:boxCornerRadiusBottomEnd="@dimen/input_button_border_radius"
-        app:boxCornerRadiusBottomStart="@dimen/input_button_border_radius"
-        app:boxCornerRadiusTopEnd="@dimen/input_button_border_radius"
-        app:boxCornerRadiusTopStart="@dimen/input_button_border_radius"
-        app:errorEnabled="true"
-        android:layout_above="@id/act_main_BUT_signin"
-        >
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/act_main_TIL_password"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/hint_login_password"
+                android:textColorHint="@color/colorPrimaryDark"
+                app:errorEnabled="true"
+                >
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/act_main_TIET_password"
-            style="@style/InputEditText"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:inputType="textPassword" />
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/act_main_TIET_password"
+                    style="@style/InputEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPassword" />
 
-    </com.google.android.material.textfield.TextInputLayout>
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
 
+    </androidx.cardview.widget.CardView>
 
     <Button
         android:id="@+id/act_main_BUT_signin"
         style="@style/ButtonSubmit"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="50dp"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:background="@drawable/button_submit"
@@ -109,19 +121,6 @@
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:stateListAnimator="@animator/button_click_animator" />
-
-    <!--<Button-->
-        <!--android:id="@+id/act_main_BUT_Google"-->
-        <!--style="@style/ButtonSubmit"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="50dp"-->
-        <!--android:layout_below="@id/buttonFacebookLogin"-->
-        <!--android:layout_centerHorizontal="true"-->
-        <!--android:layout_centerVertical="true"-->
-        <!--android:background="@drawable/common_google_signin_btn_text_light"-->
-        <!--android:text="@string/act_main_google"-->
-        <!--android:textColor="#757575"-->
-        <!--/>-->
 
 
     <TextView
