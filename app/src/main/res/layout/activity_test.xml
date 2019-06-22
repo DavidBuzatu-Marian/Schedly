@@ -38,7 +38,7 @@
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/hint_login_email"
-                    android:textColor="@color/set_up"
+                    android:textColor="@color/colorSetUp"
                     />
             </androidx.cardview.widget.CardView>
 

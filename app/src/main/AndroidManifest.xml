@@ -14,17 +14,24 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".ForgotPasswordActivity"></activity>
 
-        <service android:name=".service.MonitorIncomingSMSService" android:label="@string/app_name" android:enabled="true" />
-        <receiver android:name=".model.SMSBroadcastReceiver" android:permission="android.permission.BROADCAST_SMS"
+        <service
+            android:name=".service.MonitorIncomingSMSService"
+            android:enabled="true"
+            android:label="@string/app_name" />
+
+        <receiver
+            android:name=".model.SMSBroadcastReceiver"
+            android:enabled="true"
             android:exported="true"
-            android:enabled="true">
+            android:permission="android.permission.BROADCAST_SMS">
             <intent-filter android:priority="2147483647">
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
         </receiver>
 
-        <activity android:name=".ScheduleDurationActivity"></activity>
+        <activity android:name=".ScheduleDurationActivity" />
         <activity android:name=".SetWorkingHoursActivity" />
         <activity android:name=".SetProffesionActivity" />
         <activity

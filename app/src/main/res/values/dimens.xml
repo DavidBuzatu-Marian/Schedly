@@ -2,4 +2,6 @@
 <resources>
     <dimen name="input_width">240dp</dimen>
     <dimen name="input_button_border_radius">30dp</dimen>
+    <dimen name="floating_hint_margin">6dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
 </resources>

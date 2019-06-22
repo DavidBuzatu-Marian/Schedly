@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.AccessToken;
@@ -48,7 +49,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
-
     private FirebaseAuth mAuth;
     private CallbackManager mCallbackManager;
     private final String TAG = "RES";
@@ -152,12 +152,21 @@ public class MainActivity extends AppCompatActivity {
 
 
         /* for sign up */
-        final Button buttonSignUpMain = findViewById(R.id.act_main_BUT_signup);
+        final TextView buttonSignUpMain = findViewById(R.id.act_main_TV_SingUp);
         buttonSignUpMain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent signUpIntent = new Intent(MainActivity.this, SignUpWithEmailActivity.class);
                 startActivity(signUpIntent);
+            }
+        });
+        /* for password reset */
+        final TextView buttonForgotPassword = findViewById(R.id.act_main_TV_ForgotPassword);
+        buttonForgotPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent forgotPassword = new Intent(MainActivity.this, ForgotPasswordActivity.class);
+                startActivity(forgotPassword);
             }
         });
 

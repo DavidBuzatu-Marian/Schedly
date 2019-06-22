@@ -3,12 +3,12 @@
     <string name="fb_login_protocol_scheme">fb293320568283992</string>
     <string name="default_web_client_ID">125094146390-m0fk6oqclr1edebu3gdaldiq3r52cika.apps.googleusercontent.com</string>
     <string name="app_name">Schedly</string>
-    <string name="sign_up_button">Sign Up</string>
-    <string name="sign_in_button">Sign In</string>
+    <string name="sign_up_button"><![CDATA[Sign Up >]]></string>
+    <string name="sign_in_button"><![CDATA[Sign In >]]></string>
     <string name="hint_login_email">Email</string>
     <string name="hint_login_password">Password</string>
     <string name="Welcome">Welcome</string>
-    <string name="register_button_main">Register Here</string>
+    <string name="register_button_main"><![CDATA[< Sign Up]]></string>
     <string name="register_text">Want to register with email?</string>
     <string name="act_main_google">Sign In With Google</string>
     <string name="act_SPNumber_Number">Phone number</string>
@@ -36,15 +36,17 @@
     <string name="act_SWHours_TV_Wednesday">Wednesday</string>
     <string name="act_SWHours_TV_Thursday">Thursday</string>
     <string name="act_SWHours_TV_Monday">Monday</string>
-    <string name="act_SUWEmail_TV_Register">Sign up to get started</string>
-    <string name="act_main_TV_SignIn">Sign in with one of your accounts</string>
-    <string name="act_main_TV_ForgotPassword">Forgot password?</string>
+    <string name="act_SUWEmail_TV_Register">Schedly</string>
+    <string name="act_main_TV_SignIn">Schedly</string>
+    <string name="act_main_TV_ForgotPassword">Forgot?</string>
     <string name="act_SDuration_TV_Title">One last step</string>
     <string name="act_SDuration_TV_TitleExtra">Please insert how much time does your services usually take. This will be used to make appointments automatically!</string>
     <string name="act_SDuration_Hint_TI">Duration in minutes</string>
     <string name="permission_alert_dialog_SMS">SMS Permission</string>
     <string name="permission_dialog_SMS_body">Schedly will now request send/read SMS permission on your device. This is essential in order for Schedly to work properly!</string>
     <string name="permission_alert_dialog_OK">OK</string>
+    <string name="or">OR</string>
+    <string name="act_main_TV_SingUp">Don\'t have an account? <u>Sign up here!</u></string>
     <string-array name="hours_array">
         <item>5:30</item>
         <item>6:00</item>
@@ -85,5 +87,6 @@
         <item>23:30</item>
         <item>0:00</item>
     </string-array>
+    <string name="title_activity_forgot_password">ForgotPasswordActivity</string>
 
 </resources>
