@@ -7,42 +7,45 @@
     android:type="linear" />
 -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item>
-        <shape android:shape="rectangle">
-            <gradient
-                android:endColor="@color/colorText"
-                android:startColor="@color/colorText"
-                />
-        </shape>
-    </item>
-    <item android:gravity="top|center_horizontal" android:top="-200dp">
-        <shape xmlns:android="http://schemas.android.com/apk/res/android"
+    <item android:gravity="top|center_horizontal" android:top="-300dp">
+        <shape
             android:shape="oval">
             <gradient
-                android:angle="0"
-                android:endColor="#4527A0"
-                android:startColor="#B39DDB"
+                android:angle="90"
+                android:endColor="#2B8C87"
+                android:startColor="#174240"
                 android:type="linear"
                 />
             <corners android:radius="0dp" />
-            <size android:height="500dp" android:width="500dp"/>
+            <size android:height="600dp" android:width="600dp"/>
         </shape>
     </item>
 
-    <item android:gravity="top|left" android:top="-50dp">
+    <item android:gravity="top|right" android:top="-20dp" android:right="-60dp">
         <shape
-            android:shape="rectangle">
+            android:shape="oval">
             <gradient
-                android:angle="0"
-                android:endColor="#B39DDB"
-                android:startColor="#B39DDB"
+                android:angle="90"
+                android:endColor="#11FFFFFF"
+                android:startColor="#12FFFFFF"
                 android:type="linear"
                 />
-            <corners android:bottomLeftRadius="200dp"
-                android:topLeftRadius="50dp"
-                android:topRightRadius="50dp"
-                android:bottomRightRadius="60dp"/>
-            <size android:height="100dp" android:width="100dp"/>
+            <corners android:radius="0dp" />
+            <size android:height="150dp" android:width="150dp"/>
+        </shape>
+    </item>
+
+    <item android:gravity="top|left" android:top="-20dp" android:left="-100dp">
+        <shape
+            android:shape="oval">
+            <gradient
+                android:angle="90"
+                android:endColor="#11FFFFFF"
+                android:startColor="#12FFFFFF"
+                android:type="linear"
+                />
+            <corners android:radius="0dp" />
+            <size android:height="300dp" android:width="300dp"/>
         </shape>
     </item>
 

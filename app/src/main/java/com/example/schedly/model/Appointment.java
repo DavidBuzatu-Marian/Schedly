@@ -2,8 +2,11 @@ package com.example.schedly.model;
 
 import android.util.Log;
 
+import com.google.gson.Gson;
+
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 public class Appointment{
 
@@ -12,10 +15,11 @@ public class Appointment{
     private String mPhoneNumber;
 
 
-    public Appointment(String _hour, Map<String, String> _map) {
+    public Appointment(String _hour, Gson _gson, String _json) {
         mHour = _hour;
-        mName = _map.get("Name");
-        mPhoneNumber = _map.get("PhoneNumber");
+        Properties data = _gson.fromJson(_json, Properties.class);
+        mName = data.getProperty("Name");
+        mPhoneNumber = data.getProperty("PhoneNumber");
     }
 
 

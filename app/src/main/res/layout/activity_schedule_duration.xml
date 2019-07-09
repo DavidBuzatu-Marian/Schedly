@@ -2,11 +2,18 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="@drawable/set_up_background"
     tools:context=".SetWorkingHoursActivity">
 
+    <View android:id="@+id/act_SDuration_V_AnimationFill"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:visibility="invisible"
+        android:translationZ="100dp"
+        android:background="#FFFFFF" />
     <TextView
         android:id="@+id/act_SDuration_TV_Title"
         style="@style/RequestScheduleDurationTextView"
@@ -26,33 +33,75 @@
         android:gravity="center"
         android:layout_below="@id/act_SDuration_TV_Title"
         />
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/act_SDuration_TI_MinutesSelector"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="fill_parent"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/act_FPassword_CV_FormContainer"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="48dp"
-        android:layout_marginStart="48dp"
-        android:layout_marginTop="48dp"
-        android:hint="@string/act_SDuration_Hint_TI"
-        android:textColorHint="@color/colorPrimaryDark"
-        app:boxCornerRadiusBottomEnd="@dimen/input_button_border_radius"
-        app:boxCornerRadiusBottomStart="@dimen/input_button_border_radius"
-        app:boxCornerRadiusTopEnd="@dimen/input_button_border_radius"
-        app:boxCornerRadiusTopStart="@dimen/input_button_border_radius"
-        app:errorEnabled="true"
-        android:layout_below="@id/act_SDuration_TV_Title_Extra"
-        app:boxStrokeColor="@color/colorPrimaryDark"
-        >
+        android:layout_gravity="center"
+        android:layout_centerInParent="true"
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/act_SDuration_TIET_MinutesSelector"
-            style="@style/InputEditText"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+
+        card_view:cardElevation="12dp"
+        card_view:cardCornerRadius="32dp">
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:inputType="number"/>
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <com.google.android.material.textfield.TextInputLayout
+                android:theme="@style/TextInputLayoutTheme"
+                android:id="@+id/act_SDuration_TI_DisplayName"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:background="#FFFFFF"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="#000000"
+                app:errorEnabled="true"
+                android:padding="8dp"
+                android:layout_marginTop="8dp"
+                >
 
-    </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/act_SDuration_TIET_DisplayName"
+                    style="@style/InputEditText"
+                    android:hint="@string/act_SDuration_Hint_TI_DisplayName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLength="30"/>
+
+            </com.google.android.material.textfield.TextInputLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E4E4E4"
+                />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:theme="@style/TextInputLayoutTheme"
+                android:id="@+id/act_SDuration_TI_MinutesSelector"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:background="#FFFFFF"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="#000000"
+                app:errorEnabled="true"
+                android:padding="8dp"
+                android:layout_marginTop="8dp"
+                >
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/act_SDuration_TIET_MinutesSelector"
+                    style="@style/InputEditText"
+                    android:hint="@string/act_SDuration_Hint_TI"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:maxLength="3"/>
+
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout

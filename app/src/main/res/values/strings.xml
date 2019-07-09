@@ -40,7 +40,7 @@
     <string name="act_main_TV_SignIn">Schedly</string>
     <string name="act_main_TV_ForgotPassword">Forgot?</string>
     <string name="act_SDuration_TV_Title">One last step</string>
-    <string name="act_SDuration_TV_TitleExtra">Please insert how much time does your services usually take. This will be used to make appointments automatically!</string>
+    <string name="act_SDuration_TV_TitleExtra">Please insert how much time does your services usually take. This will be used to make appointments automatically! Also, don\'t forget to set your display name!</string>
     <string name="act_SDuration_Hint_TI">Duration in minutes</string>
     <string name="permission_alert_dialog_SMS">SMS Permission</string>
     <string name="permission_dialog_SMS_body">Schedly will now request send/read SMS permission on your device. This is essential in order for Schedly to work properly!</string>
@@ -88,5 +88,9 @@
         <item>0:00</item>
     </string-array>
     <string name="title_activity_forgot_password">ForgotPasswordActivity</string>
+    <string name="act_FPassword_TV_Head">Forgot Password</string>
+    <string name="act_FPassword_BUT_Send"><![CDATA[Send >]]></string>
+    <string name="act_SDuration_Hint_TI_DisplayName">Display name</string>
+    <string name="act_FPassword_TV_Head_Extra">Please enter your email adress to reset your password</string>
 
 </resources>

@@ -13,17 +13,14 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.PhoneAuthCredential;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.hbb20.CountryCodePicker;
 
@@ -37,6 +34,8 @@ public class SignUpWithEmailActivity extends AppCompatActivity {
     private CountryCodePicker ccp;
     private final int SUWESuccess = 2000;
     private EditText editTextCarrierNumber;
+    TextInputLayout textInputLayoutEmail;
+    TextInputLayout textInputLayoutPass;
 
     @Override
     public void onStart() {
@@ -52,6 +51,8 @@ public class SignUpWithEmailActivity extends AppCompatActivity {
         ccp.registerCarrierNumberEditText(editTextCarrierNumber);
 
         mAuth = FirebaseAuth.getInstance();
+        textInputLayoutEmail = findViewById(R.id.act_SUWEmail_TIL_email);
+        textInputLayoutPass = findViewById(R.id.act_SUWEmail_TIL_password);
 
         final Button buttonSignUp = findViewById(R.id.act_signup_BUT_signup);
         buttonSignUp.setOnClickListener(new View.OnClickListener() {
@@ -74,8 +75,6 @@ public class SignUpWithEmailActivity extends AppCompatActivity {
     }
 
     private boolean inputValidation(String email, String password) {
-        TextInputLayout textInputLayoutEmail = findViewById(R.id.act_SUWEmail_TIL_email);
-        TextInputLayout textInputLayoutPass = findViewById(R.id.act_SUWEmail_TIL_password);
         boolean hasDigit_TRUE = false;
         /* email validation */
         if(email.isEmpty()) {
@@ -133,11 +132,25 @@ public class SignUpWithEmailActivity extends AppCompatActivity {
                             Log.d(TAG, "createUserWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
                             add_userData_to_Database(user);
-                            SignUpWithEmailActivity.this.finish();
                         } else {
                             // If sign in fails, display a message to the user.
-                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(SignUpWithEmailActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
+                            try {
+                                throw task.getException();
+                            }
+                            catch (FirebaseAuthInvalidCredentialsException malformedEmail)
+                            {
+                                Log.d(TAG, "onComplete: malformed_email");
+                                textInputLayoutEmail.setError("Invalid Email");
+                            }
+                            catch (FirebaseAuthUserCollisionException existEmail)
+                            {
+                                Log.d(TAG, "onComplete: exist_email");
+                                textInputLayoutEmail.setError("Email already in use");
+                            }
+                            catch (Exception e)
+                            {
+                                Log.d(TAG, "onComplete: " + e.getMessage());
+                            }
                         }
 
                         // ...
@@ -153,5 +166,6 @@ public class SignUpWithEmailActivity extends AppCompatActivity {
         db.collection("users")
                 .document(user.getUid())
                 .set(userToAdd);
+        SignUpWithEmailActivity.this.finish();
     }
 }

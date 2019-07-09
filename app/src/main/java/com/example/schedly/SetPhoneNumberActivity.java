@@ -14,6 +14,7 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.example.schedly.model.AnimationTransitionOnActivity;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -43,13 +44,12 @@ public class SetPhoneNumberActivity extends AppCompatActivity {
     private final int CA_CANCEL = 2005;
     private boolean mValidNumber = false;
     private String phoneNumberReturn;
-    private boolean documentSaved = false;
+    AnimationTransitionOnActivity _animationTransitionOnActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_set_phone_number);
-
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             userID = extras.getString("userID");
@@ -71,6 +71,7 @@ public class SetPhoneNumberActivity extends AppCompatActivity {
             public void onClick(View view) {
                 // Write phone number to database if valid
                 if(mValidNumber) {
+                    _animationTransitionOnActivity = new AnimationTransitionOnActivity(findViewById(R.id.act_SPNumber_V_AnimationFill), (int) view.getX(), (int) view.getY());
                     addUserDataToDatabase(userID);
                 }
                 else {
@@ -119,7 +120,7 @@ public class SetPhoneNumberActivity extends AppCompatActivity {
         if (requestCode == SP_CANCEL) {
             editTextCarrierNumber.setText(phoneNumberReturn);
         }
-        else if(requestCode == CA_CANCEL) {
+        else if(resultCode == CA_CANCEL) {
             setResult(CA_CANCEL);
             this.finish();
         }

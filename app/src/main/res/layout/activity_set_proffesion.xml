@@ -7,6 +7,13 @@
     android:background="@drawable/set_up_background"
     tools:context=".SetProffesionActivity">
 
+
+    <View android:id="@+id/act_SProfession_V_AnimationFill"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:visibility="invisible"
+        android:translationZ="100dp"
+        android:background="#FFFFFF" />
     <TextView
         android:id="@+id/act_SProfession_TV_Select"
         style="@style/RequestProfessionTextView"

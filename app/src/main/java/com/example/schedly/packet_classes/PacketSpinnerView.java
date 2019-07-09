@@ -162,7 +162,6 @@ public class PacketSpinnerView extends AppCompatSpinner {
     }
 
     private void setAllDaysCheckbox() {
-
         mCheckBoxArray[0].setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -196,14 +195,7 @@ public class PacketSpinnerView extends AppCompatSpinner {
         Map<String, Object> daysToAdd = new HashMap<>();
         if(mCheckBoxArray[0].isChecked()) {
             for (mDaysIterator = 0; mDaysIterator < 7; mDaysIterator++) {
-                if(mCheckBoxArray[mDaysIterator + 1].isChecked()) {
-                    daysToAdd.put(mStartDay[mDaysIterator], "Free");
-                    daysToAdd.put(mEndDay[mDaysIterator], "Free");
-                }
-                else {
-                    daysToAdd.put(mStartDay[mDaysIterator], mStartHours[mDaysIterator]);
-                    daysToAdd.put(mEndDay[mDaysIterator], mEndHours[mDaysIterator]);
-                }
+                putToDays(mCheckBoxArray[mDaysIterator + 1].isChecked(), daysToAdd);
             }
         }
         else {
@@ -213,17 +205,21 @@ public class PacketSpinnerView extends AppCompatSpinner {
                     daysToAdd.put(mEndDay[mDaysIterator], mEndHours[7]);
                 }
                 else {
-                    if(mCheckBoxArray[mDaysIterator + 1].isChecked()) {
-                        daysToAdd.put(mStartDay[mDaysIterator], "Free");
-                        daysToAdd.put(mEndDay[mDaysIterator], "Free");
-                    }
-                    else {
-                        daysToAdd.put(mStartDay[mDaysIterator], mStartHours[mDaysIterator]);
-                        daysToAdd.put(mEndDay[mDaysIterator], mEndHours[mDaysIterator]);
-                    }
+                    putToDays(mCheckBoxArray[mDaysIterator + 1].isChecked(), daysToAdd);
                 }
             }
         }
         return daysToAdd;
+    }
+
+    public void putToDays(boolean isChecked, Map<String, Object> daysToAdd) {
+        if(isChecked) {
+            daysToAdd.put(mStartDay[mDaysIterator], "Free");
+            daysToAdd.put(mEndDay[mDaysIterator], "Free");
+        }
+        else {
+            daysToAdd.put(mStartDay[mDaysIterator], mStartHours[mDaysIterator]);
+            daysToAdd.put(mEndDay[mDaysIterator], mEndHours[mDaysIterator]);
+        }
     }
 }

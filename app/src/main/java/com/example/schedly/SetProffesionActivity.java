@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.example.schedly.model.AnimationTransitionOnActivity;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -30,7 +31,7 @@ public class SetProffesionActivity extends AppCompatActivity implements View.OnC
     private String TAG = "RES";
     private int selectedProfession;
     private String selectedProfessionName;
-    private boolean documentSaved = false;
+    AnimationTransitionOnActivity _animationTransitionOnActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +64,7 @@ public class SetProffesionActivity extends AppCompatActivity implements View.OnC
             public void onClick(View view) {
                 // Write profession to database
                 if(selectedProfessionName != null) {
+                    _animationTransitionOnActivity = new AnimationTransitionOnActivity(findViewById(R.id.act_SProfession_V_AnimationFill), (int) view.getX(), (int) view.getY());
                     addUserDataToDatabase(userID);
                 }
                 else {
@@ -144,7 +146,7 @@ public class SetProffesionActivity extends AppCompatActivity implements View.OnC
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         Log.d("Code", "" + requestCode + "");
-        switch (requestCode) {
+        switch (resultCode) {
             case CA_CANCEL:
                 setResult(CA_CANCEL);
                 this.finish();

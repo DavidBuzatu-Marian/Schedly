@@ -152,7 +152,7 @@
     </style>
 
     <style name="Widget.CalendarView.Custom" parent="android:Widget.CalendarView">
-        <item name="android:focusedMonthDateColor">@color/colorPrimaryDark</item>
+        <item name="android:focusedMonthDateColor">@color/colorPrimary</item>
         <item name="android:weekNumberColor">@color/colorPrimary</item>
         <item name="android:dayOfWeekBackground">@color/colorSetUp</item>
         <item name="android:weekDayTextAppearance">@style/TextAppearanceWeekDay</item>
@@ -218,14 +218,14 @@
     </style>
 
     <style name="RequestWorkingHoursDiffHours">
-        <item name="android:textSize">18sp</item>
+        <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/colorSetUp</item>
-        <item name="android:layout_marginStart">18dp</item>
-        <item name="android:layout_marginEnd">10dp</item>
+        <item name="android:layout_marginStart">8dp</item>
+        <item name="android:layout_marginEnd">8dp</item>
         <item name="android:fontFamily">sans-serif-medium</item>
     </style>
 
-    <!-- set working hours -->
+    <!-- set appointment duration -->
     <style name="RequestScheduleDurationTextView">
         <item name="android:textSize">40sp</item>
         <item name="android:textColor">@color/colorSetUp</item>
@@ -245,12 +245,57 @@
     </style>
 
 
+    <!-- forgot password view -->
+    <style name="ForgottenPasswordTextView">
+        <item name="android:textSize">28sp</item>
+        <item name="android:textColor">@color/colorSetUp</item>
+        <item name="android:layout_marginStart">18dp</item>
+        <item name="android:layout_marginEnd">18dp</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="ForgottenPasswordTextViewExtra">
+        <item name="android:textSize">18sp</item>
+        <item name="android:layout_marginStart">18dp</item>
+        <item name="android:layout_marginEnd">18dp</item>
+        <item name="android:layout_marginBottom">24dp</item>
+        <item name="android:fontFamily">sans-serif-condensed-light</item>
+    </style>
+
     <!-- calendar recycler view -->
     <style name="CalendarTVInfo">
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">20sp</item>
         <item name="android:textColor">@color/colorSetUp</item>
         <item name="android:layout_marginStart">16dp</item>
         <item name="android:layout_marginEnd">16dp</item>
+        <item name="android:fontFamily">sans-serif-condensed-medium</item>
+        <item name="android:layout_gravity">center_vertical</item>
+    </style>
+
+    <style name="CalendarTVInfoHour">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/colorExtra</item>
+        <item name="android:layout_marginStart">16dp</item>
+        <item name="android:layout_marginEnd">16dp</item>
+        <item name="android:fontFamily">sans-serif-condensed-medium</item>
+        <item name="android:layout_gravity">center_vertical</item>
+    </style>
+
+    <!-- calendar popup -->
+    <style name="PopupTVName">
+        <item name="android:textSize">24sp</item>
+        <item name="android:textColor">@color/colorSetUp</item>
+        <item name="android:layout_centerHorizontal">true</item>
+        <item name="android:layout_marginTop">24dp</item>
+        <item name="android:fontFamily">sans-serif-condensed-medium</item>
+        <item name="android:layout_gravity">center_vertical</item>
+    </style>
+    <style name="PopupTVPhoneNumber">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@color/colorExtra</item>
+        <item name="android:layout_centerHorizontal">true</item>
+        <item name="android:layout_marginTop">24dp</item>
         <item name="android:fontFamily">sans-serif-condensed-medium</item>
         <item name="android:layout_gravity">center_vertical</item>
     </style>

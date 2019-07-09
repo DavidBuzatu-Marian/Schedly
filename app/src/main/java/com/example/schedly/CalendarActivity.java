@@ -35,8 +35,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.common.base.Splitter;
-import com.google.common.util.concurrent.Monitor;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -165,7 +163,7 @@ public class CalendarActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot _document = task.getResult();
-                    userDaysWithScheduleID = _document.get("daysWithSchedule") != null ? _document.get("daysWithSchedule").toString() : null;
+                    userDaysWithScheduleID = _document.get("daysWithScheduleID") != null ? _document.get("daysWithScheduleID").toString() : null;
 
                 } else {
                     userDaysWithScheduleID = null;
@@ -222,14 +220,12 @@ public class CalendarActivity extends AppCompatActivity {
                                 Integer _length = _entry.getValue().toString().length();
                                 String _data = _entry.getValue().toString().substring(1, _length - 1);
 
-//                                Gson gson = new Gson();
-//                                String json = gson.toJson(_entry.getValue());
-//                                Log.d("APPP", json);
-
-                                Map<String, String> _mapData = Splitter.on(", ").withKeyValueSeparator("=").split(_data);
+                                Gson gson = new Gson();
+                                String json = gson.toJson(_entry.getValue());
+                                Log.d("APPP", json);
 
 
-                                mDataSet.add(mCounter, new Appointment(_entry.getKey(), _mapData));
+                                mDataSet.add(mCounter, new Appointment(_entry.getKey(), gson, json));
                                 mCounter++;
                             }
                         } else {

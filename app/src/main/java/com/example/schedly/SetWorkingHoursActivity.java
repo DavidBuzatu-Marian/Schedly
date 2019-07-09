@@ -18,6 +18,7 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.example.schedly.model.AnimationTransitionOnActivity;
 import com.example.schedly.packet_classes.PacketLinearLayout;
 import com.example.schedly.packet_classes.PacketSpinnerView;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -42,6 +43,7 @@ public class SetWorkingHoursActivity extends AppCompatActivity {
 
     private PacketSpinnerView mPacketSpinnerView;
     private PacketLinearLayout mLinearLayout;
+    AnimationTransitionOnActivity _animationTransitionOnActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +56,6 @@ public class SetWorkingHoursActivity extends AppCompatActivity {
             getUserWorkingDaysID(userID);
         }
 
-
         FloatingActionButton floatingActionButton = findViewById(R.id.act_SWHours_floating_action_button);
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -63,6 +64,7 @@ public class SetWorkingHoursActivity extends AppCompatActivity {
                 boolean emptySpinner = mPacketSpinnerView.checkEmptySpinners();
 
                 if (!emptySpinner) {
+                    _animationTransitionOnActivity = new AnimationTransitionOnActivity(findViewById(R.id.act_SWHours_V_AnimationFill), (int) view.getX(), (int) view.getY());
                     addUserDataToDatabase(userID);
                 } else {
                     Toast.makeText(SetWorkingHoursActivity.this, "Both starting and ending hours are required!", Toast.LENGTH_SHORT).show();
@@ -129,7 +131,7 @@ public class SetWorkingHoursActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         Log.d("request", requestCode + "");
-        if (requestCode == CA_CANCEL) {
+        if (resultCode == CA_CANCEL) {
             setResult(CA_CANCEL);
             this.finish();
         }

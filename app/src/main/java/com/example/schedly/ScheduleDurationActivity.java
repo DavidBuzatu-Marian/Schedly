@@ -8,7 +8,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
+import com.example.schedly.model.AnimationTransitionOnActivity;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -22,6 +24,7 @@ public class ScheduleDurationActivity extends AppCompatActivity {
     private String userID;
     private final String TAG = "SDuration";
     private final int CA_CANCEL = 2005;
+    AnimationTransitionOnActivity _animationTransitionOnActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,20 +37,40 @@ public class ScheduleDurationActivity extends AppCompatActivity {
         }
 
         final EditText _sDurationTV = findViewById(R.id.act_SDuration_TIET_MinutesSelector);
+        final EditText _dNameTV = findViewById(R.id.act_SDuration_TIET_DisplayName);
 
         FloatingActionButton floatingActionButton = findViewById(R.id.act_SDuration_floating_action_button);
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                addDurationToDB(_sDurationTV.getText().toString());
+                if(!errorDetected(_sDurationTV, _dNameTV)) {
+                    _animationTransitionOnActivity = new AnimationTransitionOnActivity(findViewById(R.id.act_SDuration_V_AnimationFill), (int) view.getX(), (int) view.getY());
+                    addDurationToDB(_sDurationTV.getText().toString(), _dNameTV.getText().toString());
+                }
+                else {
+                    Toast.makeText(ScheduleDurationActivity.this, "A valid value is required!", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
 
-    private void addDurationToDB(String minutes) {
+    private boolean errorDetected(EditText _sDurationTV, EditText _dNameTV) {
+        if(_sDurationTV.getText().toString().equals("")) {
+           _sDurationTV.setError("Please complete this field");
+           return true;
+        }
+        if(_dNameTV.getText().toString().equals("")) {
+            _dNameTV.setError("Please complete this field");
+            return true;
+        }
+        return false;
+    }
+
+    private void addDurationToDB(String minutes, String name) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         Map<String, Object> duration = new HashMap<>();
         duration.put("appointmentsDuration", minutes);
+        duration.put("displayName", name);
         db.collection("users")
                 .document(userID)
                 .update(duration)

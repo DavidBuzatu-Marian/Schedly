@@ -8,6 +8,14 @@
     tools:context=".SetPhoneNumberActivity"
     android:background="@drawable/set_up_background">
 
+
+    <View android:id="@+id/act_SPNumber_V_AnimationFill"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:visibility="invisible"
+        android:translationZ="100dp"
+        android:background="#FFFFFF" />
+
     <TextView
         android:id="@+id/act_SPNumber_TV_Primary"
         style="@style/RequestPhoneNumberTextView"
@@ -44,10 +52,11 @@
             app:ccp_contentColor="@color/colorPrimaryDark"
             app:ccp_flagBorderColor="@color/colorPrimaryDark"
             app:ccp_autoDetectCountry="true"
-            app:ccpDialog_searchEditTextTint="@color/colorText"
-            app:ccpDialog_backgroundColor="@color/colorPrimaryDark"
-            app:ccpDialog_textColor="@color/colorText"
-            android:layout_marginStart="18dp"
+            app:ccpDialog_searchEditTextTint="@color/colorSetUp"
+            app:ccpDialog_backgroundColor="#FFFFFF"
+            app:ccpDialog_textColor="@color/colorSetUp"
+            android:layout_marginStart="48dp"
+            android:layout_marginTop="8dp"
             />
 
         <EditText
@@ -57,8 +66,8 @@
             android:inputType="phone"
             android:singleLine="true"
             android:layout_marginEnd="48dp"
-            android:layout_marginStart="48dp"
-            android:textColor="@color/colorPrimaryDark"/>
+            android:layout_marginTop="8dp"
+            android:importantForAutofill="no"/>
     </LinearLayout>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout

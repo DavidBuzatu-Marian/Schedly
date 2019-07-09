@@ -4,27 +4,29 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.util.Log;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.example.schedly.CalendarActivity;
 import com.example.schedly.model.MessageListener;
 import com.example.schedly.model.SMSBroadcastReceiver;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public class MonitorIncomingSMSService extends IntentService implements MessageListener {
 
     private SMSBroadcastReceiver mSMSBroadcastReceiver;
+    private String mProjectID =  "schedly-messages-mkubol";
+    private List<String> mMessages;
+    private Random mID = new Random();
+    private String mSessionID = "projects/" + mProjectID + "/agent/sessions/" + mID.nextInt();
+    private String mLanguageCode = "en";
+
     public MonitorIncomingSMSService() {
         super("Constructor");
     }
@@ -51,19 +53,25 @@ public class MonitorIncomingSMSService extends IntentService implements MessageL
 
     @Override
     public void messageReceived(String message, String sender) {
-        Log.d("Service", "HAHA");
-        Map<String, String> messageToAdd = new HashMap<>();
-        messageToAdd.put("message", message);
-        messageToAdd.put("sender", sender);
-        FirebaseFirestore _FireStore = FirebaseFirestore.getInstance();
-        _FireStore.collection("TestMessages")
-                .add(messageToAdd)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        Log.d("SUCCESSTEST", "YEs");
-                    }
-                });
+        mMessages.add(message);
+        try {
+//            Map<String, QueryResult> result = detectIntentTexts(mProjectID, mMessages, mSessionID, mLanguageCode);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+//        Map<String, String> messageToAdd = new HashMap<>();
+//        messageToAdd.put("message", message);
+//        messageToAdd.put("sender", sender);
+//        FirebaseFirestore _FireStore = FirebaseFirestore.getInstance();
+//        _FireStore.collection("TestMessages")
+//                .add(messageToAdd)
+//                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+//                    @Override
+//                    public void onSuccess(DocumentReference documentReference) {
+//                        Log.d("SUCCESSTEST", "YEs");
+//                    }
+//                });
+
     }
 
     @Override

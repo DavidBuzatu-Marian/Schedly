@@ -7,50 +7,42 @@
     android:type="linear" />
 -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item>
-        <shape android:shape="rectangle">
-            <gradient
-                android:angle="90"
-                android:endColor="#FFFFFF"
-                android:startColor="@color/colorText"
-                />
-        </shape>
-    </item>
-    <item android:height="300dp" android:width="300dp" android:gravity="top|center_horizontal" android:top="-200dp">
-        <shape xmlns:android="http://schemas.android.com/apk/res/android"
+    <item android:gravity="top|center_horizontal" android:top="-200dp">
+        <shape
             android:shape="oval">
             <gradient
                 android:angle="90"
-                android:endColor="#FFA726"
-                android:startColor="#FFCC80"
+                android:endColor="#2B8C87"
+                android:startColor="#174240"
                 android:type="linear"
                 />
             <corners android:radius="0dp" />
+            <size android:height="300dp" android:width="300dp"/>
         </shape>
     </item>
-    <item android:height="150dp" android:width="150dp" android:gravity="bottom|left" android:bottom="-60dp" android:left="-50dp">
-        <shape xmlns:android="http://schemas.android.com/apk/res/android"
-            android:shape="oval">
-            <gradient
-                android:angle="90"
-                android:endColor="#FF6D00"
-                android:startColor="#FFCC80"
-                android:type="linear"
-                />
-            <corners android:radius="0dp" />
-        </shape>
-    </item>
-    <item android:height="120dp" android:width="120dp" android:gravity="bottom|left" android:bottom="-70dp" android:left="50dp">
-        <shape xmlns:android="http://schemas.android.com/apk/res/android"
-            android:shape="oval">
-            <gradient
-                android:angle="90"
-                android:endColor="#FB8C00"
-                android:startColor="#E65100"
-                android:type="linear"
-                />
-            <corners android:radius="0dp" />
-        </shape>
-    </item>
+    <!--<item android:height="150dp" android:width="150dp" android:gravity="bottom|left" android:bottom="-60dp" android:left="-50dp">-->
+        <!--<shape xmlns:android="http://schemas.android.com/apk/res/android"-->
+            <!--android:shape="oval">-->
+            <!--<gradient-->
+                <!--android:angle="90"-->
+                <!--android:endColor="#FF6D00"-->
+                <!--android:startColor="#FFCC80"-->
+                <!--android:type="linear"-->
+                <!--/>-->
+            <!--<corners android:radius="0dp" />-->
+        <!--</shape>-->
+    <!--</item>-->
+    <!--<item android:height="120dp" android:width="120dp" android:gravity="bottom|left" android:bottom="-70dp" android:left="50dp">-->
+        <!--<shape xmlns:android="http://schemas.android.com/apk/res/android"-->
+            <!--android:shape="oval">-->
+            <!--<gradient-->
+                <!--android:angle="90"-->
+                <!--android:endColor="#FB8C00"-->
+                <!--android:startColor="#E65100"-->
+                <!--android:type="linear"-->
+                <!--/>-->
+            <!--<corners android:radius="0dp" />-->
+        <!--</shape>-->
+    <!--</item>-->
 </layer-list>
 
