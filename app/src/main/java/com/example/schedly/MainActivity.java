@@ -4,11 +4,15 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.media.Image;
 import android.os.Bundle;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -59,6 +63,10 @@ public class MainActivity extends AppCompatActivity {
     private final int SD_CANCEL = 2004;
     /* calendar back press */
     private final int CA_CANCEL = 2005;
+    /* email changed */
+    public static final int EMAIL_CHANGED = 4002;
+    /* password changed */
+    public static final int PASSWORD_CHANGED = 4003;
     /* firestore */
     FirebaseFirestore firebaseFirestore;
     /* store user info */
@@ -67,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
     private String userProfession;
     private String userAppointmentsDuration;
     private GoogleSignInClient mGoogleSignInClient;
+    private boolean mShowPasswordTrue = false;
 
 
     @Override
@@ -161,6 +170,26 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(forgotPassword);
             }
         });
+        /* for show password */
+        final ImageView imageViewShowPassword = findViewById(R.id.act_main_IV_ShowPassword);
+        imageViewShowPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final EditText editTextPass = findViewById(R.id.act_main_TIET_password);
+                if(mShowPasswordTrue) {
+                    editTextPass.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                    imageViewShowPassword.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_visibility_24px));
+                    editTextPass.setSelection(editTextPass.getText().length());
+                    mShowPasswordTrue = false;
+                }
+                else {
+                    editTextPass.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                    imageViewShowPassword.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_visibility_off_24px));
+                    editTextPass.setSelection(editTextPass.getText().length());
+                    mShowPasswordTrue = true;
+                }
+            }
+        });
 
         /* for sign in */
         final Button buttonSignInMain = findViewById(R.id.act_main_BUT_signin);
@@ -216,6 +245,12 @@ public class MainActivity extends AppCompatActivity {
         }
         if(requestCode == SUWESuccess) {
             Toast.makeText(MainActivity.this, "Account created successfully!", Toast.LENGTH_SHORT).show();
+        }
+        if(resultCode == EMAIL_CHANGED) {
+            Toast.makeText(MainActivity.this, "Email changed. Please login again.", Toast.LENGTH_LONG).show();
+        }
+        if(resultCode == PASSWORD_CHANGED) {
+            Toast.makeText(MainActivity.this, "Password changed. Please login again.", Toast.LENGTH_LONG).show();
         }
 
     }

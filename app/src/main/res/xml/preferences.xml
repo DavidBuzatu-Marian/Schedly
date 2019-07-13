@@ -1,0 +1,41 @@
+<PreferenceScreen
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        app:key="account_category"
+        app:title="Account">
+
+        <Preference
+            app:key="email_change"
+            app:title="Change your email address"/>
+        <Preference
+            app:key="password_change"
+            android:summary="********"
+            app:title="Change your password"/>
+        <Preference
+            app:key="phoneNumber_change"
+            android:title="Change your phone number"/>
+        <Preference
+            app:key="displayName_change"
+            android:title="Change your display name"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:key="help_category"
+        app:title="Help">
+
+        <Preference
+            app:key="feedback"
+            app:summary="Report technical issues or suggest new features"
+            app:title="Send feedback"/>
+
+    </PreferenceCategory>
+
+    <Preference
+        app:key="logout"
+        app:title="Log Out"
+        android:textColor="#6598db"/>
+
+</PreferenceScreen>

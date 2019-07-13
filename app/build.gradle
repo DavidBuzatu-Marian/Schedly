@@ -21,6 +21,7 @@ android {
 //    implementation.exclude module:'proto-google-common-protos'
 //    implementation.exclude module:'protobuf-lite'
 //}
+
 dependencies {
 //    implementation 'com.google.cloud:google-cloud-dialogflow:0.99.0-alpha'
 //    implementation 'ai.api:sdk:2.0.7@aar'
@@ -40,6 +41,8 @@ dependencies {
     implementation 'com.google.android.material:material:1.0.0'
     implementation 'com.google.firebase:firebase-database:17.0.0'
     implementation 'com.google.firebase:firebase-firestore:20.1.0'
+    implementation 'androidx.preference:preference:1.1.0-rc01'
+
 }
 apply plugin: 'com.google.gms.google-services'
 

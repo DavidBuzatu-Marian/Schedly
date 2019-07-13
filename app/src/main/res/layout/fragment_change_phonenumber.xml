@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/frag_CPNumber_LL"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="18dp"
+        android:layout_centerHorizontal="true">
+
+        <com.hbb20.CountryCodePicker
+            android:id="@+id/frag_CPNumber_cpp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:ccp_contentColor="@color/colorPrimaryDark"
+            app:ccp_flagBorderColor="@color/colorPrimaryDark"
+            app:ccp_autoDetectCountry="true"
+            app:ccpDialog_searchEditTextTint="@color/colorSetUp"
+            app:ccpDialog_backgroundColor="#FFFFFF"
+            app:ccpDialog_textColor="@color/colorSetUp"
+            android:layout_marginStart="48dp"
+            android:layout_marginTop="8dp"
+            />
+
+        <EditText
+            android:id="@+id/frag_CPNumber_ET_carrierNumber"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="phone"
+            android:singleLine="true"
+            android:layout_marginEnd="48dp"
+            android:layout_marginTop="8dp"
+            android:importantForAutofill="no"/>
+    </LinearLayout>
+    <Button
+        android:id="@+id/frag_CPNumber_BUT_saveChanges"
+        style="@style/ButtonSubmit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_submit"
+        android:text="@string/frag_Settings_Save"
+        android:layout_below="@id/frag_CPNumber_LL"
+        android:layout_centerHorizontal="true"
+        android:stateListAnimator="@animator/button_click_animator" />
+</RelativeLayout>

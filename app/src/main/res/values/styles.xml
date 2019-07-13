@@ -2,6 +2,7 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorPrimaryDark</item>
@@ -286,7 +287,7 @@
     <style name="PopupTVName">
         <item name="android:textSize">24sp</item>
         <item name="android:textColor">@color/colorSetUp</item>
-        <item name="android:layout_centerHorizontal">true</item>
+        <item name="android:gravity">center_horizontal</item>
         <item name="android:layout_marginTop">24dp</item>
         <item name="android:fontFamily">sans-serif-condensed-medium</item>
         <item name="android:layout_gravity">center_vertical</item>
@@ -294,10 +295,14 @@
     <style name="PopupTVPhoneNumber">
         <item name="android:textSize">20sp</item>
         <item name="android:textColor">@color/colorExtra</item>
-        <item name="android:layout_centerHorizontal">true</item>
+        <item name="android:gravity">center_horizontal</item>
         <item name="android:layout_marginTop">24dp</item>
         <item name="android:fontFamily">sans-serif-condensed-medium</item>
         <item name="android:layout_gravity">center_vertical</item>
+    </style>
+    <style name="PopupAnimation">
+        <item name="android:windowEnterAnimation">@anim/popup_show</item>
+        <item name="android:windowExitAnimation">@anim/popup_hide</item>
     </style>
 
     <string name="act_main_BUT_facebook">Sign in with Facebook</string>

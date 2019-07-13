@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/frag_CEmail_CV_FormContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+
+        android:layout_marginTop="18dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+
+        card_view:cardElevation="12dp"
+        card_view:cardCornerRadius="32dp">
+        <com.google.android.material.textfield.TextInputLayout
+            android:theme="@style/TextInputLayoutTheme"
+            android:id="@+id/frag_CEmail_TIL_email"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:background="#FFFFFF"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColorHint="#000000"
+            app:errorEnabled="true"
+            android:padding="8dp"
+            android:layout_marginTop="8dp"
+            app:errorTextAppearance="@style/error_appearance"
+            android:layout_below="@id/act_FPassword_TV_Head"
+            >
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/frag_CEmail_TIET_email"
+                style="@style/InputEditText"
+                android:hint="@string/hint_login_email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+    </androidx.cardview.widget.CardView>
+
+    <Button
+        android:id="@+id/frag_CEmail_BUT_saveChanges"
+        style="@style/ButtonSubmit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_submit"
+        android:text="@string/frag_Settings_Save"
+        android:layout_below="@id/frag_CEmail_CV_FormContainer"
+        android:layout_centerHorizontal="true"
+        android:stateListAnimator="@animator/button_click_animator" />
+</RelativeLayout>

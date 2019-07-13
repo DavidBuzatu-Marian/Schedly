@@ -1,10 +1,12 @@
 package com.example.schedly;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -20,6 +22,7 @@ import android.view.View;
 import android.widget.Adapter;
 import android.widget.Button;
 import android.widget.CalendarView;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.schedly.adapter.CalendarAdapter;
@@ -53,14 +56,18 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static com.example.schedly.MainActivity.EMAIL_CHANGED;
+import static com.example.schedly.MainActivity.PASSWORD_CHANGED;
+
 public class CalendarActivity extends AppCompatActivity {
 
     private String ERR = "ERRORS";
     private final int SMS_PERMISSION_CODE = 9000;
+    public static final int LOG_OUT = 4001;
+    public static final int SETTINGS_RETURN = 4000;
     private String userDaysWithScheduleID;
     private String userID;
     private String currentDayID;
-    private GoogleSignInClient mGoogleSignInClient;
     private CalendarView mCalendarView;
     private Long mDate = 0L;
     private RecyclerView mRecyclerView;
@@ -112,25 +119,15 @@ public class CalendarActivity extends AppCompatActivity {
         mAdapter = new CalendarAdapter(CalendarActivity.this, mDataSet);
         mRecyclerView.setAdapter(mAdapter);
 
-
-        /* for logout */
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_ID))
-                .requestEmail()
-                .build();
-        // Build a GoogleSignInClient with the options specified by gso.
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-
-        Button buttonSingOut = findViewById(R.id.act_Calendar_BUT_SignOut);
-        buttonSingOut.setOnClickListener(new View.OnClickListener() {
+        ImageView imageViewSettings = findViewById(R.id.act_Calendar_IV_Settings);
+        imageViewSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mGoogleSignInClient.signOut();
-                LoginManager.getInstance().logOut();
-                FirebaseAuth.getInstance().signOut();
-                CalendarActivity.this.finish();
+                Intent startSettingsActivity = new Intent(CalendarActivity.this, SettingsActivity.class);
+                startActivityForResult(startSettingsActivity, SETTINGS_RETURN);
             }
         });
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
     }
 
 
@@ -310,5 +307,22 @@ public class CalendarActivity extends AppCompatActivity {
 
     private void onAddAppointment(View view) {
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(resultCode == LOG_OUT) {
+            finish();
+        }
+        if(resultCode == EMAIL_CHANGED) {
+            setResult(EMAIL_CHANGED);
+            finish();
+        }
+        if(resultCode == PASSWORD_CHANGED) {
+            setResult(PASSWORD_CHANGED);
+            finish();
+        }
     }
 }

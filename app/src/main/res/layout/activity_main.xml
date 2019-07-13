@@ -129,7 +129,6 @@
                     android:layout_marginTop="8dp"
                     app:errorTextAppearance="@style/error_appearance"
                     >
-
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/act_main_TIET_password"
                         style="@style/InputEditText"
@@ -148,7 +147,7 @@
                 <TextView
                     android:id="@+id/act_main_TV_ForgotPassword"
                     android:padding="8dp"
-                    android:layout_marginEnd="4dp"
+                    android:layout_marginEnd="32dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
@@ -159,6 +158,18 @@
                     android:text="@string/act_main_TV_ForgotPassword"
                     android:clickable="true"
                     android:focusable="true"/>
+                <ImageView
+                    android:id="@+id/act_main_IV_ShowPassword"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_baseline_visibility_off_24px"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:textAlignment="center"
+                    android:gravity="center"
+                    android:layout_marginEnd="8dp"/>
             </RelativeLayout>
 
         </LinearLayout>
