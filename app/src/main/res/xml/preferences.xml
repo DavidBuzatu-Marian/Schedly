@@ -17,6 +17,9 @@
             app:key="phoneNumber_change"
             android:title="Change your phone number"/>
         <Preference
+            app:key="workingHours_change"
+            android:title="Change your working days"/>
+        <Preference
             app:key="displayName_change"
             android:title="Change your display name"/>
 

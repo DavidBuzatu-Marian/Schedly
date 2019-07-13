@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -13,7 +14,10 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
 import com.example.schedly.R;
+import com.example.schedly.SetWorkingHoursActivity;
 import com.example.schedly.SettingsActivity;
+import com.example.schedly.packet_classes.PacketLinearLayoutSettings;
+import com.example.schedly.packet_classes.PacketSpinnerViewSettings;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -22,68 +26,68 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ChangeDisplayNameFragment extends Fragment {
+public class ChangeWorkingDaysFragment extends Fragment {
     private FragmentActivity mActivity;
     private View mInflater;
-    private EditText mDisplayNameEditText;
+    private ArrayAdapter<CharSequence> mAdapterHours;
+    private PacketSpinnerViewSettings mPacketSpinnerViewSettings;
+    private PacketLinearLayoutSettings mLinearLayoutSettings;
+    private String mUserWorkingDaysID;
+
+    public ChangeWorkingDaysFragment(String _workingDaysID) {
+        mUserWorkingDaysID = _workingDaysID;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mInflater = inflater.inflate(R.layout.fragment_change_displayname, container, false);
+        mInflater = inflater.inflate(R.layout.fragment_change_workingdays, container, false);
         return mInflater;
     }
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mActivity = getActivity();
-        ((SettingsActivity) mActivity).setActionBarTitle("Change display name");
+        ((SettingsActivity) mActivity).setActionBarTitle("Change working days");
     }
 
     @Override
     public void onStart() {
         super.onStart();
 
-        mDisplayNameEditText = mInflater.findViewById(R.id.frag_CDName_ET_DisplayName);
+        mAdapterHours = ArrayAdapter.createFromResource(getContext(), R.array.hours_array, R.layout.spinner_workinghours);
+        mAdapterHours.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        Button _saveChangesButton = mInflater.findViewById(R.id.frag_CDName_BUT_saveChanges);
+        mLinearLayoutSettings = new PacketLinearLayoutSettings(getContext(), mInflater);
+
+        mPacketSpinnerViewSettings = new PacketSpinnerViewSettings(getContext(), mUserWorkingDaysID, mInflater, mAdapterHours);
+
+        Button _saveChangesButton = mInflater.findViewById(R.id.frag_CWHours_BUT_saveChanges);
         _saveChangesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String _name = mDisplayNameEditText.getText().toString();
-                if (validName(_name)) {
-                    saveNewDisplayNameInDatabase(_name);
-                }
+                saveNewWorkingDaysInDatabase();
             }
         });
     }
 
-    private boolean validName(String name) {
-        if(name.length() > 28 || name.length() < 1) {
-            mDisplayNameEditText.setError("Display name must have at least 1 character and at max 28");
-            return false;
-        }
-        return true;
-    }
-
-    private void saveNewDisplayNameInDatabase(String newDisplayName) {
+    private void saveNewWorkingDaysInDatabase() {
         FirebaseFirestore mFireStore = FirebaseFirestore.getInstance();
-        String _userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        Map<String, Object> userToAdd = new HashMap<>();
-        userToAdd.put("displayName", newDisplayName);
-        mFireStore.collection("users")
-                .document(_userID)
-                .update(userToAdd)
+        Map<String, Object> daysToAdd = mPacketSpinnerViewSettings.getDaysToAdd();
+
+        mFireStore.collection("workingDays")
+                .document(mUserWorkingDaysID)
+                .update(daysToAdd)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
+                        Log.d("Settings", "DocumentSnapshot successfully written!");
                         getFragmentManager().popBackStack();
-                        Log.d("Change", "DocumentSnapshot successfully written!");
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w("Change", "Error writing document", e);
+                        Log.w("Settings", "Error writing document", e);
                     }
                 });
     }

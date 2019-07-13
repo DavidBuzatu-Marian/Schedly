@@ -164,6 +164,19 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             }
         });
 
+        mChangeWorkingHours = findPreference("workingHours_change");
+        mChangeWorkingHours.setFragment("com.example.schedly.ChangeWorkingDaysFragment");
+        mChangeWorkingHours.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                Fragment _newFragment = new ChangeWorkingDaysFragment(mUserWorkingHoursID);
+                FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                transaction.replace(R.id.frag_Settings_FL_Holder, _newFragment);
+                transaction.addToBackStack(null);
+                transaction.commit();
+                return true;
+            }
+        });
     }
 
     private void getDataFromDataBase() {
