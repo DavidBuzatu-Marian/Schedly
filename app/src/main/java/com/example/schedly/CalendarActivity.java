@@ -23,27 +23,20 @@ import android.widget.Toast;
 
 import com.example.schedly.adapter.CalendarAdapter;
 import com.example.schedly.model.Appointment;
-import com.example.schedly.model.Day;
-import com.example.schedly.model.MessageListener;
-import com.example.schedly.model.SMSBroadcastReceiver;
 import com.example.schedly.service.MonitorIncomingSMSService;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.Source;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 
 import static com.example.schedly.MainActivity.EMAIL_CHANGED;
 import static com.example.schedly.MainActivity.PASSWORD_CHANGED;
@@ -63,6 +56,7 @@ public class CalendarActivity extends AppCompatActivity {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private int mCounter = 0;
+    private String mUserAppointmentDuration;
     private ArrayList<Appointment> mDataSet = new ArrayList<>();
 
 
@@ -71,26 +65,17 @@ public class CalendarActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calendar);
 
-        if(!isSmsPermissionGranted()) {
+        if (!isSmsPermissionGranted()) {
             showRequestPermissionsInfoAlertDialog();
         }
-        /* broadcast test */
-        startService(new Intent(this, MonitorIncomingSMSService.class));
-
-//        SMSBroadcastReceiver.bindListener(this);
 
         Bundle extras = getIntent().getExtras();
-        if(extras != null) {
+        if (extras != null) {
             userID = extras.getString("userID");
         }
-        Log.d("ID_CAL", userID);
-
-        /* get appointments for current day and selected day */
+        getUserDaysWithScheduleID();
+        /* broadcast test */
         mCalendarView = findViewById(R.id.act_Calendar_CalendarV);
-        if(mDate == 0L) {
-            getDateFromCalendarView(0, 0, 0, true);
-            Log.d("DATE", mDate + "");
-        }
         mCalendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
             public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
@@ -98,7 +83,6 @@ public class CalendarActivity extends AppCompatActivity {
                 Log.d("DATE", mDate + "");
             }
         });
-
         /* RecyclerView */
         mRecyclerView = findViewById(R.id.act_Calendar_RV_Schedule);
         mRecyclerView.setHasFixedSize(true);
@@ -119,14 +103,11 @@ public class CalendarActivity extends AppCompatActivity {
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
     }
 
-
-
     private void getDateFromCalendarView(int year, int month, int dayOfMonth, boolean onStart) {
         Calendar _calendar = Calendar.getInstance();
-        if(onStart) {
+        if (onStart) {
             _calendar.setTimeInMillis(mCalendarView.getDate());
-        }
-        else {
+        } else {
             _calendar.set(year, month, dayOfMonth);
         }
         _calendar.set(Calendar.HOUR_OF_DAY, 0);
@@ -138,10 +119,10 @@ public class CalendarActivity extends AppCompatActivity {
         Log.d("Date", mDate + "");
         mDataSet.clear();
         mCounter = 0;
-        getAppointmentsForSelectedDate();
+        getDayID();
     }
 
-    private void getAppointmentsForSelectedDate() {
+    private void getUserDaysWithScheduleID() {
         FirebaseFirestore _FireStore = FirebaseFirestore.getInstance();
         DocumentReference _documentReference = _FireStore.collection("users").document(userID);
         _documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -150,76 +131,136 @@ public class CalendarActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     DocumentSnapshot _document = task.getResult();
                     userDaysWithScheduleID = _document.get("daysWithScheduleID") != null ? _document.get("daysWithScheduleID").toString() : null;
-
-                } else {
-                    userDaysWithScheduleID = null;
-                    Log.d(ERR, "get failed with ", task.getException());
+                    mUserAppointmentDuration = _document.get("appointmentsDuration").toString();
                 }
+                if(userDaysWithScheduleID == null) {
+                    setUserDaysWithScheduleID();
+                }
+                else {
+                    if (mDate == 0L) {
+                        getDateFromCalendarView(0, 0, 0, true);
+                        Log.d("DATE", mDate + "");
+                    }
+                }
+                Intent serviceIntent = new Intent(CalendarActivity.this, MonitorIncomingSMSService.class);
+                serviceIntent.putExtra("userID", userID);
+                serviceIntent.putExtra("userDaysWithScheduleID", userDaysWithScheduleID);
+                serviceIntent.putExtra("userAppointmentDuration", mUserAppointmentDuration);
+                startService(serviceIntent);
+            }
+        });
+    }
 
-                if(userDaysWithScheduleID != null) {
-                    Log.d("Appointments", "good" + userDaysWithScheduleID +"");
-                    getDayID();
+
+    private void setUserDaysWithScheduleID() {
+        final FirebaseFirestore mFireStore = FirebaseFirestore.getInstance();
+        Map<String, Object> addDaysWithScheduleID = new HashMap<>();
+        addDaysWithScheduleID.put("0", "0");
+        mFireStore.collection("daysWithSchedule")
+                .add(addDaysWithScheduleID)
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        userDaysWithScheduleID = documentReference.getId();
+                        updateUserDaysID(mFireStore);
+                    }
+                });
+    }
+
+    private void addScheduledHoursCollection(FirebaseFirestore mFireStore) {
+        getDateFromCalendarView(0, 0, 0, true);
+        Map<String, Object> addDaysWithScheduleID = new HashMap<>();
+        addDaysWithScheduleID.put("0", "0");
+        Log.d("Firebasee", mDate.toString());
+        mFireStore.collection("daysWithSchedule")
+                .document(userDaysWithScheduleID)
+                .collection("scheduledHours")
+                .document(mDate.toString())
+                .set(addDaysWithScheduleID)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d("Firebaseee", "Success");
+                    }
+                });
+    }
+
+    private void updateUserDaysID(final FirebaseFirestore mFireStore) {
+        Map<String, Object> addUserDaysID = new HashMap<>();
+        addUserDaysID.put("daysWithScheduleID", userDaysWithScheduleID);
+        mFireStore.collection("users")
+                .document(userID)
+                .update(addUserDaysID)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        if (mDate == 0L) {
+                            addScheduledHoursCollection(mFireStore);
+                            Log.d("DATE", mDate + "");
+                        }
+                        Log.d("Change", "DocumentSnapshot successfully written!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w("Change", "Error writing document", e);
+                    }
+                });
+    }
+
+    private void getDayID() {
+        final FirebaseFirestore _FireStore = FirebaseFirestore.getInstance();
+
+        DocumentReference _documentReference = _FireStore.collection("daysWithSchedule")
+                .document(userDaysWithScheduleID);
+        _documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot _document = task.getResult();
+                    currentDayID = _document.get(mDate.toString()) != null ? _document.get(mDate.toString()).toString() : null;
+                    if (currentDayID != null) {
+                        getEachAppointment();
+                    } else {
+                        mAdapter.notifyDataSetChanged();
+                    }
                 }
             }
         });
     }
 
-    private void getDayID() {
-        FirebaseFirestore _FireStore = FirebaseFirestore.getInstance();
-        DocumentReference _documentReference = _FireStore.collection("daysWithSchedule")
-                .document(userDaysWithScheduleID);
-        _documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if(task.isSuccessful()) {
-                            DocumentSnapshot _document = task.getResult();
-                            currentDayID = _document.get(mDate.toString()) != null ? _document.get(mDate.toString()).toString() : null;
-                            if(currentDayID != null) {
-                                getEachAppointment();
-                            }
-                            else {
-                                mAdapter.notifyDataSetChanged();
-                            }
-                        }
-                    }
-                });
-    }
-
     private void getEachAppointment() {
-        Day _currentDay = new Day();
         FirebaseFirestore _FireStore = FirebaseFirestore.getInstance();
 
-        final DocumentReference _documentReference =  _FireStore.collection("daysWithSchedule")
+        final DocumentReference _documentReference = _FireStore.collection("daysWithSchedule")
                 .document(userDaysWithScheduleID)
                 .collection("scheduledHours")
                 .document(currentDayID);
         _documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            Log.d("Appo", _documentReference.getPath());
-                            Map<String, Object> _map = task.getResult().getData();
-                            for (Map.Entry<String, Object> _entry : _map.entrySet()) {
-                                Log.d("Appointment", _entry.getKey());
-                                Log.d("Appointment", _entry.getValue().toString());
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    Log.d("Appo", _documentReference.getPath());
+                    Map<String, Object> _map = task.getResult().getData();
+                    for (Map.Entry<String, Object> _entry : _map.entrySet()) {
+                        Log.d("Appointment", _entry.getKey());
+                        Log.d("Appointment", _entry.getValue().toString());
 
-                                Integer _length = _entry.getValue().toString().length();
-                                String _data = _entry.getValue().toString().substring(1, _length - 1);
-
-                                Gson gson = new Gson();
-                                String json = gson.toJson(_entry.getValue());
-                                Log.d("APPP", json);
+                        Gson gson = new Gson();
+                        String json = gson.toJson(_entry.getValue());
+                        Log.d("APPP", json);
 
 
-                                mDataSet.add(mCounter, new Appointment(_entry.getKey(), gson, json));
-                                mCounter++;
-                            }
-                        } else {
-                            Log.d(ERR, "Error getting documents: ", task.getException());
-                        }
-                        mAdapter.notifyDataSetChanged();
+                        mDataSet.add(mCounter, new Appointment(_entry.getKey(), gson, json));
+                        mCounter++;
                     }
-                });
+                } else {
+                    Log.d(ERR, "Error getting documents: ", task.getException());
+                }
+                mAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     /* This will be used on a button
@@ -302,16 +343,17 @@ public class CalendarActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(resultCode == LOG_OUT) {
+        if (resultCode == LOG_OUT) {
             finish();
         }
-        if(resultCode == EMAIL_CHANGED) {
+        if (resultCode == EMAIL_CHANGED) {
             setResult(EMAIL_CHANGED);
             finish();
         }
-        if(resultCode == PASSWORD_CHANGED) {
+        if (resultCode == PASSWORD_CHANGED) {
             setResult(PASSWORD_CHANGED);
             finish();
         }
     }
+
 }
