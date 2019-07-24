@@ -106,5 +106,7 @@
     <string name="hint_change_password_current">Current password</string>
     <string name="hint_change_password_new">New password</string>
     <string name="hint_change_password_confirm">Confirm password</string>
+    <string name="permission_alert_dialog_CONTACTS">Contacts permission</string>
+    <string name="permission_dialog_CONTACTS_body">Schedly will now request read Contacts permission on your device. This is essential in order for Schedly to work properly!</string>
 
 </resources>

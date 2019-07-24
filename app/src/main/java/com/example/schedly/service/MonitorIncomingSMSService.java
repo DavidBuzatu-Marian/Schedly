@@ -9,10 +9,14 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.provider.ContactsContract;
+import android.telephony.SmsManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -24,6 +28,7 @@ import com.example.schedly.MainActivity;
 import com.example.schedly.R;
 import com.example.schedly.model.MessageListener;
 import com.example.schedly.model.SMSBroadcastReceiver;
+import com.example.schedly.packet_classes.PacketService;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -42,6 +47,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Random;
 
@@ -54,33 +60,31 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
     private String mUserDaysWithScheduleID;
     private String mUserID;
     private String mUserAppointmentDuration;
+    private String mMessagePhoneNumber;
+    private String mUserWorkingDaysID;
+    private String mContactName;
+    private PacketService mPacketService;
+    public static final int SERVICE_ID = 4000;
 
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if(Objects.requireNonNull(intent.getAction()).equals("ACTION.STOPFOREGROUND_ACTION")) {
+            Log.d("TEST", "STOPPED SERVICE");
+            stopForeground(true);
+            stopSelf();
+        }
+
         Log.d("Service", "Started");
         Log.d("Service", "Onstart");
-        SMSBroadcastReceiver.bindListener(this);
         Bundle extras = intent.getExtras();
         if (extras != null) {
             mUserID = extras.getString("userID");
             mUserAppointmentDuration = extras.getString("userAppointmentDuration");
             mUserDaysWithScheduleID = extras.getString("userDaysWithScheduleID");
+            mUserWorkingDaysID = extras.getString("userWorkingDaysID");
         }
+        mPacketService = new PacketService(mUserID, mUserAppointmentDuration, mUserDaysWithScheduleID, mUserWorkingDaysID);
         Log.d("Service", mUserAppointmentDuration + mUserID + mUserDaysWithScheduleID);
-//        Intent activityIntent = new Intent(this, Calendar.class);
-//        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0,
-//                activityIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-//
-//        // This always shows up in the notifications area when this Service is running.
-//        Notification notification = new Notification.Builder(this).
-//                setContentTitle(getText(R.string.app_name)).
-//                setContentInfo("Doing stuff in the background...").setSmallIcon(R.mipmap.ic_launcher).
-//                setContentIntent(pendingIntent).build();
-//        startForeground(1, notification);
-//
-//        // Other code goes here...
-//
-//        return super.onStartCommand(intent, flags, startId);
-        return START_NOT_STICKY;
+        return START_STICKY;
     }
 
     @Override
@@ -90,13 +94,14 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
 
         IntentFilter _intentFilter = new IntentFilter();
         _intentFilter.addAction("android.provider.Telephony.SMS_RECEIVED");
-        mSMSBroadcastReceiver = new SMSBroadcastReceiver();
-        registerReceiver(mSMSBroadcastReceiver, _intentFilter);
+//        mSMSBroadcastReceiver = new SMSBroadcastReceiver();
+//        registerReceiver(mSMSBroadcastReceiver, _intentFilter);
+        SMSBroadcastReceiver.bindListener(this);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             startOwnForeground();
         else
-            startForeground(1, new Notification());
+            startForeground(SERVICE_ID, new Notification());
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -121,37 +126,54 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
                 .setCategory(Notification.CATEGORY_SERVICE)
                 .setContentIntent(intent)
                 .build();
-        startForeground(2, notification);
+        startForeground(SERVICE_ID, notification);
     }
 
 
     @Override
     public void messageReceived(String message, String sender) {
         try {
+            mMessagePhoneNumber = sender;
+            getContact(mMessagePhoneNumber);
+            Log.d("Succes", "Contact name: " + mContactName);
             callToFirebaseFunction(message);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Map<String, String> messageToAdd = new HashMap<>();
-        messageToAdd.put("message", message);
-        messageToAdd.put("sender", sender);
-        FirebaseFirestore _FireStore = FirebaseFirestore.getInstance();
-        _FireStore.collection("TestMessages")
-                .add(messageToAdd)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        Log.d("SUCCESSTEST", "YEs");
-                    }
-                });
+//        Map<String, String> messageToAdd = new HashMap<>();
+//        messageToAdd.put("message", message);
+//        messageToAdd.put("sender", sender);
+//        mFireStore = FirebaseFirestore.getInstance();
+//        mFireStore.collection("TestMessages")
+//                .add(messageToAdd)
+//                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+//                    @Override
+//                    public void onSuccess(DocumentReference documentReference) {
+//                        Log.d("SUCCESSTEST", "YEs");
+//                    }
+//                });
 
+    }
+
+    private void getContact(String mMessagePhoneNumber) {
+        Uri lookupUriContacts = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(mMessagePhoneNumber));
+        Cursor cursor = this.getContentResolver().query(lookupUriContacts, new String[]{ContactsContract.Data.DISPLAY_NAME},null,null,null);
+        if(cursor != null) {
+            if(cursor.moveToFirst()) {
+                mContactName = cursor.getString(0);
+                Log.d("Firebase", mContactName);
+            }
+            else {
+                mContactName = "";
+            }
+        }
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(mSMSBroadcastReceiver);
+//        unregisterReceiver(mSMSBroadcastReceiver);
     }
 
     @Nullable
@@ -173,18 +195,22 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
                     Properties data = _gson.fromJson(mResultFromDialogFlow.get("parameters").toString(), Properties.class);
                     mTime = getLocaleTimeString(data.getProperty("time"));
                     mDateFromUser = getLocaleDateString(data.getProperty("date"));
-                    Log.d("Succes", mDateFromUser + ": " + mTime);
-
-                    Calendar _calendar = Calendar.getInstance();
-                    SimpleDateFormat _simpleDateFormat = new SimpleDateFormat("YYYY-MM-DD", Locale.getDefault());
-                    try {
-                        _calendar.setTime(_simpleDateFormat.parse(mDateFromUser));
-                    } catch (ParseException e) {
-                        e.printStackTrace();
+                    Log.d("FirebaseS", mDateFromUser);
+                    if(mTime == null && mDateFromUser != null) {
+                        sendMessageForTime();
                     }
-                    mDateInMillis = _calendar.getTimeInMillis();
-                    Log.d("Succes date in millis: ",  mDateInMillis.toString());
+                    else if(mDateFromUser == null && mTime != null) {
+                        sendMessageForDate();
+                    }
+                    else if(mDateFromUser == null) {
+                        sendMessageForAppointment(mResultFromDialogFlow.get("response").toString());
+                    }
+                    else {
+                        Log.d("Succes", mDateFromUser + ": " + mTime);
+                        mDateInMillis = mPacketService.getDateInMillis(mDateFromUser);
+                        Log.d("Succes date in millis: ", mDateInMillis.toString());
 //                    getCurrentDayID(mDateInMillis);
+                    }
                 }
                 else {
                     Log.d("Succes", task.getException().toString());
@@ -193,25 +219,18 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
         });
     }
 
-//    private void getCurrentDayID(Long mDateInMillis) {
-//        FirebaseFirestore _FireStore = FirebaseFirestore.getInstance();
-//        DocumentReference _documentReference = _FireStore.collection("daysWithSchedule")
-//                .document(userDaysWithScheduleID);
-//        _documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-//            @Override
-//            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-//                if (task.isSuccessful()) {
-//                    DocumentSnapshot _document = task.getResult();
-//                    currentDayID = _document.get(mDate.toString()) != null ? _document.get(mDate.toString()).toString() : null;
-//                    if (currentDayID != null) {
-//                        getEachAppointment();
-//                    } else {
-//                        mAdapter.notifyDataSetChanged();
-//                    }
-//                }
-//            }
-//        });
-//    }
+    private void sendMessageForTime() {
+        // this function finishes by sending the message to the phoneNumber
+        mPacketService.getCurrentDateSHoursID(mDateFromUser, mMessagePhoneNumber);
+    }
+
+    private void sendMessageForAppointment(String response) {
+        SmsManager.getDefault().sendTextMessage(mMessagePhoneNumber, null, response, null,null);
+    }
+
+    private void sendMessageForDate() {
+        mPacketService.getAllDaysIDs(mTime, mMessagePhoneNumber);
+    }
 
     private Task<String> addMessage(String text, FirebaseFunctions mFunctions) {
         Map<String, Object> data = new HashMap<>();
@@ -226,7 +245,6 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
                         // This continuation runs on either success or failure, but if the task
                         // has failed then getResult() will throw an Exception which will be
                         // propagated down.
-                        Log.d("Succes", "sUCCES");
                         mResultFromDialogFlow = (HashMap<String, Object>) task.getResult().getData();
                         Log.d("Succes", mResultFromDialogFlow.get("response").toString() + ";" + mResultFromDialogFlow.get("parameters").toString());
                         return mResultFromDialogFlow.get("parameters").toString();
@@ -235,34 +253,26 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
 
     }
 
-    private void saveAppointmentToDatabase() {
-        FirebaseFirestore _FireStore = FirebaseFirestore.getInstance();
-        final DocumentReference _documentReference = _FireStore.collection("daysWithSchedule")
-                .document(mUserDaysWithScheduleID)
-                .collection("scheduledHours")
-                .document("00JQopKY8fElhI9i04yg");
-        Map<String, Object> _appointments = new HashMap<>(16);
-        Map<String, String> _values = new HashMap<>(16);
-        for(int hours = 8; hours < 22; hours++) {
-            _appointments.put("" + hours + ":00",  _values);
-        }
-
-        _documentReference.update(_appointments);
-
-    }
-
-
-
     // A helper function that converts the Date instance 'dateObj' into a string that represents this time in English.
     private String getLocaleTimeString(String time){
-        String[] splitTTime = time.split("T");
-        String[] splitPlusTime = splitTTime[1].split("\\+");
-        return splitPlusTime[0];
+        if(time != null && !time.equals("")) {
+            String[] splitTTime = time.split("T");
+            String[] splitPlusTime = splitTTime[1].split("\\+");
+            return splitPlusTime[0];
+        }
+        else {
+            return null;
+        }
     }
 
     // A helper function that converts the Date instance 'dateObj' into a string that represents this date in English.
     private String getLocaleDateString(String date){
-        String[] splitTDate = date.split("T");
-        return splitTDate[0];
+        if(date != null && !date.equals("")) {
+            String[] splitTDate = date.split("T");
+            return splitTDate[0];
+        }
+        else {
+            return null;
+        }
     }
 }

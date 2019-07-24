@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -45,11 +46,13 @@ public class CalendarActivity extends AppCompatActivity {
 
     private String ERR = "ERRORS";
     private final int SMS_PERMISSION_CODE = 9000;
+    private final int CONTACTS_PERMISSION_CODE = 9001;
     public static final int LOG_OUT = 4001;
     public static final int SETTINGS_RETURN = 4000;
-    private String userDaysWithScheduleID;
+    private String mUserDaysWithScheduleID;
     private String userID;
     private String currentDayID;
+    private String mUserWorkingHoursID;
     private CalendarView mCalendarView;
     private Long mDate = 0L;
     private RecyclerView mRecyclerView;
@@ -66,7 +69,10 @@ public class CalendarActivity extends AppCompatActivity {
         setContentView(R.layout.activity_calendar);
 
         if (!isSmsPermissionGranted()) {
-            showRequestPermissionsInfoAlertDialog();
+            showRequestPermissionsInfoAlertDialog("SMS");
+        }
+        if(!isContactPermissionGranted()) {
+            showRequestPermissionsInfoAlertDialog("CONTACTS");
         }
 
         Bundle extras = getIntent().getExtras();
@@ -130,10 +136,11 @@ public class CalendarActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot _document = task.getResult();
-                    userDaysWithScheduleID = _document.get("daysWithScheduleID") != null ? _document.get("daysWithScheduleID").toString() : null;
+                    mUserDaysWithScheduleID = _document.get("daysWithScheduleID") != null ? _document.get("daysWithScheduleID").toString() : null;
                     mUserAppointmentDuration = _document.get("appointmentsDuration").toString();
+                    mUserWorkingHoursID = _document.get("workingDaysID").toString();
                 }
-                if(userDaysWithScheduleID == null) {
+                if(mUserDaysWithScheduleID == null) {
                     setUserDaysWithScheduleID();
                 }
                 else {
@@ -144,8 +151,10 @@ public class CalendarActivity extends AppCompatActivity {
                 }
                 Intent serviceIntent = new Intent(CalendarActivity.this, MonitorIncomingSMSService.class);
                 serviceIntent.putExtra("userID", userID);
-                serviceIntent.putExtra("userDaysWithScheduleID", userDaysWithScheduleID);
+                serviceIntent.putExtra("userDaysWithScheduleID", mUserDaysWithScheduleID);
                 serviceIntent.putExtra("userAppointmentDuration", mUserAppointmentDuration);
+                serviceIntent.putExtra("userWorkingDaysID", mUserWorkingHoursID);
+                serviceIntent.setAction("ACTION.STARTSERVICE_ACTION");
                 startService(serviceIntent);
             }
         });
@@ -161,33 +170,47 @@ public class CalendarActivity extends AppCompatActivity {
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
-                        userDaysWithScheduleID = documentReference.getId();
+                        mUserDaysWithScheduleID = documentReference.getId();
                         updateUserDaysID(mFireStore);
                     }
                 });
     }
 
-    private void addScheduledHoursCollection(FirebaseFirestore mFireStore) {
+    private void addScheduledHoursCollection(final FirebaseFirestore mFireStore) {
         getDateFromCalendarView(0, 0, 0, true);
         Map<String, Object> addDaysWithScheduleID = new HashMap<>();
-        addDaysWithScheduleID.put("0", "0");
+        addDaysWithScheduleID.put("5:00", null);
         Log.d("Firebasee", mDate.toString());
         mFireStore.collection("daysWithSchedule")
-                .document(userDaysWithScheduleID)
+                .document(mUserDaysWithScheduleID)
                 .collection("scheduledHours")
-                .document(mDate.toString())
-                .set(addDaysWithScheduleID)
+                .add(addDaysWithScheduleID)
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        addThisDateScheduledHoursID(mFireStore, documentReference.getId());
+                        Log.d("Firebase-workingDays", "Succes with scheduled hours");
+                    }
+                });
+    }
+
+    private void addThisDateScheduledHoursID(FirebaseFirestore mFireStore, String id) {
+        Map<String, Object> addToCurrentDateID = new HashMap<>();
+        addToCurrentDateID.put(mDate.toString(), id);
+        mFireStore.collection("daysWithSchedule")
+                .document(mUserDaysWithScheduleID)
+                .update(addToCurrentDateID)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d("Firebaseee", "Success");
+                        Log.d("Firebase-workingDays", "Succes with id");
                     }
                 });
     }
 
     private void updateUserDaysID(final FirebaseFirestore mFireStore) {
         Map<String, Object> addUserDaysID = new HashMap<>();
-        addUserDaysID.put("daysWithScheduleID", userDaysWithScheduleID);
+        addUserDaysID.put("daysWithScheduleID", mUserDaysWithScheduleID);
         mFireStore.collection("users")
                 .document(userID)
                 .update(addUserDaysID)
@@ -213,7 +236,7 @@ public class CalendarActivity extends AppCompatActivity {
         final FirebaseFirestore _FireStore = FirebaseFirestore.getInstance();
 
         DocumentReference _documentReference = _FireStore.collection("daysWithSchedule")
-                .document(userDaysWithScheduleID);
+                .document(mUserDaysWithScheduleID);
         _documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -234,7 +257,7 @@ public class CalendarActivity extends AppCompatActivity {
         FirebaseFirestore _FireStore = FirebaseFirestore.getInstance();
 
         final DocumentReference _documentReference = _FireStore.collection("daysWithSchedule")
-                .document(userDaysWithScheduleID)
+                .document(mUserDaysWithScheduleID)
                 .collection("scheduledHours")
                 .document(currentDayID);
         _documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -243,10 +266,12 @@ public class CalendarActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     Log.d("Appo", _documentReference.getPath());
                     Map<String, Object> _map = task.getResult().getData();
+                    Log.d("Calendar", _map.toString());
                     for (Map.Entry<String, Object> _entry : _map.entrySet()) {
                         Log.d("Appointment", _entry.getKey());
-                        Log.d("Appointment", _entry.getValue().toString());
-
+                        if(_entry.getValue() == null) {
+                            break;
+                        }
                         Gson gson = new Gson();
                         String json = gson.toJson(_entry.getValue());
                         Log.d("APPP", json);
@@ -285,8 +310,33 @@ public class CalendarActivity extends AppCompatActivity {
 //    }
 
 
-    public void showRequestPermissionsInfoAlertDialog() {
-        showRequestPermissionsInfoAlertDialog(true);
+    public void showRequestPermissionsInfoAlertDialog(String type) {
+        if(type == "SMS") {
+            showRequestPermissionsInfoAlertDialog(true);
+        }
+        else if (type == "CONTACTS") {
+            showRequestPermissionsInfoAlertDialogContacts(true);
+        }
+    }
+
+    private void showRequestPermissionsInfoAlertDialogContacts(final boolean makeSystemRequest) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.permission_alert_dialog_CONTACTS); // Your own title
+        builder.setMessage(R.string.permission_dialog_CONTACTS_body); // Your own message
+
+        builder.setPositiveButton(R.string.permission_alert_dialog_OK, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                // Display system runtime permission request?
+                if (makeSystemRequest) {
+                    requestReadContactsPermission();
+                }
+            }
+        });
+
+        builder.setCancelable(false);
+        builder.show();
     }
 
     public void showRequestPermissionsInfoAlertDialog(final boolean makeSystemRequest) {
@@ -312,19 +362,40 @@ public class CalendarActivity extends AppCompatActivity {
     public boolean isSmsPermissionGranted() {
         return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED;
     }
+    public boolean isContactPermissionGranted() {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED;
+    }
 
     private void requestReadAndSendSmsPermission() {
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_SMS)) {
             // You may display a non-blocking explanation here, read more in the documentation:
             // https://developer.android.com/training/permissions/requesting.html
         }
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_SMS, Manifest.permission.RECEIVE_SMS}, SMS_PERMISSION_CODE);
+        if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.SEND_SMS)) {
+
+        }
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_SMS, Manifest.permission.RECEIVE_SMS, Manifest.permission.SEND_SMS}, SMS_PERMISSION_CODE);
+    }
+    private void requestReadContactsPermission() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_CONTACTS)) {
+            // You may display a non-blocking explanation here, read more in the documentation:
+            // https://developer.android.com/training/permissions/requesting.html
+        }
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS}, CONTACTS_PERMISSION_CODE);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case SMS_PERMISSION_CODE: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                } else {
+                    Toast.makeText(CalendarActivity.this, "NOT PERMITTED", Toast.LENGTH_SHORT);
+                }
+                break;
+            }
+            case CONTACTS_PERMISSION_CODE: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                 } else {

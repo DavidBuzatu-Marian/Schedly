@@ -43,11 +43,8 @@ public class SMSBroadcastReceiver extends BroadcastReceiver {
                 _smsSender = _smsMessage.getDisplayOriginatingAddress();
                 _smsBody += _smsMessage.getMessageBody();
             }
-
-            if(true) {
-                if(mMessageListener != null) {
-                    mMessageListener.messageReceived(_smsBody, _smsSender);
-                }
+            if(mMessageListener != null) {
+                mMessageListener.messageReceived(_smsBody, _smsSender);
             }
         }
         /*
@@ -64,26 +61,6 @@ public class SMSBroadcastReceiver extends BroadcastReceiver {
             mListener.messageReceived(message);
         }
          */
-    }
-
-    private boolean messageWithSchedule(String smsBody) {
-        boolean _hasTokenTrue = false;
-        boolean _hasDateTrue = false;
-        boolean _hasHourTrue = false;
-        String[] _searchedTokens = {"appointment", "schedule"};
-        for(String _token: _searchedTokens) {
-            if(smsBody.contains(_token)) {
-                _hasTokenTrue = true;
-            }
-        }
-        Pattern _pattern = Pattern.compile(".*([01]?[0-9]|2[0-3]):[0-5][0-9].*");
-        Matcher _matcher = _pattern.matcher(smsBody);
-        if(_matcher.matches()) {
-            return _hasTokenTrue;
-        }
-        else {
-            return false;
-        }
     }
 
     public static void bindListener(MessageListener _messageListener){
