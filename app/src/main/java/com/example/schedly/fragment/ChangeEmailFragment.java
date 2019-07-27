@@ -1,4 +1,4 @@
-package com.example.schedly.fragments;
+package com.example.schedly.fragment;
 
 import android.os.Bundle;
 import android.util.Log;

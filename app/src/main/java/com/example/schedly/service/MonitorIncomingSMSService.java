@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.ContactsContract;
 import android.telephony.SmsManager;
+import android.telephony.SmsMessage;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -42,6 +43,7 @@ import com.google.gson.Gson;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayDeque;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -53,7 +55,8 @@ import java.util.Random;
 
 public class MonitorIncomingSMSService extends Service implements MessageListener {
 
-    private SMSBroadcastReceiver mSMSBroadcastReceiver;
+    private ArrayDeque<SmsMessage> mSMSQueue;
+    private HashMap<String, String> mUUID;
     private HashMap<String, Object> mResultFromDialogFlow;
     private String mTime, mDateFromUser;
     private Long mDateInMillis;
@@ -72,7 +75,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
             stopForeground(true);
             stopSelf();
         }
-
+        mSMSQueue = new ArrayDeque<>();
         Log.d("Service", "Started");
         Log.d("Service", "Onstart");
         Bundle extras = intent.getExtras();
@@ -132,6 +135,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
 
     @Override
     public void messageReceived(String message, String sender) {
+
         try {
             mMessagePhoneNumber = sender;
             getContact(mMessagePhoneNumber);

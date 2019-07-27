@@ -11,6 +11,8 @@ import android.widget.Toast;
 
 import com.example.schedly.CalendarActivity;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -47,20 +49,6 @@ public class SMSBroadcastReceiver extends BroadcastReceiver {
                 mMessageListener.messageReceived(_smsBody, _smsSender);
             }
         }
-        /*
-        Bundle data = intent.getExtras();
-        Object[] pdus = (Object[]) data.get("pdus");
-        for(int i=0; i<pdus.length; i++){
-            SmsMessage smsMessage = SmsMessage.createFromPdu((byte[]) pdus[i]);
-            String message = "Sender : " + smsMessage.getDisplayOriginatingAddress()
-                    + "Email From: " + smsMessage.getEmailFrom()
-                    + "Emal Body: " + smsMessage.getEmailBody()
-                    + "Display message body: " + smsMessage.getDisplayMessageBody()
-                    + "Time in millisecond: " + smsMessage.getTimestampMillis()
-                    + "Message: " + smsMessage.getMessageBody();
-            mListener.messageReceived(message);
-        }
-         */
     }
 
     public static void bindListener(MessageListener _messageListener){

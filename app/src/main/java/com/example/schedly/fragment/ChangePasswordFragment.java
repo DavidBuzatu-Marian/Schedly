@@ -1,10 +1,9 @@
-package com.example.schedly.fragments;
+package com.example.schedly.fragment;
 
 import android.os.Bundle;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
-import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,11 +27,8 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
-import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 
-import static com.example.schedly.MainActivity.EMAIL_CHANGED;
 import static com.example.schedly.MainActivity.PASSWORD_CHANGED;
 
 public class ChangePasswordFragment extends Fragment implements View.OnClickListener {

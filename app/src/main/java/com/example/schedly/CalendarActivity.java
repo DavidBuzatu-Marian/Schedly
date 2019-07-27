@@ -24,6 +24,7 @@ import android.widget.Toast;
 
 import com.example.schedly.adapter.CalendarAdapter;
 import com.example.schedly.model.Appointment;
+import com.example.schedly.packet_classes.PacketService;
 import com.example.schedly.service.MonitorIncomingSMSService;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -85,6 +86,8 @@ public class CalendarActivity extends AppCompatActivity {
         mCalendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
             public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
+                PacketService _psTest = new PacketService(userID, mUserAppointmentDuration, mUserDaysWithScheduleID, mUserWorkingHoursID);
+                _psTest.getAllDaysIDs("12:00", "0724154387");
                 getDateFromCalendarView(year, month, dayOfMonth, false);
                 Log.d("DATE", mDate + "");
             }

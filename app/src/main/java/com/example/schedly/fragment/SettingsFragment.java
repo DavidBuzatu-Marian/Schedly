@@ -1,26 +1,15 @@
-package com.example.schedly.fragments;
+package com.example.schedly.fragment;
 
-import android.app.NotificationManager;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.EditText;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.preference.EditTextPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.PreferenceManager;
 
 import com.example.schedly.R;
 import com.example.schedly.SettingsActivity;
@@ -36,10 +25,8 @@ import com.google.firebase.auth.UserInfo;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.auth.User;
 
 import static com.example.schedly.CalendarActivity.LOG_OUT;
-import static com.example.schedly.service.MonitorIncomingSMSService.SERVICE_ID;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
     private Preference mChangeEmailPreference;

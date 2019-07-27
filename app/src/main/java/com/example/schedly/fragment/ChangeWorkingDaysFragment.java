@@ -1,4 +1,4 @@
-package com.example.schedly.fragments;
+package com.example.schedly.fragment;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -7,23 +7,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
 import com.example.schedly.R;
-import com.example.schedly.SetWorkingHoursActivity;
 import com.example.schedly.SettingsActivity;
 import com.example.schedly.packet_classes.PacketLinearLayoutSettings;
 import com.example.schedly.packet_classes.PacketSpinnerViewSettings;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class ChangeWorkingDaysFragment extends Fragment {

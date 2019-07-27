@@ -2,17 +2,11 @@ package com.example.schedly;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.Fragment;
-import androidx.preference.Preference;
-import androidx.preference.PreferenceFragmentCompat;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 
-import com.example.schedly.fragments.SettingsFragment;
-
-import java.util.List;
+import com.example.schedly.fragment.SettingsFragment;
 
 public class SettingsActivity extends AppCompatActivity {
     private Toolbar mToolBar;
