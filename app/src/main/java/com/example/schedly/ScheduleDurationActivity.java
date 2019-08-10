@@ -19,11 +19,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.example.schedly.MainActivity.CA_CANCEL;
+
 public class ScheduleDurationActivity extends AppCompatActivity {
 
     private String userID;
     private final String TAG = "SDuration";
-    private final int CA_CANCEL = 2005;
     AnimationTransitionOnActivity _animationTransitionOnActivity;
 
     @Override
@@ -92,6 +93,7 @@ public class ScheduleDurationActivity extends AppCompatActivity {
     private void startCalendar(String userID) {
         Intent calendarIntent = new Intent(ScheduleDurationActivity.this, CalendarActivity.class);
         calendarIntent.putExtra("userID", userID);
+        calendarIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivityForResult(calendarIntent, CA_CANCEL);
     }
 

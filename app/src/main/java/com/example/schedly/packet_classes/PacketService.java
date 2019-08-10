@@ -19,15 +19,17 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class PacketService {
+    private AtomicBoolean mResultForService;
     private Long mDateInMillis;
     private String mUserDaysWithScheduleID;
     private String mUserID;
     private String mUserAppointmentDuration;
     private String mCurrentDaySHoursID;
     private FirebaseFirestore mFireStore;
-    private final int OPTION_HOUR = 0, OPTION_DAY = 1;
+    private threadFindDaysForAppointment mWorkThread;
     // get the appointments for a given date
     private Map<String, Object> mCurrentDayAppointments;
     /* variable used to know when getting the
@@ -153,6 +155,13 @@ public class PacketService {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         mUserWorkingDays = documentSnapshot.getData();
+                        mWorkThread = new threadFindDaysForAppointment(mUserDaysWithSchedule,
+                                mUserDaysWithScheduleID,
+                                mTimeToSchedule,
+                                mUserWorkingDays,
+                                mFireStore,
+                                mPhoneNumber,
+                                mUserAppointmentDuration);
                         Log.d("Firebase", "Succes getting working hours!");
                     }
                 })
@@ -167,6 +176,7 @@ public class PacketService {
 
     // check if user is working first on that day
     private void sendScheduleOptionsWrapper(Long dateInMillis) {
+        mResultForService = new AtomicBoolean(false);
         getDayOfTheWeek(dateInMillis);
         mDaySchedule = new String[2];
         mDaySchedule[0] = mUserWorkingDays.get(mDayOfTheWeek + "Start").toString();
@@ -178,6 +188,7 @@ public class PacketService {
             Log.d("FirebaseSEND", "Free");
             mSMSBody = new StringBuilder("I am sorry, but I don't work on this day. Please try another date or call me");
             SmsManager.getDefault().sendTextMessage(mPhoneNumber, null, mSMSBody.toString(), null, null);
+            mResultForService.set(true);
         }
         else {
             try {
@@ -214,6 +225,7 @@ public class PacketService {
             SmsManager.getDefault()
                     .sendTextMessage(mPhoneNumber, null, mSMSBody.toString(), null, null);
         }
+        mResultForService.set(true);
     }
 
     // check if we still are in the working hours
@@ -256,6 +268,7 @@ public class PacketService {
      * we start by getting all the days with schedule
      */
     public void getAllDaysIDs(final String mTime, String mMessagePhoneNumber) {
+        mResultForService = new AtomicBoolean(false);
         mTimeToSchedule = mTime;
         mPhoneNumber = mMessagePhoneNumber;
         mFireStore.collection("daysWithSchedule")
@@ -275,15 +288,8 @@ public class PacketService {
          *  the 3 closest days for the
          * appointment
          */
-
-        threadFindDaysForAppointment _workThread = new threadFindDaysForAppointment(mUserDaysWithSchedule,
-                mUserDaysWithScheduleID,
-                mTimeToSchedule,
-                mUserWorkingDays,
-                mFireStore,
-                mPhoneNumber,
-                mUserAppointmentDuration);
-        _workThread.start();
+        mWorkThread.start();
+        mResultForService.set(true);
     }
 
 
@@ -302,5 +308,14 @@ public class PacketService {
 
         _documentReference.update(_appointments);
 
+    }
+
+    public boolean isThreadWorkFinished() {
+        return mResultForService.get();
+    }
+
+    public void makeAppointmentForFixedParameters(String dateFromUser, String time, String messagePhoneNumber) {
+        mTimeToSchedule = time;
+        mPhoneNumber = messagePhoneNumber;
     }
 }

@@ -23,11 +23,11 @@ import com.google.firebase.firestore.SetOptions;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SetProffesionActivity extends AppCompatActivity implements View.OnClickListener{
+import static com.example.schedly.MainActivity.CA_CANCEL;
+import static com.example.schedly.MainActivity.SWH_CANCEL;
 
-    private final int CA_CANCEL = 2005;
+public class SetProffesionActivity extends AppCompatActivity implements View.OnClickListener{
     private String userID;
-    private final int SWH_CANCEL = 2003;
     private String TAG = "RES";
     private int selectedProfession;
     private String selectedProfessionName;

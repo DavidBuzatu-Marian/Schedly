@@ -33,11 +33,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.example.schedly.MainActivity.CA_CANCEL;
+import static com.example.schedly.MainActivity.SD_CANCEL;
+
 public class SetWorkingHoursActivity extends AppCompatActivity {
     private String userID;
     private String TAG = "RES";
-    private final int CA_CANCEL = 2005;
-    private final int SD_CANCEL = 2004;
     private String workingDaysID;
     private ArrayAdapter<CharSequence> mAdapterHours;
 

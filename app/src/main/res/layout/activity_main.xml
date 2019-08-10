@@ -10,14 +10,26 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity"
+    android:clickable="true"
+    android:focusable="true"
     android:background="@drawable/login_background">
+
+    <ProgressBar
+        android:id="@+id/act_main_PB"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:indeterminate="true"
+        android:visibility="gone"
+        android:translationZ="10dp"/>
 
     <TextView
         style="@style/TextViewSignUp"
         android:id="@+id/act_main_TV_SignIn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/act_main_TV_SignIn" />
+        android:text="@string/act_main_TV_SignIn"
+        android:layout_above="@id/act_main_BUT_Facebook"/>
 
 
     <com.facebook.login.widget.LoginButton
@@ -77,7 +89,9 @@
         android:layout_marginEnd="16dp"
 
         card_view:cardElevation="8dp"
-        card_view:cardCornerRadius="16dp">
+        card_view:cardCornerRadius="16dp"
+        android:minHeight="160dp"
+        >
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -96,6 +110,7 @@
                 app:errorEnabled="true"
                 android:layout_marginTop="8dp"
                 app:errorTextAppearance="@style/error_appearance"
+
                 >
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -186,7 +201,7 @@
         android:background="@drawable/button_submit"
         android:stateListAnimator="@animator/button_click_animator"
         android:text="@string/sign_in_button"
-        android:layout_below="@id/act_main_CV_FormContainer"/>
+        android:layout_below="@id/act_main_CV_FormContainer" />
     <TextView
         android:id="@+id/act_main_TV_SingUp"
         android:layout_width="wrap_content"
@@ -194,6 +209,7 @@
         android:paddingStart="32dp"
         android:paddingEnd="32dp"
         android:layout_centerHorizontal="true"
+        android:gravity="center"
         android:layout_below="@id/act_main_BUT_signin"
         android:text="@string/act_main_TV_SingUp"
         android:layout_marginTop="24dp"

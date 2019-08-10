@@ -2,17 +2,16 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const { struct } = require('pb-util');
 const dialogflow = require('dialogflow');
-const uuid = require('uuid/v4');
 
 admin.initializeApp({ credential: admin.credential.applicationDefault() });
 
 const projectId = "schedly-266ff";
-const sessionId = uuid();
 const languageCode = 'en-US';
 
 exports.detectTextIntent = functions.https.onCall(async (data, context) => {
   // [START dialogflow_detect_intent_text]
   query = data.text;
+  sessionID = data.sessionID;
   if (!query || !query.length) {
     return
   }

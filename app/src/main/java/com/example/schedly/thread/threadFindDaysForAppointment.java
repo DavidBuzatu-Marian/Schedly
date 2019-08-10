@@ -29,6 +29,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class threadFindDaysForAppointment extends Thread {
 
+    private boolean mFinishedWorking = false;
     private final int HOUR_AND_HALF = 5400000, TWO_HOURS = 7200000;
     private AtomicBoolean mThreadStop = new AtomicBoolean(true);
     private String mUserDaysWithScheduleID;
@@ -97,9 +98,10 @@ public class threadFindDaysForAppointment extends Thread {
             Log.d("FirebaseDATE", mCounterDaysForAppointment + "");
         }
 
-//        SmsManager.getDefault()
-//                .sendTextMessage(mPhoneNumber, null, mSMSBody.toString(), null, null);
+        SmsManager.getDefault()
+                .sendTextMessage(mPhoneNumber, null, mSMSBody.toString(), null, null);
         Log.d("FirebaseMes", mSMSBody.toString());
+        mFinishedWorking = true;
     }
 
     private synchronized boolean checkDayFree(long calendarTimeInMillis) {
@@ -307,5 +309,9 @@ public class threadFindDaysForAppointment extends Thread {
         _calendar.setTime(_date);
         mDayOfTheWeek = mDaysOfTheWeek[_calendar.get(Calendar.DAY_OF_WEEK) - 1];
         Log.d("FirebaseDay", mDayOfTheWeek + "; " + _calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()));
+    }
+
+    public boolean getFinishedWorking() {
+        return mFinishedWorking;
     }
 }

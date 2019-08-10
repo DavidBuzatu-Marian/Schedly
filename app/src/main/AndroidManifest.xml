@@ -10,13 +10,23 @@
     <uses-permission android:name="android.permission.READ_CONTACTS"/>
 
     <application
-        android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".SettingsActivity"></activity>
+
+        <activity
+            android:name=".StartSplashActivity"
+            android:theme="@style/SplashTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".SettingsActivity"/>
         <activity android:name=".ForgotPasswordActivity" />
 
         <service
@@ -34,9 +44,9 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".ScheduleDurationActivity" />
-        <activity android:name=".SetWorkingHoursActivity" />
-        <activity android:name=".SetProffesionActivity" />
+        <activity android:name=".ScheduleDurationActivity" android:theme="@style/noAnimThemeBetweenActivities"/>
+        <activity android:name=".SetWorkingHoursActivity" android:theme="@style/noAnimThemeBetweenActivities" />
+        <activity android:name=".SetProffesionActivity" android:theme="@style/noAnimThemeBetweenActivities"/>
         <activity
             android:name=".SetPhoneNumberActivity"
             android:parentActivityName=".MainActivity">
@@ -44,7 +54,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
-        <activity android:name=".CalendarActivity">
+        <activity android:name=".CalendarActivity" android:theme="@style/noAnimThemeBetweenActivities">
             <intent-filter>
                 <action android:name="android.intent.action.DIAL" />
 
@@ -56,13 +66,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+        <activity android:name=".MainActivity"/>
         <activity
             android:name=".SignUpWithEmailActivity"
             android:parentActivityName=".MainActivity">

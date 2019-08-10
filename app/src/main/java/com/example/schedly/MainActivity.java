@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.media.Image;
 import android.os.Bundle;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
@@ -14,8 +13,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.schedly.packet_classes.PacketMainLogin;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -29,9 +31,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
@@ -39,66 +40,51 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.HashMap;
-import java.util.Map;
+import static com.example.schedly.CalendarActivity.LOG_OUT;
 
 public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private CallbackManager mCallbackManager;
     private final String TAG = "RES";
     /* google sign in code */
-    private final int RC_SIGN_IN = 1001;
-    private final int SUWESuccess = 2000;
+    public static final int RC_SIGN_IN = 1001;
+    public static final int SUWESuccess = 2000;
     /* first step back code */
-    private final int PH_CANCEL = 2001;
+    public static final int SPN_CANCEL = 2001;
     /* second step back code */
-    private final int SP_CANCEL = 2002;
+    public static final int SP_CANCEL = 2002;
     /* third step back code */
-    private final int SWH_CANCEL = 2003;
+    public static final int SWH_CANCEL = 2003;
     /* last step back code */
-    private final int SD_CANCEL = 2004;
+    public static final int SD_CANCEL = 2004;
     /* calendar back press */
-    private final int CA_CANCEL = 2005;
+    public static final int CA_CANCEL = 2005;
     /* email changed */
     public static final int EMAIL_CHANGED = 4002;
     /* password changed */
     public static final int PASSWORD_CHANGED = 4003;
+    /* password reset */
+    public static final int PR_SUCCESS = 4010;
     /* firestore */
-    FirebaseFirestore firebaseFirestore;
-    /* store user info */
-    private String userWorkingHoursID;
-    private String userPhoneNumber;
-    private String userProfession;
-    private String userAppointmentsDuration;
+    FirebaseFirestore mFirebaseFirestore;
     private GoogleSignInClient mGoogleSignInClient;
     private boolean mShowPasswordTrue = false;
-
+    private ProgressBar mProgressBar;
+    private RelativeLayout mRootRelativeLayout;
+    private PacketMainLogin mPacketMainLogin;
 
     @Override
     public void onStart() {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        firebaseFirestore = FirebaseFirestore.getInstance();
-        if(currentUser != null) {
-            Log.d("Firebase", "Logged");
-            /* get user info and redirect */
-            getUserDetails(currentUser);
-
-        }
-//
-//        // Check for existing Google Sign In account, if the user is already signed in
-//        // the GoogleSignInAccount will be non-null.
-//        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
-//        if(account == null) {
-//            Log.d("Google", "not logged");
-//        }
-//        else {
-//
+//        FirebaseUser currentUser = mAuth.getCurrentUser();
+        mFirebaseFirestore = FirebaseFirestore.getInstance();
+//        if(currentUser != null) {
+//            Log.d("Firebase", "Logged");
+//            /* get user info and redirect */
+//            mPacketMainLogin.getUserDetails(currentUser);
 //        }
     }
 
@@ -107,15 +93,20 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mPacketMainLogin = new PacketMainLogin(this);
         mAuth = FirebaseAuth.getInstance();
 
         /* FACEBOOK LOGIN */
         mCallbackManager = CallbackManager.Factory.create();
+        mProgressBar = findViewById(R.id.act_main_PB);
+        mRootRelativeLayout = findViewById(R.id.act_main_RL_Root);
+
         LoginButton loginButtonFacebook = findViewById(R.id.buttonFacebookLogin);
         loginButtonFacebook.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
                 Log.d(TAG, "facebook:onSuccess:" + loginResult);
+                showProgressBar(true);
                 handleFacebookAccessToken(loginResult.getAccessToken());
             }
 
@@ -147,6 +138,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.act_main_BUT_Google).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                showProgressBar(true);
                 signIn();
             }
         });
@@ -167,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent forgotPassword = new Intent(MainActivity.this, ForgotPasswordActivity.class);
-                startActivity(forgotPassword);
+                startActivityForResult(forgotPassword, PR_SUCCESS);
             }
         });
         /* for show password */
@@ -196,6 +188,7 @@ public class MainActivity extends AppCompatActivity {
         buttonSignInMain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                showProgressBar(true);
                 EditText editTextEmail = findViewById(R.id.act_main_TIET_email);
                 EditText editTextPass = findViewById(R.id.act_main_TIET_password);
                 TextInputLayout textInputLayoutEmail = findViewById(R.id.act_main_TIL_email);
@@ -206,6 +199,7 @@ public class MainActivity extends AppCompatActivity {
                 if(ET_Email.isEmpty()) {
                     errorFoundTrue = true;
                     textInputLayoutEmail.setError("Field required!");
+                    showProgressBar(false);
                 }
                 else {
                     textInputLayoutEmail.setErrorEnabled(false);
@@ -213,6 +207,7 @@ public class MainActivity extends AppCompatActivity {
                 if(ET_Password.isEmpty()) {
                     errorFoundTrue = true;
                     textInputLayoutPass.setError("Filed required!");
+                    showProgressBar(false);
                 }
                 else {
                     textInputLayoutPass.setErrorEnabled(false);
@@ -222,37 +217,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-    }
-
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        mCallbackManager.onActivityResult(requestCode, resultCode, data);
-        super.onActivityResult(requestCode, resultCode, data);
-
-        // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
-        if (requestCode == RC_SIGN_IN) {
-            // The Task returned from this call is always completed, no need to attach
-            // a listener.
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            handleSignInResult(task);
-        }
-        if(requestCode == PH_CANCEL || requestCode == SP_CANCEL || requestCode == SWH_CANCEL || requestCode == SD_CANCEL) {
-            mGoogleSignInClient.signOut();
-            LoginManager.getInstance().logOut();
-            FirebaseAuth.getInstance().signOut();
-            Toast.makeText(MainActivity.this,"All fields are required!", Toast.LENGTH_LONG).show();
-        }
-        if(requestCode == SUWESuccess) {
-            Toast.makeText(MainActivity.this, "Account created successfully!", Toast.LENGTH_SHORT).show();
-        }
-        if(resultCode == EMAIL_CHANGED) {
-            Toast.makeText(MainActivity.this, "Email changed. Please login again.", Toast.LENGTH_LONG).show();
-        }
-        if(resultCode == PASSWORD_CHANGED) {
-            Toast.makeText(MainActivity.this, "Password changed. Please login again.", Toast.LENGTH_LONG).show();
-        }
-
     }
 
     private void handleFacebookAccessToken(AccessToken token) {
@@ -267,12 +231,14 @@ public class MainActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d("successWithCredential", "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            getUserDetails(user);
+                            mPacketMainLogin.getUserDetails(user);
+                            showProgressBar(false);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.d("successWithCredential", "signInWithCredential:failure", task.getException());
                             Toast.makeText(MainActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
+                            showProgressBar(false);
                         }
                     }
                 });
@@ -302,13 +268,15 @@ public class MainActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            getUserDetails(user);
+                            @NonNull FirebaseUser user = mAuth.getCurrentUser();
+                            mPacketMainLogin.getUserDetails(user);
+                            showProgressBar(false);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
                             Toast.makeText(MainActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
+                            showProgressBar(false);
                         }
                     }
                 });
@@ -323,186 +291,76 @@ public class MainActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithEmail:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            getUserDetails(user);
+                            @NonNull FirebaseUser user = mAuth.getCurrentUser();
+                            mPacketMainLogin.getUserDetails(user);
+                            showProgressBar(false);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithEmail:failure", task.getException());
                             Toast.makeText(MainActivity.this, "Authentication failed. Are you registered?",
                                     Toast.LENGTH_SHORT).show();
+                            showProgressBar(false);
                         }
                     }
                 });
-    }
-
-    /* get phone number and domain of activity
-    IF BOTH EXISTS -> it will go to calendar activity
-    IF ONE DOESN'T -> it goes to one of the init activity
-     */
-    private void getUserDetails(@NonNull final FirebaseUser currentUser) {
-        final FirebaseUser localUser = currentUser;
-        DocumentReference documentReference = firebaseFirestore.collection("users").document(localUser.getUid());
-        documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        userPhoneNumber = document.get("phoneNumber") != null ? document.get("phoneNumber").toString() : null;
-                        userProfession = document.get("profession") != null ? document.get("profession").toString() : null;
-                        userWorkingHoursID = document.get("workingDaysID") != null ? document.get("workingDaysID").toString() : null;
-                        userAppointmentsDuration = document.get("appointmentsDuration") != null ? document.get("appointmentsDuration").toString() : null;
-
-                        if(userWorkingHoursID == null) {
-                            addUserWorkingDaysID(currentUser);
-                        }
-                        else {
-                            redirectUser(localUser);
-                        }
-                    } else {
-                        userPhoneNumber = null;
-                        userProfession = null;
-                        addUserToDatabase(currentUser);
-                        addUserWorkingDaysID(currentUser);
-                    }
-                } else {
-                    userPhoneNumber = null;
-                    userProfession = null;
-                    redirectUser(localUser);
-                    Log.d(TAG, "get failed with ", task.getException());
-                }
-            }
-        });
-    }
-
-    private void checkWorkingDaysSetup(FirebaseUser currentUser) {
-        final FirebaseUser localUser = currentUser;
-        FirebaseFirestore mFireStore = FirebaseFirestore.getInstance();
-        mFireStore.collection("workingDays")
-                .document(userWorkingHoursID)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        DocumentSnapshot document = task.getResult();
-                        if(document.getData().containsValue(null)) {
-                            getToInitActivity(localUser);
-                        }
-                        else {
-                            getToCalendarActivity(localUser);
-                        }
-                    }
-                });
-    }
-
-    private void addUserToDatabase(FirebaseUser user) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        Map<String, Object> userToAdd = new HashMap<>();
-        userToAdd.put("phoneNumber", null);
-        userToAdd.put("profession", null);
-        db.collection("users")
-                .document(user.getUid())
-                .set(userToAdd);
-    }
-
-    private void addUserWorkingDaysID(final FirebaseUser currentUser) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        /* add days of the week to collection */
-        Map<String, Object> daysOfTheWeek = new HashMap<>();
-        daysOfTheWeek.put("MondayStart", null);
-        daysOfTheWeek.put("MondayEnd", null);
-        daysOfTheWeek.put("TuesdayStart", null);
-        daysOfTheWeek.put("TuesdayEnd", null);
-        daysOfTheWeek.put("WednesdayStart", null);
-        daysOfTheWeek.put("WednesdayEnd", null);
-        daysOfTheWeek.put("ThursdayStart", null);
-        daysOfTheWeek.put("ThursdayEnd", null);
-        daysOfTheWeek.put("FridayStart", null);
-        daysOfTheWeek.put("FridayEnd", null);
-        daysOfTheWeek.put("SaturdayStart", null);
-        daysOfTheWeek.put("SaturdayEnd", null);
-        daysOfTheWeek.put("SundayStart", null);
-        daysOfTheWeek.put("SundayEnd", null);
-        db.collection("workingDays")
-                .add(daysOfTheWeek)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        FirebaseFirestore mFireStore = FirebaseFirestore.getInstance();
-                        Map<String, Object> userToAdd = new HashMap<>();
-                        Log.d(TAG, "DocumentSnapshot written:" + documentReference.getId());
-                        userWorkingHoursID = documentReference.getId();
-                        userToAdd.put("workingDaysID", userWorkingHoursID);
-                        mFireStore.collection("users")
-                                .document(currentUser.getUid())
-                                .update(userToAdd)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        redirectUser(currentUser);
-                                        Log.d(TAG, "DocumentSnapshot successfully written!");
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.w(TAG, "Error writing document", e);
-                                    }
-                                });
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error adding document", e);
-                    }
-                });
-    }
-
-    private void redirectUser(final FirebaseUser localUser) {
-        /* REDIRECT */
-        if(userPhoneNumber == null || userProfession == null) {
-            getToInitActivity(localUser);
-        }
-        else {
-            checkWorkingDaysSetup(localUser);
-        }
-    }
-
-
-    private void getToInitActivity(FirebaseUser user) {
-        if(userPhoneNumber == null) {
-            Intent firstStep = new Intent(MainActivity.this, SetPhoneNumberActivity.class);
-            firstStep.putExtra("userID", user.getUid());
-            startActivityForResult(firstStep, PH_CANCEL);
-        }
-        else
-            if(userProfession == null) {
-            Intent secondStep = new Intent(MainActivity.this, SetProffesionActivity.class);
-            secondStep.putExtra("userID", user.getUid());
-            startActivityForResult(secondStep, SP_CANCEL);
-        } else {
-                Intent thirdStep = new Intent(MainActivity.this, SetWorkingHoursActivity.class);
-                thirdStep.putExtra("userID", user.getUid());
-                startActivityForResult(thirdStep, SWH_CANCEL);
-            }
-    }
-
-    private void getToCalendarActivity(FirebaseUser user) {
-        if(userAppointmentsDuration == null) {
-            Intent ScheduleDuration = new Intent(MainActivity.this, ScheduleDurationActivity.class);
-            ScheduleDuration.putExtra("userID", user.getUid());
-            startActivityForResult(ScheduleDuration, SD_CANCEL);
-        }
-        else {
-            Intent CalendarActivity = new Intent(MainActivity.this, CalendarActivity.class);
-            CalendarActivity.putExtra("userID", user.getUid());
-            startActivityForResult(CalendarActivity, CA_CANCEL);
-        }
     }
 
     public void doLoginFacebook(View view) {
         LoginButton loginButton = findViewById(R.id.buttonFacebookLogin);
         loginButton.performClick();
+    }
+
+    private void showProgressBar(boolean show) {
+        if(show) {
+            mProgressBar.setVisibility(View.VISIBLE);
+            mRootRelativeLayout.setClickable(false);
+            mRootRelativeLayout.setEnabled(false);
+        }
+        else {
+            mProgressBar.setVisibility(View.GONE);
+            mRootRelativeLayout.setClickable(true);
+            mRootRelativeLayout.setEnabled(true);
+        }
+
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        mCallbackManager.onActivityResult(requestCode, resultCode, data);
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
+        if (requestCode == RC_SIGN_IN) {
+            // The Task returned from this call is always completed, no need to attach
+            // a listener.
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            handleSignInResult(task);
+        }
+        if(requestCode == SPN_CANCEL || requestCode == SP_CANCEL || requestCode == SWH_CANCEL || requestCode == SD_CANCEL) {
+            showProgressBar(false);
+            mGoogleSignInClient.signOut();
+            LoginManager.getInstance().logOut();
+            FirebaseAuth.getInstance().signOut();
+            Toast.makeText(MainActivity.this,"All fields are required!", Toast.LENGTH_LONG).show();
+        }
+        switch (resultCode) {
+            case SUWESuccess:
+                Toast.makeText(MainActivity.this, "Account created successfully!", Toast.LENGTH_SHORT).show();
+                break;
+            case EMAIL_CHANGED:
+                Toast.makeText(MainActivity.this, "Email changed. Please login again.", Toast.LENGTH_LONG).show();
+                break;
+            case PASSWORD_CHANGED:
+                Toast.makeText(MainActivity.this, "Password changed. Please login again.", Toast.LENGTH_LONG).show();
+                break;
+            case PR_SUCCESS:
+                Snackbar.make(findViewById(R.id.act_main_RL_Root), "An email with instructions for your password reset was sent", Snackbar.LENGTH_LONG).show();
+                break;
+            case LOG_OUT:
+                showProgressBar(false);
+                break;
+
+        }
     }
 }

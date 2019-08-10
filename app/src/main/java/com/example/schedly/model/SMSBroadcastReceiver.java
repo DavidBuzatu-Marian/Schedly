@@ -39,14 +39,18 @@ public class SMSBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if(intent.getAction().equals(Telephony.Sms.Intents.SMS_RECEIVED_ACTION)) {
+            TSMSMessage _newSMSMessage;
             String _smsSender = "";
-            String _smsBody = "";
+            StringBuilder _smsBody = new StringBuilder();
+            Long _timeReceived = 0L;
             for (SmsMessage _smsMessage : Telephony.Sms.Intents.getMessagesFromIntent(intent)) {
                 _smsSender = _smsMessage.getDisplayOriginatingAddress();
-                _smsBody += _smsMessage.getMessageBody();
+                _smsBody.append(_smsMessage.getMessageBody());
+                _timeReceived = _smsMessage.getTimestampMillis();
             }
+            _newSMSMessage = new TSMSMessage(_smsBody, _smsSender, _timeReceived);
             if(mMessageListener != null) {
-                mMessageListener.messageReceived(_smsBody, _smsSender);
+                mMessageListener.messageReceived(_newSMSMessage);
             }
         }
     }

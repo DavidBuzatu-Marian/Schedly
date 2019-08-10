@@ -10,6 +10,7 @@ import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -36,6 +37,7 @@ public class SignUpWithEmailActivity extends AppCompatActivity {
     private EditText editTextCarrierNumber;
     TextInputLayout textInputLayoutEmail;
     TextInputLayout textInputLayoutPass;
+    ProgressBar mProgressBar;
 
     @Override
     public void onStart() {
@@ -45,6 +47,8 @@ public class SignUpWithEmailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up_with_email);
+
+        mProgressBar = findViewById(R.id.act_SUWEmail_PB);
 
         ccp = findViewById(R.id.ccp);
         editTextCarrierNumber = findViewById(R.id.act_SUWEmail_ET_carrierNumber);
@@ -60,6 +64,7 @@ public class SignUpWithEmailActivity extends AppCompatActivity {
                 final EditText editTextEmail = findViewById(R.id.act_SUWEmail_TIET_email);
                 final EditText editTextPass = findViewById(R.id.act_SUWEmail_TIET_password);
                 if(inputValidation(editTextEmail.getText().toString(), editTextPass.getText().toString())) {
+                    showProgressBar(true);
                     signUpWithEmailAndPassword(editTextEmail.getText().toString(), editTextPass.getText().toString());
                 }
             }
@@ -141,11 +146,13 @@ public class SignUpWithEmailActivity extends AppCompatActivity {
                             {
                                 Log.d(TAG, "onComplete: malformed_email");
                                 textInputLayoutEmail.setError("Invalid Email");
+                                showProgressBar(false);
                             }
                             catch (FirebaseAuthUserCollisionException existEmail)
                             {
                                 Log.d(TAG, "onComplete: exist_email");
                                 textInputLayoutEmail.setError("Email already in use");
+                                showProgressBar(false);
                             }
                             catch (Exception e)
                             {
@@ -167,5 +174,16 @@ public class SignUpWithEmailActivity extends AppCompatActivity {
                 .document(user.getUid())
                 .set(userToAdd);
         SignUpWithEmailActivity.this.finish();
+    }
+    private void showProgressBar(boolean show) {
+        if(show) {
+            mProgressBar.setVisibility(View.VISIBLE);
+            findViewById(R.id.act_main_RL_Root).setClickable(false);
+        }
+        else {
+            mProgressBar.setVisibility(View.GONE);
+            findViewById(R.id.act_main_RL_Root).setClickable(true);
+        }
+
     }
 }

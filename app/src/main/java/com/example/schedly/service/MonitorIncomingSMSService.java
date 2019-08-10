@@ -29,6 +29,7 @@ import com.example.schedly.MainActivity;
 import com.example.schedly.R;
 import com.example.schedly.model.MessageListener;
 import com.example.schedly.model.SMSBroadcastReceiver;
+import com.example.schedly.model.TSMSMessage;
 import com.example.schedly.packet_classes.PacketService;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -52,10 +53,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Random;
+import java.util.UUID;
 
 public class MonitorIncomingSMSService extends Service implements MessageListener {
 
-    private ArrayDeque<SmsMessage> mSMSQueue;
+    private ArrayDeque<TSMSMessage> mSMSQueue;
     private HashMap<String, String> mUUID;
     private HashMap<String, Object> mResultFromDialogFlow;
     private String mTime, mDateFromUser;
@@ -65,7 +67,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
     private String mUserAppointmentDuration;
     private String mMessagePhoneNumber;
     private String mUserWorkingDaysID;
-    private String mContactName;
+    private HashMap<String, String> mContactName;
     private PacketService mPacketService;
     public static final int SERVICE_ID = 4000;
 
@@ -76,6 +78,8 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
             stopSelf();
         }
         mSMSQueue = new ArrayDeque<>();
+        mUUID = new HashMap<>();
+        mContactName = new HashMap<>();
         Log.d("Service", "Started");
         Log.d("Service", "Onstart");
         Bundle extras = intent.getExtras();
@@ -134,14 +138,30 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
 
 
     @Override
-    public void messageReceived(String message, String sender) {
-
+    public void messageReceived(TSMSMessage newSMSMessage) {
+        String _sender, _message;
+        mSMSQueue.add(newSMSMessage);
         try {
-            mMessagePhoneNumber = sender;
-            getContact(mMessagePhoneNumber);
-            Log.d("Succes", "Contact name: " + mContactName);
-            callToFirebaseFunction(message);
-
+            while(!mSMSQueue.isEmpty()) {
+                /* get the next phone number */
+                TSMSMessage _currentMessage = mSMSQueue.pop();
+                _sender = _currentMessage.getmSMSSender();
+                _message = _currentMessage.getmSMSBody();
+                /* if we already have this phone number
+                 * in the hashmap, we just add to
+                 * the smsBody
+                 */
+                mMessagePhoneNumber = _sender;
+                /* phone number sent a message  already
+                 * use the same session ID
+                 */
+                if(!mUUID.containsKey(_sender)) {
+                    mUUID.put(_sender, UUID.randomUUID().toString());
+                    getContact(mMessagePhoneNumber);
+                }
+                Log.d("Succes", "Contact name: " + mContactName.get(mMessagePhoneNumber));
+                callToFirebaseFunction(_message, mUUID.get(_sender));
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -165,12 +185,14 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
         Cursor cursor = this.getContentResolver().query(lookupUriContacts, new String[]{ContactsContract.Data.DISPLAY_NAME},null,null,null);
         if(cursor != null) {
             if(cursor.moveToFirst()) {
-                mContactName = cursor.getString(0);
-                Log.d("Firebase", mContactName);
+                mContactName.put(mMessagePhoneNumber, cursor.getString(0));
+                Log.d("Firebase", mContactName.get(mMessagePhoneNumber));
             }
             else {
-                mContactName = "";
+                mContactName.put(mMessagePhoneNumber, "");
             }
+
+            cursor.close();
         }
     }
 
@@ -186,10 +208,10 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
         return null;
     }
 
-    private void callToFirebaseFunction(String message) {
+    private void callToFirebaseFunction(String message, String sessionID) {
         FirebaseFunctions mFunctions;
         mFunctions = FirebaseFunctions.getInstance();
-        addMessage(message, mFunctions).addOnCompleteListener(new OnCompleteListener<String>() {
+        addMessage(message, mFunctions, sessionID).addOnCompleteListener(new OnCompleteListener<String>() {
             @Override
             public void onComplete(@NonNull Task<String> task) {
                 if(task.isSuccessful()) {
@@ -206,18 +228,17 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
                     else if(mDateFromUser == null && mTime != null) {
                         sendMessageForDate();
                     }
-                    else if(mDateFromUser == null) {
+                    else if(mDateFromUser == null && mTime == null) {
                         sendMessageForAppointment(mResultFromDialogFlow.get("response").toString());
                     }
                     else {
                         Log.d("Succes", mDateFromUser + ": " + mTime);
-                        mDateInMillis = mPacketService.getDateInMillis(mDateFromUser);
-                        Log.d("Succes date in millis: ", mDateInMillis.toString());
-//                    getCurrentDayID(mDateInMillis);
+                        mPacketService.makeAppointmentForFixedParameters(mDateFromUser, mTime, mMessagePhoneNumber);
                     }
                 }
                 else {
                     Log.d("Succes", task.getException().toString());
+                    this.notifyAll();
                 }
             }
         });
@@ -226,19 +247,34 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
     private void sendMessageForTime() {
         // this function finishes by sending the message to the phoneNumber
         mPacketService.getCurrentDateSHoursID(mDateFromUser, mMessagePhoneNumber);
+       threadPaused();
     }
 
     private void sendMessageForAppointment(String response) {
         SmsManager.getDefault().sendTextMessage(mMessagePhoneNumber, null, response, null,null);
+        this.notifyAll();
     }
 
     private void sendMessageForDate() {
         mPacketService.getAllDaysIDs(mTime, mMessagePhoneNumber);
+        threadPaused();
     }
 
-    private Task<String> addMessage(String text, FirebaseFunctions mFunctions) {
+    private void threadPaused() {
+        while(!mPacketService.isThreadWorkFinished()) {
+            try {
+                this.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        this.notifyAll();
+    }
+
+    private Task<String> addMessage(String text, FirebaseFunctions mFunctions, String sessionID) {
         Map<String, Object> data = new HashMap<>();
         data.put("text", text);
+        data.put("sessionID", sessionID);
 
         return mFunctions
                 .getHttpsCallable("detectTextIntent")
@@ -251,7 +287,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
                         // propagated down.
                         mResultFromDialogFlow = (HashMap<String, Object>) task.getResult().getData();
                         Log.d("Succes", mResultFromDialogFlow.get("response").toString() + ";" + mResultFromDialogFlow.get("parameters").toString());
-                        return mResultFromDialogFlow.get("parameters").toString();
+                        return mResultFromDialogFlow.get("parameters") != null ? mResultFromDialogFlow.get("parameters").toString() : null;
                     }
                 });
 

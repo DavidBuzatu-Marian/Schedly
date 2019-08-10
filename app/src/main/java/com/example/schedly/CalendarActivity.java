@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -86,8 +85,8 @@ public class CalendarActivity extends AppCompatActivity {
         mCalendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
             public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
-                PacketService _psTest = new PacketService(userID, mUserAppointmentDuration, mUserDaysWithScheduleID, mUserWorkingHoursID);
-                _psTest.getAllDaysIDs("12:00", "0724154387");
+//                PacketService _psTest = new PacketService(userID, mUserAppointmentDuration, mUserDaysWithScheduleID, mUserWorkingHoursID);
+//                _psTest.getAllDaysIDs("12:00", "0724154387");
                 getDateFromCalendarView(year, month, dayOfMonth, false);
                 Log.d("DATE", mDate + "");
             }
@@ -418,6 +417,7 @@ public class CalendarActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode == LOG_OUT) {
+            setResult(LOG_OUT);
             finish();
         }
         if (resultCode == EMAIL_CHANGED) {

@@ -34,14 +34,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import static com.example.schedly.MainActivity.CA_CANCEL;
+import static com.example.schedly.MainActivity.SP_CANCEL;
+
 public class SetPhoneNumberActivity extends AppCompatActivity {
 
     private String userID;
     private String TAG = "Database";
     private CountryCodePicker ccp;
     private EditText editTextCarrierNumber;
-    private final int SP_CANCEL = 2002;
-    private final int CA_CANCEL = 2005;
     private boolean mValidNumber = false;
     private String phoneNumberReturn;
     AnimationTransitionOnActivity _animationTransitionOnActivity;

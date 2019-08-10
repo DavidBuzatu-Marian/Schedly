@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -17,6 +18,9 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class ForgotPasswordActivity extends AppCompatActivity {
 
+
+    private final int PR_FAIL = 4011;
+    private ProgressBar mProgressBar;
     private TextInputLayout mTextInputLayoutEmail;
 
     @Override
@@ -24,15 +28,20 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_forgot_password);
 
+        mProgressBar = findViewById(R.id.act_FPassword_PB);
 
         mTextInputLayoutEmail = findViewById(R.id.act_FPassword_TIL_email);
-        final Button BUTTON_RESET = findViewById(R.id.act_FPassword_Send);
-        BUTTON_RESET.setOnClickListener(new View.OnClickListener() {
+        final Button _buttonReset = findViewById(R.id.act_FPassword_Send);
+        _buttonReset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final TextView EMAIL = (TextView) findViewById(R.id.act_FPassword_TIET_email);
+                final TextView EMAIL = findViewById(R.id.act_FPassword_TIET_email);
                 if(!EMAIL.getText().toString().isEmpty()) {
+                    showProgressBar(true);
                     resetPassword(EMAIL.getText().toString());
+                }
+                else {
+                    mTextInputLayoutEmail.setError("Email is required!");
                 }
             }
         });
@@ -46,11 +55,29 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<Void> task) {
                         if(task.isSuccessful()) {
                             Log.d("PASSWORD", "Email sent!");
+                            ForgotPasswordActivity.this.finish();
                         }
                         else {
                             mTextInputLayoutEmail.setError("Email is not registered!");
+                            showProgressBar(false);
                         }
                     }
                 });
+    }
+    private void showProgressBar(boolean show) {
+        if(show) {
+            mProgressBar.setVisibility(View.VISIBLE);
+            findViewById(R.id.act_FPassword_RL_Root).setClickable(false);
+        }
+        else {
+            mProgressBar.setVisibility(View.GONE);
+            findViewById(R.id.act_FPassword_RL_Root).setClickable(true);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        setResult(PR_FAIL);
     }
 }

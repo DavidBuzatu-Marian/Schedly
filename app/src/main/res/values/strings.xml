@@ -29,8 +29,7 @@
     <string name="act_SWHours_TV_AllDay">All week days</string>
     <string name="act_SWHours_TV_Sunday">Sunday</string>
     <string name="act_SWHours_TV_Saturday">Saturday</string>
-    <string name="act_SWHours_SundayClosed">Free</string>
-    <string name="act_SWHours_SaturdayClosed">Free</string>
+    <string name="act_SWHours_CB_FreeDay">Free</string>
     <string name="act_SWHours_TV_Friday">Friday</string>
     <string name="act_SWHours_TV_Tuesday">Tuesday</string>
     <string name="act_SWHours_TV_Wednesday">Wednesday</string>
@@ -47,6 +46,14 @@
     <string name="permission_alert_dialog_OK">OK</string>
     <string name="or">OR</string>
     <string name="act_main_TV_SingUp">Don\'t have an account? <u>Sign up here!</u></string>
+
+
+
+    <string name="txt_Monday">s</string>
+
+
+
+
     <string-array name="hours_array">
         <item>5:30</item>
         <item>6:00</item>
