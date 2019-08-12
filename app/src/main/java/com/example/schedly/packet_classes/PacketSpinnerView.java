@@ -10,12 +10,11 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import androidx.appcompat.widget.AppCompatSpinner;
 
 import com.example.schedly.R;
-import com.example.schedly.SetWorkingHoursActivity;
+import com.example.schedly.model.DaysOfWeek;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,114 +22,68 @@ import java.util.Map;
 
 public class PacketSpinnerView extends AppCompatSpinner {
     /* Spinners */
-    private HashMap<String, Spinner> mSpinnerArray = new HashMap<>();
     @SuppressLint("UseSparseArrays")
-    private HashMap<Integer, Integer> mIDsArray = new HashMap<>(16);
-    private CheckBox[] mCheckBoxArray = new CheckBox[9];
-    private String[] mStartDay = new String[8];
-    private String[] mEndDay = new String[8];
+    private HashMap<Integer, Integer> mIDsArray = new HashMap<>();
+
     private int mDaysIterator;
     private String[] mStartHours = new String[8];
     private String[] mEndHours = new String[8];
-    private Integer[] mSpinnerIDs = new Integer[16];
-    private PacketLinearLayout mPacketLinearLayout;
-    private Activity activity;
+
+    private PacketCardView mPacketCardView;
+    private Activity mActivity;
 
 
-    public PacketSpinnerView(Context context, PacketLinearLayout packetLinearLayout, Activity _activity) {
+    public PacketSpinnerView(Context context, PacketCardView packetCardView, Activity _activity) {
         super(context);
-        mPacketLinearLayout = packetLinearLayout;
-        this.activity = _activity;
-        initializeStringOfIDs();
-        initializeCheckBoxArray();
+        mPacketCardView = packetCardView;
+        mActivity = _activity;
+
         initializeMaps();
         setAllDaysCheckbox();
     }
 
-    private void initializeStringOfIDs() {
-        mSpinnerIDs[0] = R.id.act_SWHours_Spinner_MondayStart;
-        mSpinnerIDs[1] = R.id.act_SWHours_Spinner_MondayEnd;
-        mSpinnerIDs[2] = R.id.act_SWHours_Spinner_TuesdayStart;
-        mSpinnerIDs[3] = R.id.act_SWHours_Spinner_TuesdayEnd;
-        mSpinnerIDs[4] = R.id.act_SWHours_Spinner_WednesdayStart;
-        mSpinnerIDs[5] = R.id.act_SWHours_Spinner_WednesdayEnd;
-        mSpinnerIDs[6] = R.id.act_SWHours_Spinner_ThursdayStart;
-        mSpinnerIDs[7] = R.id.act_SWHours_Spinner_ThursdayEnd;
-        mSpinnerIDs[8] = R.id.act_SWHours_Spinner_FridayStart;
-        mSpinnerIDs[9] = R.id.act_SWHours_Spinner_FridayEnd;
-        mSpinnerIDs[10] = R.id.act_SWHours_Spinner_SaturdayStart;
-        mSpinnerIDs[11] = R.id.act_SWHours_Spinner_SaturdayEnd;
-        mSpinnerIDs[12] = R.id.act_SWHours_Spinner_SundayStart;
-        mSpinnerIDs[13] = R.id.act_SWHours_Spinner_SundayEnd;
-        mSpinnerIDs[14] = R.id.act_SWHours_Spinner_AllDaysStart;
-        mSpinnerIDs[15] = R.id.act_SWHours_Spinner_AllDaysEnd;
-    }
 
-    private void initializeCheckBoxArray() {
-        mCheckBoxArray[0] = this.activity.findViewById(R.id.act_SWHours_CB_DiffHours);
-        mCheckBoxArray[1] = this.activity.findViewById(R.id.act_SWHours_CB_MondayFree);
-        mCheckBoxArray[2] = this.activity.findViewById(R.id.act_SWHours_CB_TuesdayFree);
-        mCheckBoxArray[3] = this.activity.findViewById(R.id.act_SWHours_CB_WednesdayFree);
-        mCheckBoxArray[4] = this.activity.findViewById(R.id.act_SWHours_CB_ThursdayFree);
-        mCheckBoxArray[5] = this.activity.findViewById(R.id.act_SWHours_CB_FridayFree);
-        mCheckBoxArray[6] = this.activity.findViewById(R.id.act_SWHours_CB_SaturdayFree);
-        mCheckBoxArray[7] = this.activity.findViewById(R.id.act_SWHours_CB_SundayFree);
-    }
 
     private void initializeMaps() {
-        int _counter;
+        int _counter = 0;
 
-        mStartDay[0] = "MondayStart";
-        mStartDay[1] = "TuesdayStart";
-        mStartDay[2] = "WednesdayStart";
-        mStartDay[3] = "ThursdayStart";
-        mStartDay[4] = "FridayStart";
-        mStartDay[5] = "SaturdayStart";
-        mStartDay[6] = "SundayStart";
-        mStartDay[7] = "AllDaysStart";
-
-        mEndDay[0] = "MondayEnd";
-        mEndDay[1] = "TuesdayEnd";
-        mEndDay[2] = "WednesdayEnd";
-        mEndDay[3] = "ThursdayEnd";
-        mEndDay[4] = "FridayEnd";
-        mEndDay[5] = "SaturdayEnd";
-        mEndDay[6] = "SundayEnd";
-        mEndDay[7] = "AllDaysEnd";
-
-        for(_counter = 0; _counter < 16; _counter += 2) {
-            mIDsArray.put(mSpinnerIDs[_counter], _counter / 2);
-            mIDsArray.put(mSpinnerIDs[_counter + 1], _counter / 2);
-            mSpinnerArray.put(mStartDay[_counter / 2], (Spinner) this.activity.findViewById(mSpinnerIDs[_counter]));
-            mSpinnerArray.put(mEndDay[_counter / 2], (Spinner) this.activity.findViewById(mSpinnerIDs[_counter + 1]));
-        }
-
-        for(mDaysIterator = 0; mDaysIterator < 7; mDaysIterator++) {
-            setCheckChanged(mCheckBoxArray[mDaysIterator + 1], mStartDay[mDaysIterator], mEndDay[mDaysIterator]);
+        for(DaysOfWeek _day : DaysOfWeek.values()) {
+            setCheckChanged((CheckBox) mActivity.findViewById(_day.geteCheckBoxID()), _day.geteDisplayName().substring(0, 3).toUpperCase());
+            mIDsArray.put(_day.geteSpinnerStartID(), _counter / 2);
+            mIDsArray.put(_day.geteSpinnerEndID(), _counter / 2);
+            _counter += 2;
         }
     }
 
-    public void setCheckChanged(CheckBox checkBox, final String startKey, final String endKey) {
+    public void setCheckChanged(CheckBox checkBox, final String day) {
         checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked) {
-                    mSpinnerArray.get(startKey).setVisibility(View.GONE);
-                    mSpinnerArray.get(endKey).setVisibility(View.GONE);
+                    mActivity.findViewById(DaysOfWeek.valueOf(day).geteSpinnerStartID()).setVisibility(View.GONE);
+                    mActivity.findViewById(DaysOfWeek.valueOf(day).geteSpinnerEndID()).setVisibility(View.GONE);
+
+                    DaysOfWeek.valueOf(day).setFreeStatus(true);
+                    mStartHours[mIDsArray.get(DaysOfWeek.valueOf(day).geteSpinnerStartID())] = "Free";
+                    mEndHours[mIDsArray.get(DaysOfWeek.valueOf(day).geteSpinnerEndID())] = "Free";
                 }
                 else {
-                    mSpinnerArray.get(startKey).setVisibility(View.VISIBLE);
-                    mSpinnerArray.get(endKey).setVisibility(View.VISIBLE);
+                    mActivity.findViewById(DaysOfWeek.valueOf(day).geteSpinnerStartID()).setVisibility(View.VISIBLE);
+                    mActivity.findViewById(DaysOfWeek.valueOf(day).geteSpinnerEndID()).setVisibility(View.VISIBLE);
+                    mStartHours[mIDsArray.get(DaysOfWeek.valueOf(day).geteSpinnerStartID())] = null;
+                    mEndHours[mIDsArray.get(DaysOfWeek.valueOf(day).geteSpinnerEndID())] = null;
+                    DaysOfWeek.valueOf(day).setFreeStatus(false);
                 }
             }
         });
     }
 
     public void setUpSpinners(final ArrayAdapter<CharSequence> mAdapterHours) {
-        for(mDaysIterator = 0; mDaysIterator < 8; mDaysIterator++) {
-            mSpinnerArray.get(mStartDay[mDaysIterator]).setAdapter(mAdapterHours);
-            mSpinnerArray.get(mEndDay[mDaysIterator]).setAdapter(mAdapterHours);
-            mSpinnerArray.get(mStartDay[mDaysIterator]).setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        mDaysIterator = 0;
+        for(DaysOfWeek _day: DaysOfWeek.values()) {
+            ((Spinner) mActivity.findViewById(_day.geteSpinnerStartID())).setAdapter(mAdapterHours);
+            ((Spinner) mActivity.findViewById(_day.geteSpinnerEndID())).setAdapter(mAdapterHours);
+            ((Spinner) mActivity.findViewById(_day.geteSpinnerStartID())).setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 private int counter;
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -144,7 +97,7 @@ public class PacketSpinnerView extends AppCompatSpinner {
                     mStartHours[mDaysIterator] = null;
                 }
             });
-            mSpinnerArray.get(mEndDay[mDaysIterator]).setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            ((Spinner) mActivity.findViewById(_day.geteSpinnerEndID())).setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 private int counter;
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -158,68 +111,82 @@ public class PacketSpinnerView extends AppCompatSpinner {
                     mEndHours[mDaysIterator] = null;
                 }
             });
+
+            mDaysIterator++;
         }
     }
 
     private void setAllDaysCheckbox() {
-        mCheckBoxArray[0].setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        ((CheckBox) mActivity.findViewById(R.id.act_SWHours_CB_DiffHours)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                mPacketLinearLayout.setVisibilityOnCheck(isChecked);
+                mPacketCardView.setVisibilityOnCheck(isChecked);
             }
         });
     }
 
     public boolean checkEmptySpinners() {
-        // Write working hours to database
-        boolean emptySpinner = false;
-        if(mCheckBoxArray[0].isChecked()) {
-            for (mDaysIterator = 0; mDaysIterator < 7; mDaysIterator++) {
+        if(((CheckBox) mActivity.findViewById(R.id.act_SWHours_CB_DiffHours)).isChecked()) {
+            for (mDaysIterator = 1; mDaysIterator < 8; mDaysIterator++) {
                 if (mStartHours[mDaysIterator] == null || mEndHours[mDaysIterator] == null) {
-                    emptySpinner = true;
+                    return true;
                 }
             }
         }
         else {
-            for(mDaysIterator = 5; mDaysIterator < 8; mDaysIterator++) {
+            /* check if all day is null */
+            if (mStartHours[0] == null || mEndHours[0] == null) {
+                return true;
+            }
+            for(mDaysIterator = 6; mDaysIterator < 8; mDaysIterator++) {
                 if (mStartHours[mDaysIterator] == null || mEndHours[mDaysIterator] == null) {
-                    emptySpinner = true;
+                    return true;
                 }
             }
         }
 
-        return emptySpinner;
+        return false;
     }
 
     public Map<String, Object> getDaysToAdd() {
         Map<String, Object> daysToAdd = new HashMap<>();
-        if(mCheckBoxArray[0].isChecked()) {
-            for (mDaysIterator = 0; mDaysIterator < 7; mDaysIterator++) {
-                putToDays(mCheckBoxArray[mDaysIterator + 1].isChecked(), daysToAdd);
+        if( ((CheckBox) mActivity.findViewById(R.id.act_SWHours_CB_DiffHours)).isChecked()) {
+            /* we have 7 days to get */
+            mDaysIterator = 1;
+            for (DaysOfWeek _day : DaysOfWeek.values()) {
+                if(!_day.geteDisplayName().equals("All")) {
+                    putToDays(_day.getFreeStatus(), daysToAdd, _day.geteDisplayName());
+                    mDaysIterator++;
+                }
             }
         }
         else {
-            for (mDaysIterator = 0; mDaysIterator < 7; mDaysIterator++) {
-                if(mDaysIterator < 5) {
-                    daysToAdd.put(mStartDay[mDaysIterator], mStartHours[7]);
-                    daysToAdd.put(mEndDay[mDaysIterator], mEndHours[7]);
+            /* we add for the first 5 days the value
+             * of the all week day spinners
+             */
+            mDaysIterator = 0;
+            for (DaysOfWeek _day: DaysOfWeek.values()) {
+                if(mDaysIterator < 6 && mDaysIterator > 0) {
+                    daysToAdd.put(_day.geteDisplayName() + "Start", mStartHours[0]);
+                    daysToAdd.put(_day.geteDisplayName() + "End", mEndHours[0]);
                 }
-                else {
-                    putToDays(mCheckBoxArray[mDaysIterator + 1].isChecked(), daysToAdd);
+                else if (mDaysIterator >= 6) {
+                    putToDays(_day.getFreeStatus(), daysToAdd, _day.geteDisplayName());
                 }
+                mDaysIterator++;
             }
         }
         return daysToAdd;
     }
 
-    public void putToDays(boolean isChecked, Map<String, Object> daysToAdd) {
+    public void putToDays(boolean isChecked, Map<String, Object> daysToAdd, String dayName) {
         if(isChecked) {
-            daysToAdd.put(mStartDay[mDaysIterator], "Free");
-            daysToAdd.put(mEndDay[mDaysIterator], "Free");
+            daysToAdd.put(dayName + "Start", "Free");
+            daysToAdd.put(dayName + "End", "Free");
         }
         else {
-            daysToAdd.put(mStartDay[mDaysIterator], mStartHours[mDaysIterator]);
-            daysToAdd.put(mEndDay[mDaysIterator], mEndHours[mDaysIterator]);
+            daysToAdd.put(dayName + "Start", mStartHours[mDaysIterator]);
+            daysToAdd.put(dayName + "End", mEndHours[mDaysIterator]);
         }
     }
 }

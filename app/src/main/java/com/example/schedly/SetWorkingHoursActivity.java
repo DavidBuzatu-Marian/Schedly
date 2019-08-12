@@ -4,22 +4,14 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.media.midi.MidiDevice;
 import android.os.Bundle;
-import android.sax.StartElementListener;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.schedly.model.AnimationTransitionOnActivity;
-import com.example.schedly.packet_classes.PacketLinearLayout;
+import com.example.schedly.packet_classes.PacketCardView;
 import com.example.schedly.packet_classes.PacketSpinnerView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -29,8 +21,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.example.schedly.MainActivity.CA_CANCEL;
@@ -43,7 +33,7 @@ public class SetWorkingHoursActivity extends AppCompatActivity {
     private ArrayAdapter<CharSequence> mAdapterHours;
 
     private PacketSpinnerView mPacketSpinnerView;
-    private PacketLinearLayout mLinearLayout;
+    private PacketCardView mLinearLayout;
     AnimationTransitionOnActivity _animationTransitionOnActivity;
 
     @Override
@@ -76,7 +66,7 @@ public class SetWorkingHoursActivity extends AppCompatActivity {
         mAdapterHours = ArrayAdapter.createFromResource(this,R.array.hours_array, R.layout.spinner_workinghours);
         mAdapterHours.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        mLinearLayout = new PacketLinearLayout(SetWorkingHoursActivity.this, SetWorkingHoursActivity.this);
+        mLinearLayout = new PacketCardView(this, SetWorkingHoursActivity.this);
 
         mPacketSpinnerView = new PacketSpinnerView(this, mLinearLayout, SetWorkingHoursActivity.this);
         mPacketSpinnerView.setUpSpinners(mAdapterHours);

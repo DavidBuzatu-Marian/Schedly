@@ -10,7 +10,7 @@
         <item name="android:windowActivityTransitions">true</item>
     </style>
 
-    <style name="noAnimThemeBetweenActivities" parent="android:Theme">
+    <style name="noAnimThemeBetweenActivities" parent="AppTheme">
         <item name="android:windowAnimationStyle">@null</item>
     </style>
 
@@ -252,8 +252,22 @@
         <item name="android:layout_marginEnd">12dp</item>
         <item name="android:layout_marginStart">6dp</item>
         <item name="android:textColor">@color/colorSetUp</item>
-        <item name="android:layout_alignParentStart">true</item>
         <item name="android:text">@string/act_SWHours_CB_FreeDay</item>
+    </style>
+
+    <style name="SpinnerStartSWHours">
+        <item name="android:layout_marginStart">4dp</item>
+        <item name="android:layout_marginEnd">4dp</item>
+        <item name="android:backgroundTint">@color/colorSetUp</item>
+        <item name="android:prompt">@string/act_SWHours_Spinner_TitleStart</item>
+        <item name="android:spinnerMode">dialog</item>
+    </style>
+
+    <style name="SpinnerEndSWHours">
+        <item name="android:layout_marginEnd">4dp</item>
+        <item name="android:backgroundTint">@color/colorSetUp</item>
+        <item name="android:prompt">@string/act_SWHours_Spinner_TitleEnd</item>
+        <item name="android:spinnerMode">dialog</item>
     </style>
 
     <!-- set appointment duration -->

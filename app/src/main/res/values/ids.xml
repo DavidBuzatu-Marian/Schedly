@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="act_SWHours_CV_Monday" type="id" />
+    <item name="act_SWHours_CB_MondayFree" type="id" />
+    <item name="act_SWHours_CB_TuesdayFree" type="id" />
+    <item name="act_SWHours_CV_Tuesday" type="id" />
+    <item name="act_SWHours_CV_Wednesday" type="id" />
+    <item name="act_SWHours_CV_Thursday" type="id" />
+    <item name="act_SWHours_CV_Friday" type="id" />
+    <item name="act_SWHours_CV_Saturday" type="id" />
+    <item name="act_SWHours_CV_Sunday" type="id" />
+    <item name="act_SWHours_CV_AllDays" type="id" />
+    <item name="act_SWHours_CB_AllDays" type="id" />
+    <item name="act_SWHours_CB_SundayFree" type="id" />
+    <item name="act_SWHours_CB_SaturdayFree" type="id" />
+    <item name="act_SWHours_CB_FridayFree" type="id" />
+    <item name="act_SWHours_CB_ThursdayFree" type="id" />
+    <item name="act_SWHours_CB_WednesdayFree" type="id" />
+    <item name="act_SWHours_Spinner_MondayStart" type="id" />
+    <item name="act_SWHours_Spinner_TuesdayStart" type="id" />
+    <item name="act_SWHours_Spinner_WednesdayStart" type="id" />
+    <item name="act_SWHours_Spinner_ThursdayStart" type="id" />
+    <item name="act_SWHours_Spinner_FridayStart" type="id" />
+    <item name="act_SWHours_Spinner_SaturdayStart" type="id" />
+    <item name="act_SWHours_Spinner_SundayStart" type="id" />
+    <item name="act_SWHours_Spinner_AllDaysStart" type="id" />
+    <item name="act_SWHours_Spinner_AllDaysEnd" type="id" />
+    <item name="act_SWHours_Spinner_SundayEnd" type="id" />
+    <item name="act_SWHours_Spinner_SaturdayEnd" type="id" />
+    <item name="act_SWHours_Spinner_FridayEnd" type="id" />
+    <item name="act_SWHours_Spinner_ThursdayEnd" type="id" />
+    <item name="act_SWHours_Spinner_WednesdayEnd" type="id" />
+    <item name="act_SWHours_Spinner_TuesdayEnd" type="id" />
+    <item name="act_SWHours_Spinner_MondayEnd" type="id" />
+</resources>
