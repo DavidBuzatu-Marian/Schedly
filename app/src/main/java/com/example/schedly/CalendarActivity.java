@@ -85,8 +85,8 @@ public class CalendarActivity extends AppCompatActivity {
         mCalendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
             public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
-//                PacketService _psTest = new PacketService(userID, mUserAppointmentDuration, mUserDaysWithScheduleID, mUserWorkingHoursID);
-//                _psTest.getAllDaysIDs("12:00", "0724154387");
+                PacketService _psTest = new PacketService(userID, mUserAppointmentDuration, mUserDaysWithScheduleID, mUserWorkingHoursID);
+                _psTest.getAllDaysIDs("12:00", "0724154387");
                 getDateFromCalendarView(year, month, dayOfMonth, false);
                 Log.d("DATE", mDate + "");
             }
@@ -279,7 +279,7 @@ public class CalendarActivity extends AppCompatActivity {
                         Log.d("APPP", json);
 
 
-                        mDataSet.add(mCounter, new Appointment(_entry.getKey(), gson, json));
+                        mDataSet.add(mCounter, new Appointment(_entry.getKey(), gson, json, currentDayID, mUserDaysWithScheduleID));
                         mCounter++;
                     }
                 } else {
@@ -430,4 +430,11 @@ public class CalendarActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        finishAffinity();
+        finish();
+    }
 }

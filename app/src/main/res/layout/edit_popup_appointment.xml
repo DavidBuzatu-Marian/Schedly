@@ -17,26 +17,30 @@
         android:layout_height="wrap_content"
         style="@style/PopupTVPhoneNumber"
         android:layout_below="@id/popup_appointment_TV_Name"/>
-
-    <androidx.cardview.widget.CardView
-        android:id="@+id/popup_appointment_CV_Options"
+    <TextView
+        android:id="@+id/popup_appointment_TV_AppointmentInfo"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:layout_below="@id/popup_appointment_TV_PhoneNumber"
-        android:layout_marginStart="36dp"
-        android:layout_marginEnd="36dp"
-        android:layout_marginTop="72dp"
-        android:layout_marginBottom="72dp"
-        card_view:cardElevation="2dp"
-        app:cardCornerRadius="16dp">
+        android:layout_height="wrap_content"
+        style="@style/PopupTVAppointmentInfo"
+        android:layout_below="@id/popup_appointment_TV_PhoneNumber"/>
+
+    <View
+        android:id="@+id/popup_appointment_VIEW_Bar"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorAppointmentInfo"
+        android:layout_below="@id/popup_appointment_TV_AppointmentInfo"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"/>
+
     <LinearLayout
         android:id="@+id/popup_appointment_LL_Options"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:gravity="center"
-        android:padding="8dp">
+        android:padding="8dp"
+        android:layout_below="@id/popup_appointment_VIEW_Bar">
 
         <LinearLayout
             android:id="@+id/popup_appointment_LL_Message"
@@ -44,27 +48,24 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/popup_appointment_TV_Message"
-                android:layout_gravity="center_vertical"
-                android:gravity="start"/>
             <Button
                 android:id="@+id/popup_appointment_BUT_Message"
-                android:layout_width="120dp"
-                android:layout_height="60dp"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
                 android:layout_gravity="center"
-                android:background="@drawable/button_send_message"
-                android:drawableEnd="@drawable/ic_baseline_message_24px"
-                android:drawablePadding="2dp"
-                android:padding="6dp"
-                android:gravity="center"
+                android:background="@drawable/button_info_options"
+                android:drawableStart="@drawable/ic_baseline_message_24px"
+                android:padding="12dp"
                 android:singleLine="true"
-                android:text="@string/popup_appointment_BUT_Message"
+                android:text="@string/popup_appointment_TV_Message"
                 android:textColor="#FFFFFF"
-                android:textSize="12sp" />
+                android:fontFamily="@font/roboto_thin"
+                android:textAllCaps="false"
+                android:gravity="center|center_vertical"
+                android:textSize="12sp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:stateListAnimator="@animator/button_click_animator"/>
 
         </LinearLayout>
 
@@ -75,27 +76,24 @@
             android:orientation="horizontal"
             android:layout_marginTop="8dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/popup_appointment_TV_Call"
-                android:layout_gravity="center_vertical"
-                android:gravity="start"/>
             <Button
                 android:id="@+id/popup_appointment_BUT_Call"
-                android:layout_width="120dp"
-                android:layout_height="60dp"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
                 android:layout_gravity="center"
-                android:background="@drawable/button_send_message"
-                android:drawableEnd="@drawable/ic_baseline_phone_24px"
-                android:drawablePadding="2dp"
-                android:padding="6dp"
-                android:gravity="center"
+                android:background="@drawable/button_info_options"
+                android:drawableStart="@drawable/ic_baseline_phone_24px"
+                android:padding="12dp"
                 android:singleLine="true"
-                android:text="@string/popup_appointment_BUT_Call"
+                android:text="@string/popup_appointment_TV_Call"
                 android:textColor="#FFFFFF"
-                android:textSize="12sp" />
+                android:fontFamily="@font/roboto_thin"
+                android:textAllCaps="false"
+                android:gravity="center|center_vertical"
+                android:textSize="12sp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:stateListAnimator="@animator/button_click_animator"/>
 
         </LinearLayout>
 
@@ -106,30 +104,55 @@
             android:orientation="horizontal"
             android:layout_marginTop="8dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/popup_appointment_TV_AddToContacts"
-                android:layout_gravity="center_vertical"
-                android:gravity="start"/>
             <Button
                 android:id="@+id/popup_appointment_BUT_AddToContacts"
-                android:layout_width="120dp"
-                android:layout_height="60dp"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
                 android:layout_gravity="center"
-                android:background="@drawable/button_send_message"
-                android:drawableEnd="@drawable/ic_baseline_perm_contact_calendar_24px"
-                android:drawablePadding="2dp"
-                android:padding="6dp"
-                android:gravity="center"
+                android:background="@drawable/button_info_options"
+                android:drawableStart="@drawable/ic_baseline_perm_contact_calendar_24px"
+                android:padding="12dp"
                 android:singleLine="true"
-                android:text="@string/popup_appointment_BUT_AddToContacts"
+                android:text="@string/popup_appointment_TV_AddToContacts"
                 android:textColor="#FFFFFF"
-                android:textSize="12sp" />
+                android:fontFamily="@font/roboto_thin"
+                android:textAllCaps="false"
+                android:gravity="center|center_vertical"
+                android:textSize="12sp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:stateListAnimator="@animator/button_click_animator"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/popup_appointment_LL_CancelAppointment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp">
+
+            <Button
+                android:id="@+id/popup_appointment_BUT_CancelAppointment"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
+                android:background="@drawable/button_info_cancel"
+                android:drawableStart="@drawable/ic_baseline_cancel_24px"
+                android:padding="12dp"
+                android:singleLine="true"
+                android:text="@string/popup_appointment_TV_CancelAppointment"
+                android:textColor="#FFFFFF"
+                android:fontFamily="@font/roboto_thin"
+                android:textAllCaps="false"
+                android:gravity="center|center_vertical"
+                android:textSize="12sp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:stateListAnimator="@animator/button_click_animator"/>
 
         </LinearLayout>
     </LinearLayout>
-    </androidx.cardview.widget.CardView>
 
 </RelativeLayout>

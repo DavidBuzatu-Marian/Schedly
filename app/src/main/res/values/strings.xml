@@ -98,13 +98,10 @@
     <string name="act_FPassword_TV_Head">Forgot Password</string>
     <string name="act_FPassword_BUT_Send"><![CDATA[Send >]]></string>
     <string name="act_SDuration_Hint_TI_DisplayName">Display name</string>
-    <string name="act_FPassword_TV_Head_Extra">Please enter your email adress to reset your password</string>
-    <string name="popup_appointment_BUT_Message">Message</string>
-    <string name="popup_appointment_TV_Message">Send a message to your client</string>
-    <string name="popup_appointment_TV_Call">Call your client</string>
-    <string name="popup_appointment_BUT_Call">Call</string>
+    <string name="act_FPassword_TV_Head_Extra">Please enter your email address to reset your password</string>
+    <string name="popup_appointment_TV_Message">Send SMS</string>
+    <string name="popup_appointment_TV_Call">Call client</string>
     <string name="popup_appointment_TV_AddToContacts">Add number to contacts</string>
-    <string name="popup_appointment_BUT_AddToContacts">Add</string>
     <string name="act_Calendar_IV_CD_Settings">Settings</string>
     <string name="frag_Settings_TV_Settings">Settings</string>
     <string name="action_settings">Settings</string>
@@ -115,5 +112,6 @@
     <string name="hint_change_password_confirm">Confirm password</string>
     <string name="permission_alert_dialog_CONTACTS">Contacts permission</string>
     <string name="permission_dialog_CONTACTS_body">Schedly will now request read Contacts permission on your device. This is essential in order for Schedly to work properly!</string>
+    <string name="popup_appointment_TV_CancelAppointment">Cancel appointment</string>
 
 </resources>

@@ -44,9 +44,9 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".ScheduleDurationActivity" android:theme="@style/noAnimThemeBetweenActivities"/>
-        <activity android:name=".SetWorkingHoursActivity" android:theme="@style/noAnimThemeBetweenActivities" />
-        <activity android:name=".SetProffesionActivity" android:theme="@style/noAnimThemeBetweenActivities"/>
+        <activity android:name=".ScheduleDurationActivity"/>
+        <activity android:name=".SetWorkingHoursActivity"/>
+        <activity android:name=".SetProfessionActivity"/>
         <activity
             android:name=".SetPhoneNumberActivity"
             android:parentActivityName=".MainActivity">
@@ -54,7 +54,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
-        <activity android:name=".CalendarActivity" android:theme="@style/noAnimThemeBetweenActivities">
+        <activity android:name=".CalendarActivity">
             <intent-filter>
                 <action android:name="android.intent.action.DIAL" />
 

@@ -13,13 +13,17 @@ public class Appointment{
     private String mHour;
     private String mName;
     private String mPhoneNumber;
+    private String mCurrentDayID;
+    private String mUserDaysWithScheduleID;
 
 
-    public Appointment(String _hour, Gson _gson, String _json) {
+    public Appointment(String _hour, Gson _gson, String _json, String currentDayID, String userDaysWithScheduleID) {
         mHour = _hour;
         Properties data = _gson.fromJson(_json, Properties.class);
         mName = data.getProperty("Name");
         mPhoneNumber = data.getProperty("PhoneNumber");
+        mCurrentDayID = currentDayID;
+        mUserDaysWithScheduleID = userDaysWithScheduleID;
     }
 
 
@@ -45,5 +49,13 @@ public class Appointment{
 
     public void setmPhoneNumber(String mPhoneNumber) {
         this.mPhoneNumber = mPhoneNumber;
+    }
+
+    public String getmCurrentDayID() {
+        return mCurrentDayID;
+    }
+
+    public String getmUserDaysWithScheduleID() {
+        return mUserDaysWithScheduleID;
     }
 }

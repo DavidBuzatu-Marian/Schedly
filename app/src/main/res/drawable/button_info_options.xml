@@ -3,11 +3,11 @@
     <item>
         <shape>
             <gradient
-                android:startColor="@color/colorPrimaryDark"
-                android:endColor="#E64A19"
+                android:startColor="@color/colorPrimary"
+                android:endColor="@color/colorPrimary"
                 android:type="linear" />
 
-            <corners android:radius="4dp"/>
+            <corners android:radius="30dp"/>
         </shape>
     </item>
 </layer-list>

@@ -15,6 +15,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import static com.example.schedly.CalendarActivity.LOG_OUT;
 import static com.example.schedly.MainActivity.SD_CANCEL;
 import static com.example.schedly.MainActivity.SPN_CANCEL;
 import static com.example.schedly.MainActivity.SP_CANCEL;
@@ -38,7 +40,7 @@ public class StartSplashActivity extends AppCompatActivity {
         if(currentUser != null) {
             Log.d("Firebase", "Logged");
             /* get user info and redirect */
-            PacketMainLogin _packetMainLogin = new PacketMainLogin(this);
+            PacketMainLogin _packetMainLogin = new PacketMainLogin(this, false);
             _packetMainLogin.getUserDetails(currentUser);
         }
         else {
@@ -59,6 +61,11 @@ public class StartSplashActivity extends AppCompatActivity {
             mGoogleSignInClient.signOut();
             LoginManager.getInstance().logOut();
             FirebaseAuth.getInstance().signOut();
+            Intent _intentMainActivity = new Intent(this, MainActivity.class);
+            startActivity(_intentMainActivity);
+            finish();
+        }
+        if(resultCode == LOG_OUT) {
             Intent _intentMainActivity = new Intent(this, MainActivity.class);
             startActivity(_intentMainActivity);
             finish();

@@ -33,7 +33,7 @@ public class SetWorkingHoursActivity extends AppCompatActivity {
     private ArrayAdapter<CharSequence> mAdapterHours;
 
     private PacketSpinnerView mPacketSpinnerView;
-    private PacketCardView mLinearLayout;
+    private PacketCardView mPacketCardView;
     AnimationTransitionOnActivity _animationTransitionOnActivity;
 
     @Override
@@ -66,9 +66,9 @@ public class SetWorkingHoursActivity extends AppCompatActivity {
         mAdapterHours = ArrayAdapter.createFromResource(this,R.array.hours_array, R.layout.spinner_workinghours);
         mAdapterHours.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        mLinearLayout = new PacketCardView(this, SetWorkingHoursActivity.this);
+        mPacketCardView = new PacketCardView(this, SetWorkingHoursActivity.this);
 
-        mPacketSpinnerView = new PacketSpinnerView(this, mLinearLayout, SetWorkingHoursActivity.this);
+        mPacketSpinnerView = new PacketSpinnerView(this, mPacketCardView, SetWorkingHoursActivity.this);
         mPacketSpinnerView.setUpSpinners(mAdapterHours);
 
     }

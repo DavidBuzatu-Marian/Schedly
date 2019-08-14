@@ -3,12 +3,18 @@ package com.example.schedly.packet_classes;
 import android.app.Activity;
 import android.content.Intent;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 
+import com.example.schedly.MainActivity;
+import com.example.schedly.R;
 import com.example.schedly.ScheduleDurationActivity;
 import com.example.schedly.SetPhoneNumberActivity;
-import com.example.schedly.SetProffesionActivity;
+import com.example.schedly.SetProfessionActivity;
 import com.example.schedly.SetWorkingHoursActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -31,8 +37,8 @@ import static com.example.schedly.MainActivity.SWH_CANCEL;
 
 public class PacketMainLogin {
     private Activity mActivity;
-    private FirebaseAuth mAuth;
     private final String TAG = "RES";
+    private boolean mIsMain;
     /* firestore */
     FirebaseFirestore mFirebaseFirestore;
     /* store user info */
@@ -40,11 +46,21 @@ public class PacketMainLogin {
     private String userPhoneNumber;
     private String userProfession;
     private String userAppointmentsDuration;
+    private ProgressBar mProgressBar;
+    private RelativeLayout mRootRelativeLayout;
 
 
-    public PacketMainLogin(Activity _activity) {
-        mActivity = _activity;
+    public PacketMainLogin(Activity activity,  boolean isMain) {
+        mActivity = activity;
+        isMain = isMain;
         mFirebaseFirestore = FirebaseFirestore.getInstance();
+        if(isMain) {
+            /* we come from main activity
+             * get views for progress bar
+             */
+            mProgressBar = mActivity.findViewById(R.id.act_main_PB);
+            mRootRelativeLayout = mActivity.findViewById(R.id.act_main_RL_Root);
+        }
     }
 
     public void getUserDetails(@NonNull final FirebaseUser currentUser) {
@@ -176,6 +192,9 @@ public class PacketMainLogin {
 
 
     private void getToInitActivity(FirebaseUser user) {
+        if(mIsMain) {
+            showProgressBar(false);
+        }
         if(userPhoneNumber == null) {
             Intent firstStep = new Intent(mActivity, SetPhoneNumberActivity.class);
             firstStep.putExtra("userID", user.getUid());
@@ -183,7 +202,7 @@ public class PacketMainLogin {
         }
         else
         if(userProfession == null) {
-            Intent secondStep = new Intent(mActivity, SetProffesionActivity.class);
+            Intent secondStep = new Intent(mActivity, SetProfessionActivity.class);
             secondStep.putExtra("userID", user.getUid());
             mActivity.startActivityForResult(secondStep, SP_CANCEL);
         } else {
@@ -194,6 +213,9 @@ public class PacketMainLogin {
     }
 
     private void getToCalendarActivity(FirebaseUser user) {
+        if(mIsMain) {
+            showProgressBar(false);
+        }
         if(userAppointmentsDuration == null) {
             Intent ScheduleDuration = new Intent(mActivity, ScheduleDurationActivity.class);
             ScheduleDuration.putExtra("userID", user.getUid());
@@ -204,5 +226,40 @@ public class PacketMainLogin {
             CalendarActivity.putExtra("userID", user.getUid());
             mActivity.startActivityForResult(CalendarActivity, CA_CANCEL);
         }
+    }
+
+
+    public void showProgressBar(boolean show) {
+        if(show) {
+            mProgressBar.setVisibility(View.VISIBLE);
+            mRootRelativeLayout.setClickable(false);
+            mRootRelativeLayout.setEnabled(false);
+            disableView(false);
+        }
+        else {
+            mProgressBar.setVisibility(View.GONE);
+            mRootRelativeLayout.setClickable(true);
+            mRootRelativeLayout.setEnabled(true);
+            disableView(true);
+        }
+
+    }
+
+    private void disableView(boolean value) {
+        ViewGroup _viewGroup = mActivity.findViewById(R.id.act_main_RL_Root);
+        loopThroughViews(_viewGroup, value);
+        mActivity.findViewById(R.id.act_main_TIL_email).setEnabled(value);
+        _viewGroup = mActivity.findViewById(R.id.act_main_RL_CV_Password);
+        loopThroughViews(_viewGroup, value);
+    }
+
+    private void loopThroughViews(ViewGroup viewGroup, boolean value) {
+        int _childrenNumber = viewGroup.getChildCount(), _counter;
+        for(_counter = 0; _counter < _childrenNumber; _counter++) {
+            View _childView = viewGroup.getChildAt(_counter);
+            _childView.setEnabled(value);
+            Log.d("Views", _childView.toString());
+        }
+        viewGroup.setEnabled(value);
     }
 }

@@ -27,6 +27,7 @@ import androidx.core.app.NotificationCompat;
 
 import com.example.schedly.MainActivity;
 import com.example.schedly.R;
+import com.example.schedly.StartSplashActivity;
 import com.example.schedly.model.MessageListener;
 import com.example.schedly.model.SMSBroadcastReceiver;
 import com.example.schedly.model.TSMSMessage;
@@ -121,7 +122,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         assert manager != null;
         manager.createNotificationChannel(channel);
-        Intent calendarIntent = new Intent(this, MainActivity.class);
+        Intent calendarIntent = new Intent(this, StartSplashActivity.class);
 
         PendingIntent intent = PendingIntent.getActivity(this, 0,
                 calendarIntent, 0);
@@ -221,7 +222,6 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
                     Properties data = _gson.fromJson(mResultFromDialogFlow.get("parameters").toString(), Properties.class);
                     mTime = getLocaleTimeString(data.getProperty("time"));
                     mDateFromUser = getLocaleDateString(data.getProperty("date"));
-                    Log.d("FirebaseS", mDateFromUser);
                     if(mTime == null && mDateFromUser != null) {
                         sendMessageForTime();
                     }

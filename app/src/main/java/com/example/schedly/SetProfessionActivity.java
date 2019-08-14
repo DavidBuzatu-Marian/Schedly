@@ -15,10 +15,7 @@ import com.example.schedly.model.AnimationTransitionOnActivity;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.SetOptions;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,7 +23,7 @@ import java.util.Map;
 import static com.example.schedly.MainActivity.CA_CANCEL;
 import static com.example.schedly.MainActivity.SWH_CANCEL;
 
-public class SetProffesionActivity extends AppCompatActivity implements View.OnClickListener{
+public class SetProfessionActivity extends AppCompatActivity implements View.OnClickListener{
     private String userID;
     private String TAG = "RES";
     private int selectedProfession;
@@ -68,7 +65,7 @@ public class SetProffesionActivity extends AppCompatActivity implements View.OnC
                     addUserDataToDatabase(userID);
                 }
                 else {
-                    Toast.makeText(SetProffesionActivity.this, "A profession is required!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SetProfessionActivity.this, "A profession is required!", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -97,7 +94,7 @@ public class SetProffesionActivity extends AppCompatActivity implements View.OnC
     }
 
     private void startSetWorkingHours(String userID) {
-        Intent workingHoursIntent = new Intent(SetProffesionActivity.this, SetWorkingHoursActivity.class);
+        Intent workingHoursIntent = new Intent(SetProfessionActivity.this, SetWorkingHoursActivity.class);
         workingHoursIntent.putExtra("userID", userID);
         startActivityForResult(workingHoursIntent, SWH_CANCEL);
     }

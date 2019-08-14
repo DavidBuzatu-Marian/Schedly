@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class PacketService {
-    private AtomicBoolean mResultForService;
+    public static AtomicBoolean mResultForService;
     private Long mDateInMillis;
     private String mUserDaysWithScheduleID;
     private String mUserID;
@@ -60,7 +60,7 @@ public class PacketService {
     }
 
 
-    public Long getDateInMillis(String _dateFromUser) {
+    private void getDateInMillis(String _dateFromUser) {
         Calendar _calendar = Calendar.getInstance();
         SimpleDateFormat _simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date _date;
@@ -78,7 +78,6 @@ public class PacketService {
         _calendar.set(Calendar.SECOND, 0);
         Log.d("FirebaseTime", _calendar.getTimeInMillis() + "");
         mDateInMillis = _calendar.getTimeInMillis();
-        return mDateInMillis;
     }
 
 
@@ -155,12 +154,9 @@ public class PacketService {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         mUserWorkingDays = documentSnapshot.getData();
-                        mWorkThread = new threadFindDaysForAppointment(mUserDaysWithSchedule,
-                                mUserDaysWithScheduleID,
-                                mTimeToSchedule,
+                        mWorkThread = new threadFindDaysForAppointment(mUserDaysWithScheduleID,
                                 mUserWorkingDays,
                                 mFireStore,
-                                mPhoneNumber,
                                 mUserAppointmentDuration);
                         Log.d("Firebase", "Succes getting working hours!");
                     }
@@ -288,6 +284,9 @@ public class PacketService {
          *  the 3 closest days for the
          * appointment
          */
+        mWorkThread.setmPhoneNumber(mPhoneNumber);
+        mWorkThread.setmTimeToSchedule(mTimeToSchedule);
+        mWorkThread.setmUserDaysWithSchedule(mUserDaysWithSchedule);
         mWorkThread.start();
         mResultForService.set(true);
     }

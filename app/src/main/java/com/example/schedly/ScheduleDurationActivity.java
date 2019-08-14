@@ -23,7 +23,7 @@ import static com.example.schedly.MainActivity.CA_CANCEL;
 
 public class ScheduleDurationActivity extends AppCompatActivity {
 
-    private String userID;
+    private String mUserID;
     private final String TAG = "SDuration";
     AnimationTransitionOnActivity _animationTransitionOnActivity;
 
@@ -32,16 +32,16 @@ public class ScheduleDurationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_schedule_duration);
 
-        Bundle extras = getIntent().getExtras();
-        if(extras != null) {
-            userID = extras.getString("userID");
+        Bundle _extras = getIntent().getExtras();
+        if(_extras != null) {
+            mUserID = _extras.getString("userID");
         }
 
         final EditText _sDurationTV = findViewById(R.id.act_SDuration_TIET_MinutesSelector);
         final EditText _dNameTV = findViewById(R.id.act_SDuration_TIET_DisplayName);
 
-        FloatingActionButton floatingActionButton = findViewById(R.id.act_SDuration_floating_action_button);
-        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+        FloatingActionButton _floatingActionButton = findViewById(R.id.act_SDuration_floating_action_button);
+        _floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(!errorDetected(_sDurationTV, _dNameTV)) {
@@ -68,18 +68,18 @@ public class ScheduleDurationActivity extends AppCompatActivity {
     }
 
     private void addDurationToDB(String minutes, String name) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        FirebaseFirestore _firebaseFirestore = FirebaseFirestore.getInstance();
         Map<String, Object> duration = new HashMap<>();
         duration.put("appointmentsDuration", minutes);
         duration.put("displayName", name);
-        db.collection("users")
-                .document(userID)
+        _firebaseFirestore.collection("users")
+                .document(mUserID)
                 .update(duration)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, "DocumentSnapshot successfully written!");
-                        startCalendar(userID);
+                        startCalendar(mUserID);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -91,10 +91,10 @@ public class ScheduleDurationActivity extends AppCompatActivity {
     }
 
     private void startCalendar(String userID) {
-        Intent calendarIntent = new Intent(ScheduleDurationActivity.this, CalendarActivity.class);
-        calendarIntent.putExtra("userID", userID);
-        calendarIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivityForResult(calendarIntent, CA_CANCEL);
+        Intent _calendarIntent = new Intent(ScheduleDurationActivity.this, CalendarActivity.class);
+        _calendarIntent.putExtra("userID", userID);
+        _calendarIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivityForResult(_calendarIntent, CA_CANCEL);
     }
 
     @Override

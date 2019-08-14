@@ -1,5 +1,6 @@
 package com.example.schedly.adapter;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Point;
 import android.net.Uri;
@@ -17,14 +18,18 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.schedly.R;
 import com.example.schedly.model.Appointment;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
-
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.CalendarScheduleViewHolder> {
@@ -41,16 +46,16 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
     @NonNull
     @Override
     public CalendarScheduleViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        LinearLayout viewgroup = (LinearLayout) LayoutInflater.from(parent.getContext()).inflate(R.layout.appointment_item, parent, false);
+        LinearLayout _viewGroup = (LinearLayout) LayoutInflater.from(parent.getContext()).inflate(R.layout.appointment_item, parent, false);
 
-        CalendarScheduleViewHolder vh = new CalendarScheduleViewHolder(viewgroup, parent);
-        return vh;
+        CalendarScheduleViewHolder _vh = new CalendarScheduleViewHolder(_viewGroup, parent);
+        return _vh;
     }
 
     @Override
     public void onBindViewHolder(@NonNull CalendarScheduleViewHolder holder, int position) {
-        Appointment appointment = mDataSet.get(position);
-        holder.updateDay(appointment);
+        Appointment _appointment = mDataSet.get(position);
+        holder.updateDay(_appointment);
     }
 
     @Override
@@ -65,6 +70,8 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         private TextView mTextViewPhoneNumber;
         private ImageView mImageViewEdit;
         private final String mUnknownName = "Unknown";
+        private String mUDWScheduleID;
+        private String mCDayID;
 
         public CalendarScheduleViewHolder(@NonNull View itemView, @NonNull final ViewGroup parent) {
             super(itemView);
@@ -85,64 +92,85 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
 
         private void showOptionsPopup(View v, @NonNull ViewGroup parent) {
             // inflate the custom popup layout
-            final View inflatedView = LayoutInflater.from(parent.getContext()).inflate(R.layout.edit_popup_appointment, null,false);
+            final View _inflatedView = LayoutInflater.from(parent.getContext()).inflate(R.layout.edit_popup_appointment, null,false);
 
             // get device size
-            Display display = parent.getDisplay();
-            final Point size = new Point();
-            display.getSize(size);
+            Display _display = parent.getDisplay();
+            final Point _size = new Point();
+            _display.getSize(_size);
 
-            PopupWindow popWindow;
+            PopupWindow _popWindow;
             // set height depends on the device size
-            popWindow = new PopupWindow(inflatedView, size.x - 50,size.y - 400, true );
+            _popWindow = new PopupWindow(_inflatedView, _size.x - 50,_size.y / 2, true );
 //            // set a background drawable with rounders corners
-            popWindow.setBackgroundDrawable(parent.getResources().getDrawable(R.drawable.bkg_appointment_options));
+            _popWindow.setBackgroundDrawable(parent.getResources().getDrawable(R.drawable.bkg_appointment_options));
             // make it focusable to show the keyboard to enter in `EditText`
-            popWindow.setFocusable(true);
+            _popWindow.setFocusable(true);
             // make it outside touchable to dismiss the popup window
-            popWindow.setOutsideTouchable(true);
-            popWindow.setAnimationStyle(R.style.PopupAnimation);
+            _popWindow.setOutsideTouchable(true);
+            _popWindow.setAnimationStyle(R.style.PopupAnimation);
 
             // show the popup at bottom of the screen and set some margin at bottom ie,
-            popWindow.showAtLocation(v, Gravity.BOTTOM, 0,0);
+            _popWindow.showAtLocation(v, Gravity.BOTTOM, 0,0);
 
 
-            setInformationInPopup(inflatedView);
-            setPopUpButtonsListeners(inflatedView);
+            setInformationInPopup(_inflatedView);
+            setPopUpButtonsListeners(_inflatedView);
         }
 
-        private void setPopUpButtonsListeners(View inflatedView) {
+        private void setPopUpButtonsListeners(final View inflatedView) {
             Button _buttonMessage = inflatedView.findViewById(R.id.popup_appointment_BUT_Message);
             Button _buttonCall = inflatedView.findViewById(R.id.popup_appointment_BUT_Call);
             Button _buttonAddToContacts = inflatedView.findViewById(R.id.popup_appointment_BUT_AddToContacts);
+            Button _buttonCancelAppointment = inflatedView.findViewById(R.id.popup_appointment_BUT_CancelAppointment);
 
             _buttonMessage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent smsIntent =  new Intent(Intent.ACTION_SENDTO);
-                    smsIntent.addCategory(Intent.CATEGORY_DEFAULT);
-                    smsIntent.setData(Uri.parse("sms:" +  mTextViewPhoneNumber.getText().toString()));
+                    Intent _smsIntent =  new Intent(Intent.ACTION_SENDTO);
+                    _smsIntent.addCategory(Intent.CATEGORY_DEFAULT);
+                    _smsIntent.setData(Uri.parse("sms:" +  mTextViewPhoneNumber.getText().toString()));
 //                    smsIntent.putExtra("sms_body","Body of Message");
-                    mActivity.startActivity(smsIntent);
+                    mActivity.startActivity(_smsIntent);
                 }
             });
-
             _buttonCall.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent callIntent = new Intent(Intent.ACTION_DIAL);
-                    callIntent.setData(Uri.parse("tel:" + mTextViewPhoneNumber.getText().toString()));
+                    Intent _callIntent = new Intent(Intent.ACTION_DIAL);
+                    _callIntent.setData(Uri.parse("tel:" + mTextViewPhoneNumber.getText().toString()));
 
-                    mActivity.startActivity(callIntent);
+                    mActivity.startActivity(_callIntent);
                 }
             });
             _buttonAddToContacts.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent addToContactsIntent = new Intent(ContactsContract.Intents.SHOW_OR_CREATE_CONTACT);
-                    addToContactsIntent.setData(Uri.parse("tel:" + mTextViewPhoneNumber.getText().toString()));
+                    Intent _addToContactsIntent = new Intent(ContactsContract.Intents.SHOW_OR_CREATE_CONTACT);
+                    _addToContactsIntent.setData(Uri.parse("tel:" + mTextViewPhoneNumber.getText().toString()));
 
-                    mActivity.startActivity(addToContactsIntent);
+                    mActivity.startActivity(_addToContactsIntent);
+                }
+            });
+            _buttonCancelAppointment.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    new AlertDialog.Builder(inflatedView.getContext())
+                            .setTitle("Cancel appointment")
+                            .setMessage("Do you really want to cancel this appointment? A message will be sent automatically to the client")
+                            .setIcon(R.drawable.ic_baseline_cancel_24px)
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                    Map<String, Object> _deleteAppointment = new HashMap<>();
+                                    _deleteAppointment.put(mTextViewHour.getText().toString(), FieldValue.delete());
+                                    FirebaseFirestore _firebaseFirestore = FirebaseFirestore.getInstance();
+                                    _firebaseFirestore.collection("daysWithSchedule")
+                                            .document(mUDWScheduleID)
+                                            .collection("scheduledHours")
+                                            .document(mCDayID)
+                                            .update(_deleteAppointment);
+                                }})
+                            .setNegativeButton(android.R.string.no, null).show();
                 }
             });
         }
@@ -150,6 +178,8 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         private void setInformationInPopup(View inflatedView) {
             TextView _textViewName = inflatedView.findViewById(R.id.popup_appointment_TV_Name);
             TextView _textViewPhoneNumber = inflatedView.findViewById(R.id.popup_appointment_TV_PhoneNumber);
+            TextView _textViewAppointmentInfo = inflatedView.findViewById(R.id.popup_appointment_TV_AppointmentInfo);
+            String _textForInfoCard = "Appointment starts at: " + mTextViewHour.getText();
             //LinearLayout _linearLayoutAddToContacts = inflatedView.findViewById(R.id.popup_appointment_LL_AddToContacts);
 
             if(mTextViewName.getText().toString().equals("")) {
@@ -161,9 +191,13 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
                 _textViewPhoneNumber.setText(mTextViewPhoneNumber.getText().toString());
                 //_linearLayoutAddToContacts.setVisibility(View.GONE);
             }
+
+            _textViewAppointmentInfo.setText(_textForInfoCard);
         }
 
         public void updateDay(Appointment appointment) {
+            mUDWScheduleID = appointment.getmUserDaysWithScheduleID();
+            mCDayID = appointment.getmCurrentDayID();
             String _name = appointment.getmName();
             mTextViewHour.setText(appointment.getmHour());
             if(_name != null) {

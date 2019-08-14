@@ -70,8 +70,8 @@ public class PacketSpinnerView extends AppCompatSpinner {
                 else {
                     mActivity.findViewById(DaysOfWeek.valueOf(day).geteSpinnerStartID()).setVisibility(View.VISIBLE);
                     mActivity.findViewById(DaysOfWeek.valueOf(day).geteSpinnerEndID()).setVisibility(View.VISIBLE);
-                    mStartHours[mIDsArray.get(DaysOfWeek.valueOf(day).geteSpinnerStartID())] = null;
-                    mEndHours[mIDsArray.get(DaysOfWeek.valueOf(day).geteSpinnerEndID())] = null;
+                    mStartHours[mIDsArray.get(DaysOfWeek.valueOf(day).geteSpinnerStartID())] = ((Spinner) mActivity.findViewById(DaysOfWeek.valueOf(day).geteSpinnerStartID())).getSelectedItem().toString();
+                    mEndHours[mIDsArray.get(DaysOfWeek.valueOf(day).geteSpinnerEndID())] = ((Spinner) mActivity.findViewById(DaysOfWeek.valueOf(day).geteSpinnerEndID())).getSelectedItem().toString();
                     DaysOfWeek.valueOf(day).setFreeStatus(false);
                 }
             }

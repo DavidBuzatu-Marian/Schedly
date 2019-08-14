@@ -9,6 +9,7 @@ import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -70,9 +71,7 @@ public class MainActivity extends AppCompatActivity {
     /* firestore */
     FirebaseFirestore mFirebaseFirestore;
     private GoogleSignInClient mGoogleSignInClient;
-    private boolean mShowPasswordTrue = false;
-    private ProgressBar mProgressBar;
-    private RelativeLayout mRootRelativeLayout;
+    private boolean mShowPasswordTrue = false;;
     private PacketMainLogin mPacketMainLogin;
 
     @Override
@@ -93,20 +92,18 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mPacketMainLogin = new PacketMainLogin(this);
+        mPacketMainLogin = new PacketMainLogin(this, true);
         mAuth = FirebaseAuth.getInstance();
 
         /* FACEBOOK LOGIN */
         mCallbackManager = CallbackManager.Factory.create();
-        mProgressBar = findViewById(R.id.act_main_PB);
-        mRootRelativeLayout = findViewById(R.id.act_main_RL_Root);
 
         LoginButton loginButtonFacebook = findViewById(R.id.buttonFacebookLogin);
         loginButtonFacebook.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
                 Log.d(TAG, "facebook:onSuccess:" + loginResult);
-                showProgressBar(true);
+                mPacketMainLogin.showProgressBar(true);
                 handleFacebookAccessToken(loginResult.getAccessToken());
             }
 
@@ -138,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.act_main_BUT_Google).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showProgressBar(true);
+                mPacketMainLogin.showProgressBar(true);
                 signIn();
             }
         });
@@ -188,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
         buttonSignInMain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showProgressBar(true);
+                mPacketMainLogin.showProgressBar(true);
                 EditText editTextEmail = findViewById(R.id.act_main_TIET_email);
                 EditText editTextPass = findViewById(R.id.act_main_TIET_password);
                 TextInputLayout textInputLayoutEmail = findViewById(R.id.act_main_TIL_email);
@@ -199,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
                 if(ET_Email.isEmpty()) {
                     errorFoundTrue = true;
                     textInputLayoutEmail.setError("Field required!");
-                    showProgressBar(false);
+                    mPacketMainLogin.showProgressBar(false);
                 }
                 else {
                     textInputLayoutEmail.setErrorEnabled(false);
@@ -207,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
                 if(ET_Password.isEmpty()) {
                     errorFoundTrue = true;
                     textInputLayoutPass.setError("Filed required!");
-                    showProgressBar(false);
+                    mPacketMainLogin.showProgressBar(false);
                 }
                 else {
                     textInputLayoutPass.setErrorEnabled(false);
@@ -232,13 +229,12 @@ public class MainActivity extends AppCompatActivity {
                             Log.d("successWithCredential", "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
                             mPacketMainLogin.getUserDetails(user);
-                            showProgressBar(false);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.d("successWithCredential", "signInWithCredential:failure", task.getException());
                             Toast.makeText(MainActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
-                            showProgressBar(false);
+                            mPacketMainLogin.showProgressBar(false);
                         }
                     }
                 });
@@ -256,6 +252,7 @@ public class MainActivity extends AppCompatActivity {
             firebaseAuthWithGoogle(account);
         } catch (ApiException e) {
             Log.w(TAG, "handleSignInResult:error", e);
+            mPacketMainLogin.showProgressBar(false);
         }
     }
 
@@ -270,13 +267,12 @@ public class MainActivity extends AppCompatActivity {
                             Log.d(TAG, "signInWithCredential:success");
                             @NonNull FirebaseUser user = mAuth.getCurrentUser();
                             mPacketMainLogin.getUserDetails(user);
-                            showProgressBar(false);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
                             Toast.makeText(MainActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
-                            showProgressBar(false);
+                            mPacketMainLogin.showProgressBar(false);
                         }
                     }
                 });
@@ -293,13 +289,12 @@ public class MainActivity extends AppCompatActivity {
                             Log.d(TAG, "signInWithEmail:success");
                             @NonNull FirebaseUser user = mAuth.getCurrentUser();
                             mPacketMainLogin.getUserDetails(user);
-                            showProgressBar(false);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithEmail:failure", task.getException());
                             Toast.makeText(MainActivity.this, "Authentication failed. Are you registered?",
                                     Toast.LENGTH_SHORT).show();
-                            showProgressBar(false);
+                            mPacketMainLogin.showProgressBar(false);
                         }
                     }
                 });
@@ -308,20 +303,6 @@ public class MainActivity extends AppCompatActivity {
     public void doLoginFacebook(View view) {
         LoginButton loginButton = findViewById(R.id.buttonFacebookLogin);
         loginButton.performClick();
-    }
-
-    private void showProgressBar(boolean show) {
-        if(show) {
-            mProgressBar.setVisibility(View.VISIBLE);
-            mRootRelativeLayout.setClickable(false);
-            mRootRelativeLayout.setEnabled(false);
-        }
-        else {
-            mProgressBar.setVisibility(View.GONE);
-            mRootRelativeLayout.setClickable(true);
-            mRootRelativeLayout.setEnabled(true);
-        }
-
     }
 
 
@@ -338,7 +319,7 @@ public class MainActivity extends AppCompatActivity {
             handleSignInResult(task);
         }
         if(requestCode == SPN_CANCEL || requestCode == SP_CANCEL || requestCode == SWH_CANCEL || requestCode == SD_CANCEL) {
-            showProgressBar(false);
+            mPacketMainLogin.showProgressBar(false);
             mGoogleSignInClient.signOut();
             LoginManager.getInstance().logOut();
             FirebaseAuth.getInstance().signOut();
@@ -358,9 +339,16 @@ public class MainActivity extends AppCompatActivity {
                 Snackbar.make(findViewById(R.id.act_main_RL_Root), "An email with instructions for your password reset was sent", Snackbar.LENGTH_LONG).show();
                 break;
             case LOG_OUT:
-                showProgressBar(false);
+                mPacketMainLogin.showProgressBar(false);
                 break;
 
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        mPacketMainLogin.showProgressBar(false);
     }
 }

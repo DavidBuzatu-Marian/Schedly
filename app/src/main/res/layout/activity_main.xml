@@ -94,6 +94,7 @@
         >
 
         <LinearLayout
+            android:id="@+id/act_main_LL_CV"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
@@ -129,6 +130,7 @@
                 />
 
             <RelativeLayout
+                android:id="@+id/act_main_RL_CV_Password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
                 <com.google.android.material.textfield.TextInputLayout
