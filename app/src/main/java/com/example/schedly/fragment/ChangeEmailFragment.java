@@ -1,5 +1,6 @@
 package com.example.schedly.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Patterns;
@@ -15,6 +16,7 @@ import androidx.fragment.app.FragmentActivity;
 
 import com.example.schedly.R;
 import com.example.schedly.SettingsActivity;
+import com.example.schedly.service.MonitorIncomingSMSService;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -118,6 +120,8 @@ public class ChangeEmailFragment extends Fragment {
         mGoogleSignInClient.signOut();
         LoginManager.getInstance().logOut();
         FirebaseAuth.getInstance().signOut();
+        Intent stopServiceIntent = new Intent(mActivity, MonitorIncomingSMSService.class);
+        stopServiceIntent.setAction("ACTION.STOPFOREGROUND_ACTION");
         getActivity().setResult(EMAIL_CHANGED);
         getActivity().finish();
     }

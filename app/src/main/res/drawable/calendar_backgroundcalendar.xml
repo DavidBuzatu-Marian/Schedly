@@ -49,6 +49,34 @@
         </shape>
     </item>
 
+    <item android:gravity="top|left" android:top="60dp" android:left="40dp">
+        <shape
+            android:shape="oval">
+            <gradient
+                android:angle="90"
+                android:endColor="#11FFFFFF"
+                android:startColor="#12FFFFFF"
+                android:type="linear"
+                />
+            <corners android:radius="0dp" />
+            <size android:height="100dp" android:width="100dp"/>
+        </shape>
+    </item>
+
+    <item android:gravity="top|right" android:top="-40dp" android:right="60dp">
+        <shape
+            android:shape="oval">
+            <gradient
+                android:angle="90"
+                android:endColor="#11FFFFFF"
+                android:startColor="#12FFFFFF"
+                android:type="linear"
+                />
+            <corners android:radius="5dp" />
+            <size android:height="80dp" android:width="80dp"/>
+        </shape>
+    </item>
+
 
 </layer-list>
 

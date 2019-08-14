@@ -1,5 +1,6 @@
 package com.example.schedly.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,11 +20,19 @@ import com.example.schedly.SettingsActivity;
 import com.example.schedly.model.DaysOfWeek;
 import com.example.schedly.packet_classes.PacketCardViewSettings;
 import com.example.schedly.packet_classes.PacketSpinnerViewSettings;
+import com.example.schedly.service.MonitorIncomingSMSService;
+import com.facebook.login.LoginManager;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Map;
+
+import static com.example.schedly.MainActivity.PASSWORD_CHANGED;
 
 public class ChangeWorkingDaysFragment extends Fragment {
     private FragmentActivity mActivity;
@@ -31,6 +40,7 @@ public class ChangeWorkingDaysFragment extends Fragment {
     private ArrayAdapter<CharSequence> mAdapterHours;
     private PacketSpinnerViewSettings mPacketSpinnerViewSettings;
     private PacketCardViewSettings mCardViewSettings;
+    private GoogleSignInClient mGoogleSignInClient;
     private String mUserWorkingDaysID;
 
     public ChangeWorkingDaysFragment(String _workingDaysID) {
@@ -85,6 +95,7 @@ public class ChangeWorkingDaysFragment extends Fragment {
                     public void onSuccess(Void aVoid) {
                         Log.d("Settings", "DocumentSnapshot successfully written!");
                         getFragmentManager().popBackStack();
+                        logOut();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -93,5 +104,20 @@ public class ChangeWorkingDaysFragment extends Fragment {
                         Log.w("Settings", "Error writing document", e);
                     }
                 });
+    }
+
+    private void logOut() {
+        final GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_ID))
+                .requestEmail()
+                .build();
+        mGoogleSignInClient = GoogleSignIn.getClient(getActivity(), gso);
+        mGoogleSignInClient.signOut();
+        LoginManager.getInstance().logOut();
+        FirebaseAuth.getInstance().signOut();
+        Intent stopServiceIntent = new Intent(mActivity, MonitorIncomingSMSService.class);
+        stopServiceIntent.setAction("ACTION.STOPFOREGROUND_ACTION");
+        getActivity().setResult(PASSWORD_CHANGED);
+        getActivity().finish();
     }
 }

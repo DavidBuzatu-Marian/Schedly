@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -99,7 +100,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
             final Point _size = new Point();
             _display.getSize(_size);
 
-            PopupWindow _popWindow;
+            final PopupWindow _popWindow;
             // set height depends on the device size
             _popWindow = new PopupWindow(_inflatedView, _size.x - 50,_size.y / 2, true );
 //            // set a background drawable with rounders corners
@@ -116,6 +117,20 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
 
             setInformationInPopup(_inflatedView);
             setPopUpButtonsListeners(_inflatedView);
+
+            _inflatedView.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+
+                    if(event.getAction() == MotionEvent.ACTION_DOWN) {
+                        _popWindow.dismiss();
+                        return true;
+                    }
+
+                    return false;
+                }
+            });
+
         }
 
         private void setPopUpButtonsListeners(final View inflatedView) {

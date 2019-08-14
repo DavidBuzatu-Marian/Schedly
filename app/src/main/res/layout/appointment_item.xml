@@ -24,52 +24,44 @@
         android:layout_marginEnd="16dp"
         card_view:cardElevation="2dp"
         app:cardCornerRadius="16dp">
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="6dp">
-            <LinearLayout
-                android:id="@+id/act_Calendar_LL_Appointment"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <TextView
-                    android:id="@+id/appointment_item_TV_PhoneNumber"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    style="@style/CalendarTVInfo"
-                    android:layout_weight="1"/>
-                <TextView
-                    android:id="@+id/appointment_item_TV_Name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    style="@style/CalendarTVInfo"
-                    android:layout_weight="1"/>
-                <View
-                    android:layout_width="1dp"
-                    android:layout_height="match_parent"
-                    android:background="#E4E4E4"
-                    />
-                <ImageView
-                    android:id="@+id/appointment_item_IV_AppointmentOptions"
-                    android:padding="8dp"
-                    android:layout_marginEnd="4dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAlignment="center"
-                    android:gravity="center_vertical|end"
-                    android:textColor="#6598db"
-                    android:src="@drawable/ic_baseline_menu_24px"
-                    android:clickable="true"
-                    android:focusable="true"/>
-            </LinearLayout>
+            android:padding="4dp">
             <TextView
                 android:id="@+id/appointment_item_TV_Hour"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 style="@style/CalendarTVInfoHour"
+                android:layout_alignParentTop="true"
                 />
-        </LinearLayout>
+            <TextView
+                android:id="@+id/appointment_item_TV_PhoneNumber"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/CalendarTVInfo"
+                android:layout_below="@id/appointment_item_TV_Hour"
+                android:layout_alignParentStart="true" />
+            <TextView
+                android:id="@+id/appointment_item_TV_Name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/CalendarTVInfo"
+                android:layout_alignParentStart="true"
+                android:layout_below="@id/appointment_item_TV_Hour"/>
+            <ImageView
+                android:id="@+id/appointment_item_IV_AppointmentOptions"
+                android:padding="8dp"
+                android:layout_marginEnd="4dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:textColor="#6598db"
+                android:src="@drawable/ic_baseline_more_vert_24px"
+                android:clickable="true"
+                android:focusable="true"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"/>
+        </RelativeLayout>
     </androidx.cardview.widget.CardView>
 </LinearLayout>

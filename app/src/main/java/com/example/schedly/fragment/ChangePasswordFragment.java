@@ -1,5 +1,6 @@
 package com.example.schedly.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
@@ -17,6 +18,7 @@ import androidx.fragment.app.FragmentActivity;
 
 import com.example.schedly.R;
 import com.example.schedly.SettingsActivity;
+import com.example.schedly.service.MonitorIncomingSMSService;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -173,6 +175,8 @@ public class ChangePasswordFragment extends Fragment implements View.OnClickList
         mGoogleSignInClient.signOut();
         LoginManager.getInstance().logOut();
         FirebaseAuth.getInstance().signOut();
+        Intent stopServiceIntent = new Intent(mActivity, MonitorIncomingSMSService.class);
+        stopServiceIntent.setAction("ACTION.STOPFOREGROUND_ACTION");
         getActivity().setResult(PASSWORD_CHANGED);
         getActivity().finish();
     }

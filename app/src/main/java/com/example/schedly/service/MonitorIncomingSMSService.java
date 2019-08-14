@@ -233,7 +233,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
                     }
                     else {
                         Log.d("Succes", mDateFromUser + ": " + mTime);
-                        mPacketService.makeAppointmentForFixedParameters(mDateFromUser, mTime, mMessagePhoneNumber);
+                        mPacketService.makeAppointmentForFixedParameters(mDateFromUser, mTime, mMessagePhoneNumber, mContactName.get(mMessagePhoneNumber));
                     }
                 }
                 else {
@@ -246,8 +246,8 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
 
     private void sendMessageForTime() {
         // this function finishes by sending the message to the phoneNumber
-        mPacketService.getCurrentDateSHoursID(mDateFromUser, mMessagePhoneNumber);
-       threadPaused();
+        mPacketService.getCurrentDateSHoursID(mDateFromUser, mMessagePhoneNumber, "DATE");
+//       threadPaused();
     }
 
     private void sendMessageForAppointment(String response) {
@@ -257,19 +257,19 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
 
     private void sendMessageForDate() {
         mPacketService.getAllDaysIDs(mTime, mMessagePhoneNumber);
-        threadPaused();
+//        threadPaused();
     }
 
-    private void threadPaused() {
-        while(!mPacketService.isThreadWorkFinished()) {
-            try {
-                this.wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        this.notifyAll();
-    }
+//    private void threadPaused() {
+//        while(!mPacketService.isThreadWorkFinished()) {
+//            try {
+//                this.wait();
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        this.notifyAll();
+//    }
 
     private Task<String> addMessage(String text, FirebaseFunctions mFunctions, String sessionID) {
         Map<String, Object> data = new HashMap<>();

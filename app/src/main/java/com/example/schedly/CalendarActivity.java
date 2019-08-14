@@ -85,8 +85,8 @@ public class CalendarActivity extends AppCompatActivity {
         mCalendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
             public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
-                PacketService _psTest = new PacketService(userID, mUserAppointmentDuration, mUserDaysWithScheduleID, mUserWorkingHoursID);
-                _psTest.getAllDaysIDs("12:00", "0724154387");
+//                PacketService _psTest = new PacketService(userID, mUserAppointmentDuration, mUserDaysWithScheduleID, mUserWorkingHoursID);
+//                _psTest.getAllDaysIDs("12:00", "0724154387");
                 getDateFromCalendarView(year, month, dayOfMonth, false);
                 Log.d("DATE", mDate + "");
             }

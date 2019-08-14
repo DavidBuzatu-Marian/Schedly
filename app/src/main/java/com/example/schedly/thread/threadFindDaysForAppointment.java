@@ -29,7 +29,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class threadFindDaysForAppointment extends Thread {
 
-    private boolean mFinishedWorking = false;
     private final int HOUR_AND_HALF = 5400000, TWO_HOURS = 7200000;
     private AtomicBoolean mThreadStop = new AtomicBoolean(true);
     private String mUserDaysWithScheduleID;
@@ -59,6 +58,7 @@ public class threadFindDaysForAppointment extends Thread {
     // used to get the required working hours
     private final String[] mDaysOfTheWeek = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
     private Map<String, Object> mUserWorkingDays;
+    private String mMessageType;
 
     public threadFindDaysForAppointment(String UserDaysWithScheduleID,
                                         Map<String, Object> userWorkingDays,
@@ -68,6 +68,7 @@ public class threadFindDaysForAppointment extends Thread {
         mUserWorkingDays = userWorkingDays;
         mFireStore = firebaseFirestore;
         mUserAppointmentDuration = userAppointmentDuration;
+        mSMSBody = new StringBuilder();
     }
 
     public void setmUserDaysWithSchedule(Map<String, Object> UserDaysWithSchedule) {
@@ -82,9 +83,18 @@ public class threadFindDaysForAppointment extends Thread {
         mTimeToSchedule = timeToSchedule;
     }
 
+    public void setmMessageType(String type) {
+        mMessageType = type;
+    }
+
+    public void setmSMSBody(String SMSBody) {
+        mSMSBody.append(SMSBody);
+    }
+
     public void run() {
-        PacketService.mResultForService.set(false);
-        mSMSBody = new StringBuilder("These are the closest days I can take you in:");
+        if(mMessageType.equals("TIME")) {
+            mSMSBody.append("These are the closest days I can take you in:");
+        }
         mCounterDaysForAppointment = 0;
         // this counter is used for getting the next days
         mCounterNextDay = 0;
@@ -104,10 +114,13 @@ public class threadFindDaysForAppointment extends Thread {
             Log.d("FirebaseDATE", mCounterDaysForAppointment + "");
         }
 
-//        SmsManager.getDefault()
-//                .sendTextMessage(mPhoneNumber, null, mSMSBody.toString(), null, null);
+        sendMessage();
         Log.d("FirebaseMes", mSMSBody.toString());
-        PacketService.mResultForService.set(true);
+    }
+
+    private void sendMessage() {
+        SmsManager.getDefault()
+                .sendTextMessage(mPhoneNumber, null, mSMSBody.toString(), null, null);
     }
 
     private synchronized boolean checkDayFree(long calendarTimeInMillis) {
