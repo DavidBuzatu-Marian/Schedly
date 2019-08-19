@@ -119,8 +119,8 @@ public class threadFindDaysForAppointment extends Thread {
     }
 
     private void sendMessage() {
-        SmsManager.getDefault()
-                .sendTextMessage(mPhoneNumber, null, mSMSBody.toString(), null, null);
+        //SmsManager.getDefault().sendTextMessage(mPhoneNumber, null, mSMSBody.toString(), null, null);
+        Log.d("MESSAGE", mSMSBody.toString());
     }
 
     private synchronized boolean checkDayFree(long calendarTimeInMillis) {

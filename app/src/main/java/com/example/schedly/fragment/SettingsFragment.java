@@ -1,16 +1,22 @@
 package com.example.schedly.fragment;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
+import androidx.preference.SwitchPreference;
 
+import com.example.schedly.CalendarActivity;
 import com.example.schedly.R;
 import com.example.schedly.SettingsActivity;
 import com.example.schedly.service.MonitorIncomingSMSService;
@@ -24,7 +30,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.UserInfo;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.example.schedly.CalendarActivity.LOG_OUT;
 
@@ -34,6 +45,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private Preference mChangePhoneNumber, mChangeDisplayName, mChangeAppointmentsDuration;
     private String mUserID, mUserPhoneNumber, mUserDisplayName, mUserWorkingHoursID;
     private String mUserAppointmentsDuration;
+    private SwitchPreference mDisableMonitorization;
     private GoogleSignInClient mGoogleSignInClient;
     private FragmentActivity mActivity = getActivity();
     private boolean mPreferencesCreated = false;
@@ -172,6 +184,55 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 return true;
             }
         });
+
+        mDisableMonitorization = findPreference("stopNotificationSMSMonitoring");
+        mDisableMonitorization.setChecked(MonitorIncomingSMSService.sServiceRunning);
+        mDisableMonitorization.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(final Preference preference, Object newValue) {
+                if(!(Boolean) newValue) {
+                    new AlertDialog.Builder(mActivity)
+                            .setTitle("Disable SMS monitoring")
+                            .setMessage("Do you really want to disable SMS monitoring? Schedly will NOT be able to make appointments through SMS if disabled")
+                            .setIcon(R.drawable.ic_baseline_cancel_24px)
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                    Intent stopServiceIntent = new Intent(mActivity, MonitorIncomingSMSService.class);
+                                    stopServiceIntent.setAction("ACTION.STOPFOREGROUND_ACTION");
+                                    mActivity.startService(stopServiceIntent);
+                                    mDisableMonitorization.setSummary("Enable SMS monitoring");
+
+                                    SharedPreferences _userPreferences = PreferenceManager.getDefaultSharedPreferences(mActivity);
+                                    SharedPreferences.Editor _userEditor = _userPreferences.edit();
+                                    _userEditor.putBoolean("serviceActive", false);
+                                    _userEditor.apply();
+                                }})
+                            .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    mDisableMonitorization.setChecked(true);
+                                }
+                            }).show();
+                }
+                else {
+                    Intent serviceIntent = new Intent(mActivity, MonitorIncomingSMSService.class);
+                    serviceIntent.putExtra("userID", ((SettingsActivity) mActivity).getmUserID());
+                    serviceIntent.putExtra("userDaysWithScheduleID", ((SettingsActivity) mActivity).getmUserDaysWithScheduleID());
+                    serviceIntent.putExtra("userAppointmentDuration", ((SettingsActivity) mActivity).getmUserAppointmentDuration());
+                    serviceIntent.putExtra("userWorkingDaysID", ((SettingsActivity) mActivity).getmUserWorkingDaysID());
+                    serviceIntent.setAction("ACTION.STARTSERVICE_ACTION");
+                    mActivity.startService(serviceIntent);
+                    mDisableMonitorization.setSummary("Disable SMS monitoring");
+
+                    SharedPreferences _userPreferences = PreferenceManager.getDefaultSharedPreferences(mActivity);
+                    SharedPreferences.Editor _userEditor = _userPreferences.edit();
+                    _userEditor.putBoolean("serviceActive", true);
+                    _userEditor.apply();
+                }
+                return true;
+            }
+        });
+
     }
 
     private void getDataFromDataBase() {

@@ -40,7 +40,6 @@
                     android:layout_height="wrap_content"
                     app:cardUseCompatPadding="true"
                     app:layout_collapseMode="parallax"
-
                     android:gravity="center"
                     card_view:cardElevation="12dp"
                     app:cardCornerRadius="24dp"

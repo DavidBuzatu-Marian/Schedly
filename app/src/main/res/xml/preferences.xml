@@ -26,6 +26,17 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+        app:key="notification_category"
+        app:title="Notifications">
+
+        <SwitchPreference
+            app:key="stopNotificationSMSMonitoring"
+            app:summary="Disable SMS monitoring"
+            app:title="Enable/ Disable monitoring"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
         app:key="help_category"
         app:title="Help">
 

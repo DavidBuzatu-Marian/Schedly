@@ -15,6 +15,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.jakewharton.threetenabp.AndroidThreeTen;
 
 import static com.example.schedly.CalendarActivity.LOG_OUT;
 import static com.example.schedly.MainActivity.SD_CANCEL;
@@ -31,7 +32,7 @@ public class StartSplashActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        AndroidThreeTen.init(this);
 
         mAuth = FirebaseAuth.getInstance();
         // Check if user is signed in (non-null) and update UI accordingly.

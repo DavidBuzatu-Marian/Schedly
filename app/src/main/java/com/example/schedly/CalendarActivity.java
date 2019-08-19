@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -85,8 +86,8 @@ public class CalendarActivity extends AppCompatActivity {
         mCalendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
             public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
-//                PacketService _psTest = new PacketService(userID, mUserAppointmentDuration, mUserDaysWithScheduleID, mUserWorkingHoursID);
-//                _psTest.getAllDaysIDs("12:00", "0724154387");
+                PacketService _psTest = new PacketService(userID, mUserAppointmentDuration, mUserDaysWithScheduleID, mUserWorkingHoursID);
+                _psTest.makeAppointmentForFixedParameters("2019-09-24", "9:20", "0724154387", "Mama");
                 getDateFromCalendarView(year, month, dayOfMonth, false);
                 Log.d("DATE", mDate + "");
             }
@@ -100,15 +101,6 @@ public class CalendarActivity extends AppCompatActivity {
         mAdapter = new CalendarAdapter(CalendarActivity.this, mDataSet);
         mRecyclerView.setAdapter(mAdapter);
 
-        ImageView imageViewSettings = findViewById(R.id.act_Calendar_IV_Settings);
-        imageViewSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent startSettingsActivity = new Intent(CalendarActivity.this, SettingsActivity.class);
-                startActivityForResult(startSettingsActivity, SETTINGS_RETURN);
-            }
-        });
-        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
     }
 
     private void getDateFromCalendarView(int year, int month, int dayOfMonth, boolean onStart) {
@@ -150,16 +142,37 @@ public class CalendarActivity extends AppCompatActivity {
                         getDateFromCalendarView(0, 0, 0, true);
                         Log.d("DATE", mDate + "");
                     }
+                    startServiceSMSMonitoring();
                 }
-                Intent serviceIntent = new Intent(CalendarActivity.this, MonitorIncomingSMSService.class);
-                serviceIntent.putExtra("userID", userID);
-                serviceIntent.putExtra("userDaysWithScheduleID", mUserDaysWithScheduleID);
-                serviceIntent.putExtra("userAppointmentDuration", mUserAppointmentDuration);
-                serviceIntent.putExtra("userWorkingDaysID", mUserWorkingHoursID);
-                serviceIntent.setAction("ACTION.STARTSERVICE_ACTION");
-                startService(serviceIntent);
             }
         });
+    }
+
+    public void startServiceSMSMonitoring() {
+        SharedPreferences _userPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        if(_userPreferences.getBoolean("serviceActive", true)) {
+            Intent serviceIntent = new Intent(CalendarActivity.this, MonitorIncomingSMSService.class);
+            serviceIntent.putExtra("userID", userID);
+            serviceIntent.putExtra("userDaysWithScheduleID", mUserDaysWithScheduleID);
+            serviceIntent.putExtra("userAppointmentDuration", mUserAppointmentDuration);
+            serviceIntent.putExtra("userWorkingDaysID", mUserWorkingHoursID);
+            serviceIntent.setAction("ACTION.STARTSERVICE_ACTION");
+            startService(serviceIntent);
+        }
+
+        ImageView imageViewSettings = findViewById(R.id.act_Calendar_IV_Settings);
+        imageViewSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent startSettingsActivity = new Intent(CalendarActivity.this, SettingsActivity.class);
+                startSettingsActivity.putExtra("userID", userID);
+                startSettingsActivity.putExtra("userDaysWithScheduleID", mUserDaysWithScheduleID);
+                startSettingsActivity.putExtra("userAppointmentDuration", mUserAppointmentDuration);
+                startSettingsActivity.putExtra("userWorkingDaysID", mUserWorkingHoursID);
+                startActivityForResult(startSettingsActivity, SETTINGS_RETURN);
+            }
+        });
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, true);
     }
 
 
@@ -223,6 +236,7 @@ public class CalendarActivity extends AppCompatActivity {
                             addScheduledHoursCollection(mFireStore);
                             Log.d("DATE", mDate + "");
                         }
+                        startServiceSMSMonitoring();
                         Log.d("Change", "DocumentSnapshot successfully written!");
                     }
                 })
@@ -313,10 +327,10 @@ public class CalendarActivity extends AppCompatActivity {
 
 
     public void showRequestPermissionsInfoAlertDialog(String type) {
-        if(type == "SMS") {
+        if(type.equals("SMS")) {
             showRequestPermissionsInfoAlertDialog(true);
         }
-        else if (type == "CONTACTS") {
+        else if (type.equals("CONTACTS")) {
             showRequestPermissionsInfoAlertDialogContacts(true);
         }
     }
