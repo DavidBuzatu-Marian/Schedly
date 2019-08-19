@@ -158,15 +158,20 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
                     mActivity.startActivity(_callIntent);
                 }
             });
-            _buttonAddToContacts.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent _addToContactsIntent = new Intent(ContactsContract.Intents.SHOW_OR_CREATE_CONTACT);
-                    _addToContactsIntent.setData(Uri.parse("tel:" + mTextViewPhoneNumber.getText().toString()));
+            if(mTextViewName.getText().toString().equals("")) {
+                _buttonAddToContacts.setVisibility(View.GONE);
+            }
+            else {
+                _buttonAddToContacts.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent _addToContactsIntent = new Intent(ContactsContract.Intents.SHOW_OR_CREATE_CONTACT);
+                        _addToContactsIntent.setData(Uri.parse("tel:" + mTextViewPhoneNumber.getText().toString()));
 
-                    mActivity.startActivity(_addToContactsIntent);
-                }
-            });
+                        mActivity.startActivity(_addToContactsIntent);
+                    }
+                });
+            }
             _buttonCancelAppointment.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

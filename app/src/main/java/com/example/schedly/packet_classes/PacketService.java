@@ -139,7 +139,7 @@ public class PacketService {
                         /* we dont have this day in scheduled hours */
                         Log.d("Firebase", mCurrentDaySHoursID);
                         if (mCurrentDaySHoursID.equals("")) {
-                            addScheduledHoursCollection(messageType);
+                            addScheduledHoursCollection(messageType, dateFromUser);
                         } else {
                             getCurrentDateAppointments(mCurrentDaySHoursID, mDateInMillis, messageType, dateFromUser);
                         }
@@ -175,7 +175,7 @@ public class PacketService {
     }
 
     /* if this user doesnt have appointments for this day */
-    private void addScheduledHoursCollection(final String messageType) {
+    private void addScheduledHoursCollection(final String messageType, final String dateFromUser) {
         Map<String, Object> addDaysWithScheduleID = new HashMap<>();
         addDaysWithScheduleID.put("5:00", null);
         Log.d("Firebaseservice", "Added ID for this day");
@@ -186,13 +186,13 @@ public class PacketService {
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
-                        addThisDateScheduledHoursID(documentReference.getId(), messageType);
+                        addThisDateScheduledHoursID(documentReference.getId(), messageType, dateFromUser);
                         Log.d("FirebaseworkingDays", "Succes with scheduled hours");
                     }
                 });
     }
 
-    private void addThisDateScheduledHoursID(final String id, final String messageType) {
+    private void addThisDateScheduledHoursID(final String id, final String messageType, final String dateFromUser) {
         Map<String, Object> addToCurrentDateID = new HashMap<>();
         addToCurrentDateID.put(mDateInMillis.toString(), id);
         mFireStore.collection("daysWithSchedule")
@@ -205,6 +205,9 @@ public class PacketService {
                         Log.d("FirebaseworkingDays", "Succes with id");
                         if (messageType.equals("DATE")) {
                             sendScheduleOptionsWrapper(mDateInMillis);
+                        }
+                        else if (messageType.equals("FULL")) {
+                            getCurrentDateAppointments(mCurrentDaySHoursID, mDateInMillis, messageType, dateFromUser);
                         }
                     }
                 });
@@ -381,6 +384,9 @@ public class PacketService {
              * try to find the perfect time
              */
             Log.d("App", "Hre: " + _curTimeMil);
+
+            /* variable to know if time was found */
+            boolean _foundTime = false;
             while ((_closeTimeMil - _curTimeMil) > 0) {
                 /* find the difference between current time and
                  * schedule time
@@ -392,7 +398,7 @@ public class PacketService {
                  * we check if here or after appointment duration
                  * is free and return one or both of hours
                  */
-                if (_elapsedTime < _appointmentDuration) {
+                if (_elapsedTime <= _appointmentDuration && (_curTimeMil + _appointmentDuration < _closeTimeMil)) {
                     @SuppressLint("DefaultLocale") String _hourBefore = String.format("%02d:%02d",
                             TimeUnit.MILLISECONDS.toHours(_curTimeMil),
                             TimeUnit.MILLISECONDS.toMinutes(_curTimeMil) -
@@ -413,19 +419,22 @@ public class PacketService {
                     if (_freeBefore || _freeAfter) {
                         Log.d("Appointment", "MESSAGE SENT: " + _hourBefore + " ... AFTER: " + _hourAfter);
                         mSMSBody.append("Alright! I can take you in at: ")
-                                .append(_freeBefore ? ("\n" + _hourBefore) : "")
-                                .append(_freeAfter ? ("\n" + _hourAfter) : "")
+                                .append(_freeBefore ? ("" + _hourBefore) : "")
+                                .append(_freeAfter ? (" " + _hourAfter) : "")
                                 .append(". Please send a confirmation message with the date and time");
                         sendMessage();
                         Log.d("Appoint", "REturn 1");
                     } else {
                         sendScheduleOptionsWrapper(mDateInMillis);
                     }
-
+                    _foundTime = true;
                     break;
                 }
-
                 _curTimeMil += _appointmentDuration;
+            }
+
+            if(!_foundTime) {
+                sendScheduleOptionsWrapper(mDateInMillis);
             }
         }
     }
