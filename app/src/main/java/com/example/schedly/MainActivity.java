@@ -34,6 +34,7 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
@@ -232,7 +233,7 @@ public class MainActivity extends AppCompatActivity {
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.d("successWithCredential", "signInWithCredential:failure", task.getException());
-                            Toast.makeText(MainActivity.this, "Authentication failed.",
+                            Toast.makeText(MainActivity.this, R.string.loginFail,
                                     Toast.LENGTH_SHORT).show();
                             mPacketMainLogin.showProgressBar(false);
                         }
@@ -270,7 +271,7 @@ public class MainActivity extends AppCompatActivity {
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
-                            Toast.makeText(MainActivity.this, "Authentication failed.",
+                            Toast.makeText(MainActivity.this, R.string.loginFail,
                                     Toast.LENGTH_SHORT).show();
                             mPacketMainLogin.showProgressBar(false);
                         }
@@ -292,9 +293,28 @@ public class MainActivity extends AppCompatActivity {
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithEmail:failure", task.getException());
-                            Toast.makeText(MainActivity.this, "Authentication failed. Are you registered?",
-                                    Toast.LENGTH_SHORT).show();
-                            mPacketMainLogin.showProgressBar(false);
+                            if(task.getException().equals("The password is invalid or the user does not have a password.")) {
+                                TextInputLayout _textInputLayoutPass = findViewById(R.id.act_main_TIL_password);
+                                _textInputLayoutPass.setError(getText(R.string.loginFailPasswordIncorrect));
+                            }
+                            else if (task.getException().equals("There is no user record corresponding to this identifier. The user may have been deleted.")) {
+                                final TextInputEditText _txtInputEmail = findViewById(R.id.act_main_TIET_email);
+                                Snackbar.make(findViewById(R.id.act_main_RL_Root), "Email not registered. Sign up here", Snackbar.LENGTH_SHORT)
+                                        .setAction("Sign Up", new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View view) {
+                                                Intent _signUpIntent = new
+                                                        Intent(MainActivity.this, SignUpWithEmailActivity.class);
+                                                _signUpIntent.putExtra("Email", _txtInputEmail.getText().toString());
+                                                startActivity(_signUpIntent);
+                                            }
+                                        }).show();
+                            }
+                            else {
+                                Toast.makeText(MainActivity.this, R.string.loginFail,
+                                        Toast.LENGTH_SHORT).show();
+                                mPacketMainLogin.showProgressBar(false);
+                            }
                         }
                     }
                 });

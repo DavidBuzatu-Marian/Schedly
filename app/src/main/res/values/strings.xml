@@ -1,6 +1,9 @@
 <resources>
     <string name="facebook_app_id">293320568283992</string>
     <string name="fb_login_protocol_scheme">fb293320568283992</string>
+    <string name="server_client_id">125094146390-fr01v2t3dl946mj4be36d4h5svj798sv.apps.googleusercontent.com</string>
+
+
     <string name="default_web_client_ID">125094146390-m0fk6oqclr1edebu3gdaldiq3r52cika.apps.googleusercontent.com</string>
     <string name="app_name">Schedly</string>
     <string name="sign_up_button"><![CDATA[Sign Up >]]></string>
@@ -113,5 +116,8 @@
     <string name="permission_alert_dialog_CONTACTS">Contacts permission</string>
     <string name="permission_dialog_CONTACTS_body">Schedly will now request read Contacts permission on your device. This is essential in order for Schedly to work properly!</string>
     <string name="popup_appointment_TV_CancelAppointment">Cancel appointment</string>
+    <string name="loginFail">Sign in failed. Check your internet connection!</string>
+    <string name="loginFailPasswordIncorrect">Password is incorrect</string>
+    <string name="loginFailEmailNotRegistered">Email is not registered. Please sign up</string>
 
 </resources>

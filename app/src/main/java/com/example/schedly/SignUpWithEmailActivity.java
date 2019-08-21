@@ -3,6 +3,7 @@ package com.example.schedly;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -16,6 +17,7 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -47,7 +49,6 @@ public class SignUpWithEmailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up_with_email);
-
         mProgressBar = findViewById(R.id.act_SUWEmail_PB);
 
         ccp = findViewById(R.id.ccp);
@@ -57,6 +58,11 @@ public class SignUpWithEmailActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         textInputLayoutEmail = findViewById(R.id.act_SUWEmail_TIL_email);
         textInputLayoutPass = findViewById(R.id.act_SUWEmail_TIL_password);
+
+        if(getIntent().hasExtra("Email")) {
+            TextInputEditText _txtInputEmail = findViewById(R.id.act_SUWEmail_TIET_email);
+            _txtInputEmail.setText(getIntent().getStringExtra("Email"));
+        }
 
         final Button buttonSignUp = findViewById(R.id.act_signup_BUT_signup);
         buttonSignUp.setOnClickListener(new View.OnClickListener() {
