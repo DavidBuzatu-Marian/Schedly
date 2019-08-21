@@ -35,6 +35,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
 
+import org.threeten.bp.DayOfWeek;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -86,8 +88,8 @@ public class CalendarActivity extends AppCompatActivity {
         mCalendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
             public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
-                PacketService _psTest = new PacketService(userID, mUserAppointmentDuration, mUserDaysWithScheduleID, mUserWorkingHoursID);
-                _psTest.makeAppointmentForFixedParameters("2019-09-26", "14:00", "0724154387", "Mama");
+//                PacketService _psTest = new PacketService(userID, mUserAppointmentDuration, mUserDaysWithScheduleID, mUserWorkingHoursID);
+//                _psTest.makeAppointmentForFixedParameters("2019-09-26", "14:00", "0724154387", "Mama");
                 getDateFromCalendarView(year, month, dayOfMonth, false);
                 Log.d("DATE", mDate + "");
             }
@@ -116,6 +118,8 @@ public class CalendarActivity extends AppCompatActivity {
         _calendar.set(Calendar.SECOND, 0);
 
         mDate = _calendar.getTimeInMillis();
+
+        
         Log.d("Date", mDate + "");
         mDataSet.clear();
         mCounter = 0;

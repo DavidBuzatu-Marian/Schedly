@@ -36,13 +36,18 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.FirebaseTooManyRequestsException;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.Objects;
 
 import static com.example.schedly.CalendarActivity.LOG_OUT;
 
@@ -156,8 +161,10 @@ public class MainActivity extends AppCompatActivity {
         buttonForgotPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent forgotPassword = new Intent(MainActivity.this, ForgotPasswordActivity.class);
-                startActivityForResult(forgotPassword, PR_SUCCESS);
+                Intent _forgotPassword = new Intent(MainActivity.this, ForgotPasswordActivity.class);
+                TextInputEditText _txtInputEmail = findViewById(R.id.act_main_TIET_email);
+                _forgotPassword.putExtra("Email", _txtInputEmail.getText().toString());
+                startActivityForResult(_forgotPassword, PR_SUCCESS);
             }
         });
         /* for show password */
@@ -291,15 +298,19 @@ public class MainActivity extends AppCompatActivity {
                             @NonNull FirebaseUser user = mAuth.getCurrentUser();
                             mPacketMainLogin.getUserDetails(user);
                         } else {
+                            mPacketMainLogin.showProgressBar(false);
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithEmail:failure", task.getException());
-                            if(task.getException().equals("The password is invalid or the user does not have a password.")) {
+                            try {
+                                throw task.getException();
+                            }
+                            catch (FirebaseAuthInvalidCredentialsException ex) {
                                 TextInputLayout _textInputLayoutPass = findViewById(R.id.act_main_TIL_password);
                                 _textInputLayoutPass.setError(getText(R.string.loginFailPasswordIncorrect));
                             }
-                            else if (task.getException().equals("There is no user record corresponding to this identifier. The user may have been deleted.")) {
+                            catch (FirebaseAuthInvalidUserException ex) {
                                 final TextInputEditText _txtInputEmail = findViewById(R.id.act_main_TIET_email);
-                                Snackbar.make(findViewById(R.id.act_main_RL_Root), "Email not registered. Sign up here", Snackbar.LENGTH_SHORT)
+                                Snackbar.make(findViewById(R.id.act_main_RL_Root), "Email not registered. Sign up here", Snackbar.LENGTH_LONG)
                                         .setAction("Sign Up", new View.OnClickListener() {
                                             @Override
                                             public void onClick(View view) {
@@ -310,10 +321,13 @@ public class MainActivity extends AppCompatActivity {
                                             }
                                         }).show();
                             }
-                            else {
+                            catch (FirebaseTooManyRequestsException ex) {
+                                Toast.makeText(MainActivity.this, R.string.loginFailTooManyReq,
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                            catch (Exception ex) {
                                 Toast.makeText(MainActivity.this, R.string.loginFail,
                                         Toast.LENGTH_SHORT).show();
-                                mPacketMainLogin.showProgressBar(false);
                             }
                         }
                     }

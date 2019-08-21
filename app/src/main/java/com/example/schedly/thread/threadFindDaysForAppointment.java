@@ -20,6 +20,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -119,8 +120,16 @@ public class threadFindDaysForAppointment extends Thread {
     }
 
     private void sendMessage() {
-        //SmsManager.getDefault().sendTextMessage(mPhoneNumber, null, mSMSBody.toString(), null, null);
+        ArrayList<String> _messageParts = new ArrayList<>(2);
+        int _indexOfComma = mSMSBody.toString().indexOf(":");
+        _messageParts.add(mSMSBody.toString().substring(0, _indexOfComma + 1));
+        _messageParts.add(mSMSBody.toString().substring(_indexOfComma + 2));
+
+        for(String _message: _messageParts) {
+            SmsManager.getDefault().sendTextMessage(mPhoneNumber, null, _message, null, null);
+        }
         Log.d("MESSAGE", mSMSBody.toString());
+        Log.d("NUMBER", mPhoneNumber);
     }
 
     private synchronized boolean checkDayFree(long calendarTimeInMillis) {
@@ -277,8 +286,15 @@ public class threadFindDaysForAppointment extends Thread {
             _date = _sDFormat.parse(_hour);
         }
         // we found at least an hour in that day
-        if (!_dateAfter.equals("")) {
-            mSMSBody.append("\n").append(_dateBefore).append("\n").append(_dateAfter);
+        if (!_dateAfter.equals("") || !_dateBefore.equals("")) {
+            if(_dateAfter.equals("")) {
+                mSMSBody.append("\n").append(_dateBefore);
+            }
+            else if(_dateBefore.equals("")) {
+                mSMSBody.append("\n").append(_dateAfter);
+            }else {
+                mSMSBody.append("\n").append(_dateBefore).append("\n").append(_dateAfter);
+            }
             return true;
         }
         // day is full, try another time

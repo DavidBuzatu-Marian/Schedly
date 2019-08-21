@@ -259,7 +259,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
     }
 
     private void sendMessageForDate() {
-        mPacketService.getAllDaysIDs(mTime, mMessagePhoneNumber);
+        mPacketService.getAllDaysIDs(mTime, mMessagePhoneNumber, "TIME");
 //        threadPaused();
     }
 

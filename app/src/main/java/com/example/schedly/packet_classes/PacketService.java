@@ -63,7 +63,7 @@ public class PacketService {
 
 
     private void sendMessage() {
-        //SmsManager.getDefault().sendTextMessage(mPhoneNumber, null, mSMSBody.toString(), null, null);
+        SmsManager.getDefault().sendTextMessage(mPhoneNumber, null, mSMSBody.toString(), null, null);
         Log.d("MESSAGE", mSMSBody.toString());
     }
 
@@ -282,7 +282,7 @@ public class PacketService {
      * with only a time
      * we start by getting all the days with schedule
      */
-    public void getAllDaysIDs(final String mTime, String mMessagePhoneNumber) {
+    public void getAllDaysIDs(final String mTime, String mMessagePhoneNumber, final String messageType) {
         mTimeToSchedule = mTime;
         mPhoneNumber = mMessagePhoneNumber;
         mFireStore.collection("daysWithSchedule")
@@ -292,7 +292,7 @@ public class PacketService {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         mUserDaysWithSchedule = documentSnapshot.getData();
-                        findDaysForAppointment("TIME");
+                        findDaysForAppointment(messageType);
                     }
                 });
     }
@@ -337,15 +337,16 @@ public class PacketService {
 
         if (mDaySchedule[0].equals("Free")) {
             Log.d("FirebaseSEND", "Free");
-            mSMSBody = new StringBuilder("I am sorry, but I don't work on" + dateFromUser + ". But please chose one convenient date from below:\n");
-            findDaysForAppointment("FULL");
+            mSMSBody = new StringBuilder("I am sorry, but I don't work on " + dateFromUser + ". But please chose one convenient date from below:");
+            mWorkThread.setmSMSBody(mSMSBody.toString());
+            getAllDaysIDs(mTimeToSchedule, mPhoneNumber,"FULL");
         } else {
             /* not a free day */
             String _hour = mDaySchedule[0];
             mSMSBody = new StringBuilder();
             if (mCurrentDayAppointments.containsKey(mTimeToSchedule)) {
-                mWorkThread.setmSMSBody("I am sorry, but this date and hour are already scheduled. If you want a schedule for this day, send a message with this date or you can try one of these other days: \n");
-                findDaysForAppointment("FULL");
+                mWorkThread.setmSMSBody("I am sorry, but this date and hour are already scheduled. If you want a schedule for this day, send a message with this date or you can try one of these other days:");
+                getAllDaysIDs(mTimeToSchedule, mPhoneNumber,"FULL");
             }
             getClosestHour(_hour, mTimeToSchedule);
         }

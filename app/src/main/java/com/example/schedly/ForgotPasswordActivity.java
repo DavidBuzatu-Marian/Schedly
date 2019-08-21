@@ -13,8 +13,10 @@ import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class ForgotPasswordActivity extends AppCompatActivity {
 
@@ -31,6 +33,12 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         mProgressBar = findViewById(R.id.act_FPassword_PB);
 
         mTextInputLayoutEmail = findViewById(R.id.act_FPassword_TIL_email);
+
+        if(getIntent().hasExtra("Email")) {
+            TextInputEditText _txtInputEmail = findViewById(R.id.act_FPassword_TIET_email);
+            _txtInputEmail.setText(getIntent().getStringExtra("Email"));
+        }
+
         final Button _buttonReset = findViewById(R.id.act_FPassword_Send);
         _buttonReset.setOnClickListener(new View.OnClickListener() {
             @Override
