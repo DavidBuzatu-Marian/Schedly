@@ -4,108 +4,123 @@
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ic_working_hours"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="-160dp"
+        android:layout_marginTop="20dp"/>
+
+    <AutoCompleteTextView
+        android:id="@+id/popup_add_ATV_PhoneNumber"
+        style="@style/PopupAddTVPhoneNumber"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/popup_add_TV_Date"
+        android:background="@android:color/transparent"
+        android:dropDownHeight="160dp"
+        android:hint="@string/act_SPNumber_Number"
+        android:inputType="phone" />
+
+    <EditText
+        android:id="@+id/popup_add_ET_Name"
+        style="@style/PopupAddTVName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/popup_add_ATV_PhoneNumber"
+        android:background="@android:color/transparent"
+        android:focusable="true"
+        android:hint="@string/popup_add_Name" />
+
     <ImageView
         android:id="@+id/popup_add_IV_Close"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/ic_baseline_cancel_24px"
-        android:backgroundTint="@color/colorSetUp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
         android:layout_margin="12dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"/>
-
-    <TextView
-        android:id="@+id/popup_add_TV_DayOfWeek"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="8dp"
-        style="@style/PopupAddTVDayOfWeek"/>
-
-    <TextView
-        android:id="@+id/popup_add_TV_Date"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/popup_add_TV_DayOfWeek"
-        style="@style/PopupAddTVDate"/>
-
-
-    <LinearLayout
-        android:id="@+id/popup_add_LL"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/popup_add_TV_Date"
-        android:orientation="horizontal">
-        <AutoCompleteTextView
-            android:id="@+id/popup_add_ATV_PhoneNumber"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="@style/PopupAddTVPhoneNumber"
-            android:hint="@string/act_SPNumber_Number"
-            android:inputType="phone"
-            android:dropDownHeight="160dp" />
-
-        <EditText
-            android:id="@+id/popup_add_ET_Name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/popup_add_Name"
-            style="@style/PopupAddTVName"
-            android:focusable="true"/>
-    </LinearLayout>
-    <Spinner
-        android:id="@+id/popup_add_SP_Hours"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/popup_add_LL"
-        />
-
-    <View
-        android:id="@+id/popup_appointment_VIEW_Bar"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/colorAppointmentInfo"
-        android:layout_below="@id/popup_add_SP_Hours"
-        android:layout_marginTop="16dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"/>
+        android:background="@drawable/ic_baseline_cancel_24px"
+        android:backgroundTint="@color/colorSetUp" />
 
     <LinearLayout
         android:id="@+id/popup_appointment_LL_Options"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@id/popup_appointment_VIEW_Bar"
         android:orientation="vertical"
-        android:padding="8dp"
-        android:layout_below="@id/popup_appointment_VIEW_Bar">
+        android:padding="8dp">
 
         <LinearLayout
             android:id="@+id/popup_appointment_LL_AddToContacts"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="8dp">
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
 
             <Button
-                android:id="@+id/popup_appointment_BUT_AddToContacts"
+                android:id="@+id/popup_add_BUT_AddToContacts"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:layout_gravity="center"
-                android:background="@drawable/button_info_options"
-                android:drawableStart="@drawable/ic_baseline_perm_contact_calendar_24px"
-                android:padding="12dp"
-                android:singleLine="true"
-                android:text="@string/popup_appointment_TV_AddToContacts"
-                android:textColor="#FFFFFF"
-                android:fontFamily="@font/roboto_thin"
-                android:textAllCaps="false"
-                android:gravity="center|center_vertical"
-                android:textSize="12sp"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
-                android:stateListAnimator="@animator/button_click_animator"/>
+                android:background="@drawable/button_info_options"
+                android:drawableStart="@drawable/ic_baseline_perm_contact_calendar_24px"
+                android:fontFamily="@font/roboto_thin"
+                android:gravity="center|center_vertical"
+                android:padding="12dp"
+                android:singleLine="true"
+                android:stateListAnimator="@animator/button_click_animator"
+                android:text="@string/popup_appointment_TV_AddToContacts"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp" />
 
         </LinearLayout>
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/popup_add_TV_Hours"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/popup_add_FreeHours"
+        android:layout_alignParentStart="true"
+        android:layout_below="@id/popup_add_ET_Name"
+        style="@style/PopupAddTVHours"/>
+    <Spinner
+        android:id="@+id/popup_add_SP_Hours"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/popup_add_TV_Hours"
+        android:layout_alignParentStart="true"
+        style="@style/PopupAddSpinner"
+        android:spinnerMode="dialog"/>
+
+    <TextView
+        android:id="@+id/popup_add_TV_DayOfWeek"
+        style="@style/PopupAddTVDayOfWeek"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true" />
+
+    <TextView
+        android:id="@+id/popup_add_TV_Date"
+        style="@style/PopupAddTVDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/popup_add_TV_DayOfWeek" />
+
+    <View
+        android:id="@+id/popup_appointment_VIEW_Bar"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/popup_add_SP_Hours"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="@color/colorAppointmentInfo" />
 
 </RelativeLayout>

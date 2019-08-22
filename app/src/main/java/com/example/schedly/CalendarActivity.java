@@ -12,14 +12,17 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Point;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.CallLog;
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
@@ -30,9 +33,11 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -51,6 +56,9 @@ import com.google.gson.Gson;
 
 import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.ZoneId;
 import org.threeten.bp.format.DateTimeFormatter;
 
 import java.text.SimpleDateFormat;
@@ -85,6 +93,7 @@ public class CalendarActivity extends AppCompatActivity {
     private int mCounter = 0;
     private String mUserAppointmentDuration;
     private ArrayList<Appointment> mDataSet = new ArrayList<>();
+    private Map<String, String> mWorkingHours = new HashMap<>();
 
 
     @Override
@@ -129,12 +138,31 @@ public class CalendarActivity extends AppCompatActivity {
 
     }
 
+    private void getWorkingHours() {
+        FirebaseFirestore _firebaseFirestore = FirebaseFirestore.getInstance();
+        _firebaseFirestore.collection("workingDays")
+                .document(mUserWorkingHoursID)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            Map<String, Object> _map = task.getResult().getData();
+                            Log.d("Calendar", _map.toString());
+                            for (Map.Entry<String, Object> _entry : _map.entrySet()) {
+                                Log.d("Appointment", _entry.getKey());
+                                mWorkingHours.put(_entry.getKey(), _entry.getValue().toString());
+                            }
+                        }
+                    }
+                });
+    }
+
     private void setImageViewListener(final String dayOfWeek, final String dateFormat) {
         ImageView _imageAdd = findViewById(R.id.act_Calendar_IV_AddIcon);
         _imageAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // inflate the custom popup layout
                 final View _inflatedView = LayoutInflater.from(CalendarActivity.this).inflate(R.layout.add_popup_appointment, null,false);
 
                 // get device size
@@ -145,7 +173,6 @@ public class CalendarActivity extends AppCompatActivity {
                 final PopupWindow _popWindow;
                 // set height depends on the device size
                 _popWindow = new PopupWindow(_inflatedView, _size.x - 50,_size.y / 2, true );
-//            // set a background drawable with rounders corners
                 _popWindow.setBackgroundDrawable(getDrawable(R.drawable.bkg_appointment_options));
                 // make it focusable to show the keyboard to enter in `EditText`
                 _popWindow.setFocusable(true);
@@ -153,7 +180,7 @@ public class CalendarActivity extends AppCompatActivity {
                 _popWindow.setOutsideTouchable(true);
                 _popWindow.setAnimationStyle(R.style.PopupAnimation);
 
-                // show the popup at bottom of the screen and set some margin at bottom ie,
+                // show the popup at bottom of the screen and set some margin at bottom
                 _popWindow.showAtLocation(view, Gravity.BOTTOM, 0,0);
 
 
@@ -167,11 +194,102 @@ public class CalendarActivity extends AppCompatActivity {
                         _popWindow.dismiss();
                     }
                 });
+
+                setSpinnerAdapter(_inflatedView, dayOfWeek);
             }
         });
     }
 
+    private void setSpinnerAdapter(final View inflatedView, final String dayOfWeek) {
+        Log.d("Det", mDate + "");
+        final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.getInstance();
+        _firebaseFirestore.collection("daysWithSchedule")
+                .document(mUserDaysWithScheduleID)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        String _currentDaySHID = documentSnapshot.get(mDate.toString()) != null
+                                ? documentSnapshot.get(mDate.toString()).toString() : "";
+                        ArrayList<String> _hours = getHoursForDate(dayOfWeek);
+                        getFreeHours(_currentDaySHID, _firebaseFirestore, _hours, inflatedView);
+                    }
+                });
+    }
+
+    @SuppressLint("DefaultLocale")
+    private ArrayList<String> getHoursForDate(String dayOfWeek) {
+        ArrayList<String> _hours = new ArrayList<>();
+        String _timeStart = mWorkingHours.get(dayOfWeek + "Start");
+        String _timeEnd = mWorkingHours.get(dayOfWeek + "End");
+
+        String[] _timeStartSplitted = _timeStart.split(":");
+        String[] _timeEndSplitted = _timeEnd.split(":");
+
+        int _hourStart = Integer.parseInt(_timeStartSplitted[0]),
+                _hourEnd = Integer.parseInt(_timeEndSplitted[0]),
+                _minuteStart = Integer.parseInt(_timeStartSplitted[1]),
+                _minuteEnd = Integer.parseInt(_timeEndSplitted[1]);
+
+        LocalTime _time = LocalTime.of(_hourStart, _minuteStart);
+        LocalTime _limitTime = LocalTime.of(_hourEnd, _minuteEnd);
+
+        while(_time.isBefore(_limitTime)) {
+            _hours.add(String.format("%02d", _time.getHour()) + ":" + String.format("%02d", _time.getMinute()));
+            _time = _time.plusMinutes(Long.parseLong(mUserAppointmentDuration));
+        }
+
+        return _hours;
+    }
+
+    private void getFreeHours(String currentDaySHID, FirebaseFirestore firebaseFirestore, final ArrayList<String> hours, final View inflatedView) {
+        if(currentDaySHID != null) {
+            firebaseFirestore.collection("daysWithSchedule")
+                    .document(mUserDaysWithScheduleID)
+                    .collection("scheduledHours")
+                    .document(currentDaySHID)
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                Map<String, Object> _map = task.getResult().getData();
+                                for (Map.Entry<String, Object> _entry : _map.entrySet()) {
+                                    hours.remove(_entry.getKey());
+                                }
+
+                                Spinner _hoursSpinner = inflatedView.findViewById(R.id.popup_add_SP_Hours);
+                                ArrayAdapter<String> _adapterHours = new ArrayAdapter<>(CalendarActivity.this,
+                                        android.R.layout.simple_dropdown_item_1line, hours);
+                                _hoursSpinner.setAdapter(_adapterHours);
+                            }
+                        }
+                    });
+        }
+        else {
+            Spinner _hoursSpinner = inflatedView.findViewById(R.id.popup_add_SP_Hours);
+            ArrayAdapter<String> _adapterHours = new ArrayAdapter<>(CalendarActivity.this,
+                    android.R.layout.simple_dropdown_item_1line, hours);
+            _hoursSpinner.setAdapter(_adapterHours);
+        }
+    }
+
     private void setPopUpButtonsListeners(View inflatedView) {
+        final TextView _txtName = inflatedView.findViewById(R.id.popup_add_ET_Name);
+        final AutoCompleteTextView _txtNumber = inflatedView.findViewById(R.id.popup_add_ATV_PhoneNumber);
+
+        Button _buttonAddToContacts = inflatedView.findViewById(R.id.popup_add_BUT_AddToContacts);
+        _buttonAddToContacts.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent _addToContactsIntent = new Intent(Intent.ACTION_INSERT);
+                _addToContactsIntent.setType(ContactsContract.Contacts.CONTENT_TYPE);
+                _addToContactsIntent.putExtra(ContactsContract.Intents.Insert.NAME, _txtName.getText().toString());
+                _addToContactsIntent.putExtra(ContactsContract.Intents.Insert.PHONE, _txtNumber.getText().toString());
+
+                CalendarActivity.this.startActivity(_addToContactsIntent);
+            }
+        });
     }
 
     private void setInformationInPopup(View inflatedView, String dayOfWeek, String dateFormat) {
@@ -192,6 +310,8 @@ public class CalendarActivity extends AppCompatActivity {
 
         ArrayAdapter<String> _adapterNumber = new ArrayAdapter<>(this,
                 android.R.layout.simple_dropdown_item_1line, _callLogPNumbers);
+
+        /* auto set name if number exists */
         final AutoCompleteTextView _txtNumber = inflatedView.findViewById(R.id.popup_add_ATV_PhoneNumber);
         _txtNumber.setAdapter(_adapterNumber);
 
@@ -216,12 +336,6 @@ public class CalendarActivity extends AppCompatActivity {
                 }
             }
         });
-
-//        int _index = _callLogPNumbers.indexOf(_txtNumber.getText().toString());
-//        Log.d("Det", _index + ": " + _txtNumber.getText().toString());
-//        if(_index != -1) {
-//            _txtName.setText(_callLogNames.get(_index));
-//        }
     }
 
     private ArrayList<String[]> getCallLog() {
@@ -275,6 +389,15 @@ public class CalendarActivity extends AppCompatActivity {
 
         mDate = _calendar.getTimeInMillis();
 
+        setDateForTVs(year, month, dayOfMonth);
+        
+        Log.d("Date", mDate + "");
+        mDataSet.clear();
+        mCounter = 0;
+        getDayID();
+    }
+
+    private void setDateForTVs(int year, int month, int dayOfMonth) {
         String _dayOfWeek, _dateFormat;
 
         if(year != 0) {
@@ -300,11 +423,6 @@ public class CalendarActivity extends AppCompatActivity {
             _tvDayDate.setText(_dateFormat);
         }
         setImageViewListener(_dayOfWeek, _dateFormat);
-        
-        Log.d("Date", mDate + "");
-        mDataSet.clear();
-        mCounter = 0;
-        getDayID();
     }
 
     private void getUserDaysWithScheduleID() {
@@ -318,6 +436,7 @@ public class CalendarActivity extends AppCompatActivity {
                     mUserDaysWithScheduleID = _document.get("daysWithScheduleID") != null ? _document.get("daysWithScheduleID").toString() : null;
                     mUserAppointmentDuration = _document.get("appointmentsDuration").toString();
                     mUserWorkingHoursID = _document.get("workingDaysID").toString();
+                    getWorkingHours();
                 }
                 if(mUserDaysWithScheduleID == null) {
                     setUserDaysWithScheduleID();
@@ -489,27 +608,6 @@ public class CalendarActivity extends AppCompatActivity {
         });
     }
 
-    /* This will be used on a button
-    in order to add manually an appointment
-     */
-
-//    private void populateWithData() {
-//        FirebaseFirestore _FireStore = FirebaseFirestore.getInstance();
-//        final DocumentReference _documentReference = _FireStore.collection("daysWithSchedule")
-//                .document("gXD1RxgPEFQYEbwXlisy")
-//                .collection("scheduledHours")
-//                .document("00JQopKY8fElhI9i04yg");
-//        Map<String, Object> _appointments = new HashMap<>(16);
-//        Map<String, String> _values = new HashMap<>(16);
-//        for(int hours = 8; hours < 22; hours++) {
-//            _values.put("PhoneNumber", "+40" + ThreadLocalRandom.current().nextLong(1000000000L, 10000000000L) + "");
-//            _appointments.put("" + hours + ":00",  _values);
-//        }
-//
-//        _documentReference.update(_appointments);
-//
-//    }
-
 
     public void showRequestPermissionsInfoAlertDialog(String type) {
         if(type.equals("SMS")) {
@@ -613,15 +711,11 @@ public class CalendarActivity extends AppCompatActivity {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                 } else {
-                    Toast.makeText(CalendarActivity.this, "NOT PERMITTED", Toast.LENGTH_SHORT);
+                    Toast.makeText(CalendarActivity.this, "NOT PERMITTED", Toast.LENGTH_SHORT).show();
                 }
                 break;
             }
         }
-    }
-
-    private void onAddAppointment(View view) {
-
     }
 
     @Override
