@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -47,7 +48,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
     @NonNull
     @Override
     public CalendarScheduleViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        LinearLayout _viewGroup = (LinearLayout) LayoutInflater.from(parent.getContext()).inflate(R.layout.appointment_item, parent, false);
+        RelativeLayout _viewGroup = (RelativeLayout) LayoutInflater.from(parent.getContext()).inflate(R.layout.appointment_item, parent, false);
 
         CalendarScheduleViewHolder _vh = new CalendarScheduleViewHolder(_viewGroup, parent);
         return _vh;
@@ -118,16 +119,11 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
             setInformationInPopup(_inflatedView);
             setPopUpButtonsListeners(_inflatedView);
 
-            _inflatedView.setOnTouchListener(new View.OnTouchListener() {
+            ImageView _closeImg = _inflatedView.findViewById(R.id.popup_edit_IV_Close);
+            _closeImg.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public boolean onTouch(View v, MotionEvent event) {
-
-                    if(event.getAction() == MotionEvent.ACTION_DOWN) {
-                        _popWindow.dismiss();
-                        return true;
-                    }
-
-                    return false;
+                public void onClick(View view) {
+                    _popWindow.dismiss();
                 }
             });
 
@@ -158,7 +154,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
                     mActivity.startActivity(_callIntent);
                 }
             });
-            if(mTextViewName.getText().toString().equals("")) {
+            if(!mTextViewName.getText().toString().equals("")) {
                 _buttonAddToContacts.setVisibility(View.GONE);
             }
             else {
@@ -209,7 +205,6 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
             else {
                 _textViewName.setText(mTextViewName.getText().toString());
                 _textViewPhoneNumber.setText(mTextViewPhoneNumber.getText().toString());
-                //_linearLayoutAddToContacts.setVisibility(View.GONE);
             }
 
             _textViewAppointmentInfo.setText(_textForInfoCard);

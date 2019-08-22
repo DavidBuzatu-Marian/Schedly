@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <ImageView
+        android:id="@+id/popup_add_IV_Close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ic_baseline_cancel_24px"
+        android:backgroundTint="@color/colorSetUp"
+        android:layout_margin="12dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"/>
+
+    <TextView
+        android:id="@+id/popup_add_TV_DayOfWeek"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="8dp"
+        style="@style/PopupAddTVDayOfWeek"/>
+
+    <TextView
+        android:id="@+id/popup_add_TV_Date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/popup_add_TV_DayOfWeek"
+        style="@style/PopupAddTVDate"/>
+
+
+    <LinearLayout
+        android:id="@+id/popup_add_LL"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/popup_add_TV_Date"
+        android:orientation="horizontal">
+        <AutoCompleteTextView
+            android:id="@+id/popup_add_ATV_PhoneNumber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/PopupAddTVPhoneNumber"
+            android:hint="@string/act_SPNumber_Number"
+            android:inputType="phone"
+            android:dropDownHeight="160dp" />
+
+        <EditText
+            android:id="@+id/popup_add_ET_Name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/popup_add_Name"
+            style="@style/PopupAddTVName"
+            android:focusable="true"/>
+    </LinearLayout>
+    <Spinner
+        android:id="@+id/popup_add_SP_Hours"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/popup_add_LL"
+        />
+
+    <View
+        android:id="@+id/popup_appointment_VIEW_Bar"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorAppointmentInfo"
+        android:layout_below="@id/popup_add_SP_Hours"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"/>
+
+    <LinearLayout
+        android:id="@+id/popup_appointment_LL_Options"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="8dp"
+        android:layout_below="@id/popup_appointment_VIEW_Bar">
+
+        <LinearLayout
+            android:id="@+id/popup_appointment_LL_AddToContacts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+
+            <Button
+                android:id="@+id/popup_appointment_BUT_AddToContacts"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
+                android:background="@drawable/button_info_options"
+                android:drawableStart="@drawable/ic_baseline_perm_contact_calendar_24px"
+                android:padding="12dp"
+                android:singleLine="true"
+                android:text="@string/popup_appointment_TV_AddToContacts"
+                android:textColor="#FFFFFF"
+                android:fontFamily="@font/roboto_thin"
+                android:textAllCaps="false"
+                android:gravity="center|center_vertical"
+                android:textSize="12sp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:stateListAnimator="@animator/button_click_animator"/>
+
+        </LinearLayout>
+    </LinearLayout>
+
+</RelativeLayout>

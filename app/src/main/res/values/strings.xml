@@ -45,7 +45,8 @@
     <string name="act_SDuration_TV_TitleExtra">Please insert how much time does your services usually take. This will be used to make appointments automatically! Also, don\'t forget to set your display name!</string>
     <string name="act_SDuration_Hint_TI">Duration in minutes</string>
     <string name="permission_alert_dialog_SMS">SMS Permission</string>
-    <string name="permission_dialog_SMS_body">Schedly will now request send/read SMS permission on your device. This is essential in order for Schedly to work properly!</string>
+    <string name="permission_alert_dialog_LOG">Call Log Permission</string>
+    <string name="permission_dialog_SMS_body">Schedly will now request send/read SMS and read call logs permission on your device. This is essential in order for Schedly to work properly!</string>
     <string name="permission_alert_dialog_OK">OK</string>
     <string name="or">OR</string>
     <string name="act_main_TV_SingUp">Don\'t have an account? <u>Sign up here!</u></string>
@@ -121,5 +122,6 @@
     <string name="loginFailEmailNotRegistered">Email is not registered. Please sign up</string>
     <string name="loginFailTooManyReq">Too many login attempts! Please try again in a couple of seconds</string>
     <string name="act_Calendar_TV_AddNew">Add New</string>
+    <string name="popup_add_Name">Name</string>
 
 </resources>

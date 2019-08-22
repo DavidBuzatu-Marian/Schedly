@@ -17,6 +17,13 @@
             android:layout_height="wrap_content"
             android:background="@drawable/set_up_background">
 
+            <ImageView
+                android:id="@+id/act_SWHours_IV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_working_hours"
+                android:layout_centerHorizontal="true"
+                android:layout_alignParentTop="true"/>
             <View
                 android:id="@+id/act_SWHours_V_AnimationFill"
                 android:layout_width="fill_parent"
@@ -31,6 +38,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
+                android:layout_below="@id/act_SWHours_IV"
                 android:gravity="center"
                 android:text="@string/act_SWHours_TV_Title" />
 

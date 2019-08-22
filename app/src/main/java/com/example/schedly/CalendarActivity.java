@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
@@ -15,11 +16,24 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Point;
 import android.os.Bundle;
+import android.provider.CallLog;
 import android.util.Log;
+import android.view.Display;
+import android.view.Gravity;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.CalendarView;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.schedly.adapter.CalendarAdapter;
@@ -36,11 +50,18 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
 
 import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.format.DateTimeFormatter;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import static com.example.schedly.MainActivity.EMAIL_CHANGED;
 import static com.example.schedly.MainActivity.PASSWORD_CHANGED;
@@ -77,6 +98,9 @@ public class CalendarActivity extends AppCompatActivity {
         if(!isContactPermissionGranted()) {
             showRequestPermissionsInfoAlertDialog("CONTACTS");
         }
+        if(!isLogPermissionGranted()) {
+            showRequestPermissionsInfoAlertDialog("LOG");
+        }
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -105,6 +129,138 @@ public class CalendarActivity extends AppCompatActivity {
 
     }
 
+    private void setImageViewListener(final String dayOfWeek, final String dateFormat) {
+        ImageView _imageAdd = findViewById(R.id.act_Calendar_IV_AddIcon);
+        _imageAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // inflate the custom popup layout
+                final View _inflatedView = LayoutInflater.from(CalendarActivity.this).inflate(R.layout.add_popup_appointment, null,false);
+
+                // get device size
+                Display _display = (findViewById(R.id.act_Calendar_CL_root)).getDisplay();
+                final Point _size = new Point();
+                _display.getSize(_size);
+
+                final PopupWindow _popWindow;
+                // set height depends on the device size
+                _popWindow = new PopupWindow(_inflatedView, _size.x - 50,_size.y / 2, true );
+//            // set a background drawable with rounders corners
+                _popWindow.setBackgroundDrawable(getDrawable(R.drawable.bkg_appointment_options));
+                // make it focusable to show the keyboard to enter in `EditText`
+                _popWindow.setFocusable(true);
+                // make it outside touchable to dismiss the popup window
+                _popWindow.setOutsideTouchable(true);
+                _popWindow.setAnimationStyle(R.style.PopupAnimation);
+
+                // show the popup at bottom of the screen and set some margin at bottom ie,
+                _popWindow.showAtLocation(view, Gravity.BOTTOM, 0,0);
+
+
+                setInformationInPopup(_inflatedView, dayOfWeek, dateFormat);
+                setPopUpButtonsListeners(_inflatedView);
+
+                ImageView _closeImg = _inflatedView.findViewById(R.id.popup_add_IV_Close);
+                _closeImg.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        _popWindow.dismiss();
+                    }
+                });
+            }
+        });
+    }
+
+    private void setPopUpButtonsListeners(View inflatedView) {
+    }
+
+    private void setInformationInPopup(View inflatedView, String dayOfWeek, String dateFormat) {
+        TextView _txtDayOfWeek = inflatedView.findViewById(R.id.popup_add_TV_DayOfWeek);
+        TextView _txtDate = inflatedView.findViewById(R.id.popup_add_TV_Date);
+        final TextView _txtName = inflatedView.findViewById(R.id.popup_add_ET_Name);
+        _txtDate.setText(dateFormat);
+        _txtDayOfWeek.setText(dayOfWeek);
+
+        ArrayList<String[]> _callLogDetails = getCallLog();
+        final ArrayList<String> _callLogPNumbers = new ArrayList<>();
+        final ArrayList<String> _callLogNames = new ArrayList<>();
+        for(String[] _value: _callLogDetails) {
+            /* add each phone number */
+            _callLogPNumbers.add(_value[0]);
+            _callLogNames.add(_value[1]);
+        }
+
+        ArrayAdapter<String> _adapterNumber = new ArrayAdapter<>(this,
+                android.R.layout.simple_dropdown_item_1line, _callLogPNumbers);
+        final AutoCompleteTextView _txtNumber = inflatedView.findViewById(R.id.popup_add_ATV_PhoneNumber);
+        _txtNumber.setAdapter(_adapterNumber);
+
+        _txtNumber.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int i, KeyEvent keyEvent) {
+                int _index = _callLogPNumbers.indexOf(_txtNumber.getText().toString());
+                Log.d("Det", _index + ": " + _txtNumber.getText().toString());
+                if(_index != -1) {
+                    _txtName.setText(_callLogNames.get(_index));
+                }
+                return false;
+            }
+        });
+        _txtNumber.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                int _index = _callLogPNumbers.indexOf(_txtNumber.getText().toString());
+                Log.d("Det", _index + ": " + _txtNumber.getText().toString());
+                if(_index != -1) {
+                    _txtName.setText(_callLogNames.get(_index));
+                }
+            }
+        });
+
+//        int _index = _callLogPNumbers.indexOf(_txtNumber.getText().toString());
+//        Log.d("Det", _index + ": " + _txtNumber.getText().toString());
+//        if(_index != -1) {
+//            _txtName.setText(_callLogNames.get(_index));
+//        }
+    }
+
+    private ArrayList<String[]> getCallLog() {
+        ArrayList<String[]> _details = new ArrayList<>();
+
+        String[] _projection = new String[] {
+                CallLog.Calls.CACHED_NAME,
+                CallLog.Calls.NUMBER,
+                CallLog.Calls.TYPE,
+                CallLog.Calls.DATE,
+                CallLog.Calls.DURATION
+        };
+
+        Cursor _managedCursor =  getApplicationContext().getContentResolver().query(CallLog.Calls.CONTENT_URI, _projection, null, null, null);
+        while (_managedCursor.moveToNext()) {
+            boolean _stateTrue = false;
+            String[] _NumberAndName = new String[2];
+            _NumberAndName[0] = _managedCursor.getString(1); // number
+            _NumberAndName[1] = _managedCursor.getString(0); // name
+            for(String[] _detail: _details) {
+                if(_NumberAndName[1] != null && _detail[1] != null) {
+                    if (_detail[0].equals(_NumberAndName[0]) && _detail[1].equals(_NumberAndName[1])) {
+                        _stateTrue = true;
+                    }
+                }
+                else {
+                    if (_detail[0].equals(_NumberAndName[0])) {
+                        _stateTrue = true;
+                    }
+                }
+            }
+            if(!_stateTrue) {
+                _details.add(_NumberAndName);
+            }
+        }
+
+        return _details;
+    }
+
     private void getDateFromCalendarView(int year, int month, int dayOfMonth, boolean onStart) {
         Calendar _calendar = Calendar.getInstance();
         if (onStart) {
@@ -119,6 +275,31 @@ public class CalendarActivity extends AppCompatActivity {
 
         mDate = _calendar.getTimeInMillis();
 
+        String _dayOfWeek, _dateFormat;
+
+        if(year != 0) {
+            DateTimeFormatter _DTF = DateTimeFormatter.ofPattern("EEEE", Locale.getDefault());
+            DateTimeFormatter _DTFDate = DateTimeFormatter.ofPattern("dd-MM-yyyy", Locale.getDefault());
+            LocalDate _date = LocalDate.of(year, month + 1, dayOfMonth);
+            TextView _tvDayInfo = findViewById(R.id.act_Calendar_TV_DayOfWeek);
+            TextView _tvDayDate = findViewById(R.id.act_Calendar_TV_Date);
+            _dayOfWeek = _date.format(_DTF);
+            _dateFormat = _date.format(_DTFDate);
+            _tvDayInfo.setText(_dayOfWeek);
+            _tvDayDate.setText(_dateFormat);
+        } else {
+            DateTimeFormatter _DTF = DateTimeFormatter.ofPattern("EEEE", Locale.getDefault());
+            DateTimeFormatter _DTFDate = DateTimeFormatter.ofPattern("dd-MM-yyyy", Locale.getDefault());
+            LocalDate _date = LocalDate.now();
+            Log.d("Date", month + ": " + dayOfMonth + ":y " + year);
+            TextView _tvDayInfo = findViewById(R.id.act_Calendar_TV_DayOfWeek);
+            TextView _tvDayDate = findViewById(R.id.act_Calendar_TV_Date);
+            _dayOfWeek = _date.format(_DTF);
+            _dateFormat = _date.format(_DTFDate);
+            _tvDayInfo.setText(_dayOfWeek);
+            _tvDayDate.setText(_dateFormat);
+        }
+        setImageViewListener(_dayOfWeek, _dateFormat);
         
         Log.d("Date", mDate + "");
         mDataSet.clear();
@@ -337,12 +518,15 @@ public class CalendarActivity extends AppCompatActivity {
         else if (type.equals("CONTACTS")) {
             showRequestPermissionsInfoAlertDialogContacts(true);
         }
+        else {
+            showRequestPermissionsInfoAlertDialogLog(true);
+        }
     }
 
     private void showRequestPermissionsInfoAlertDialogContacts(final boolean makeSystemRequest) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.permission_alert_dialog_CONTACTS); // Your own title
-        builder.setMessage(R.string.permission_dialog_CONTACTS_body); // Your own message
+        builder.setTitle(R.string.permission_alert_dialog_CONTACTS); // title
+        builder.setMessage(R.string.permission_dialog_CONTACTS_body); // message
 
         builder.setPositiveButton(R.string.permission_alert_dialog_OK, new DialogInterface.OnClickListener() {
             @Override
@@ -361,8 +545,8 @@ public class CalendarActivity extends AppCompatActivity {
 
     public void showRequestPermissionsInfoAlertDialog(final boolean makeSystemRequest) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.permission_alert_dialog_SMS); // Your own title
-        builder.setMessage(R.string.permission_dialog_SMS_body); // Your own message
+        builder.setTitle(R.string.permission_alert_dialog_SMS); // title
+        builder.setMessage(R.string.permission_dialog_SMS_body); // message
 
         builder.setPositiveButton(R.string.permission_alert_dialog_OK, new DialogInterface.OnClickListener() {
             @Override
@@ -378,6 +562,10 @@ public class CalendarActivity extends AppCompatActivity {
         builder.setCancelable(false);
         builder.show();
     }
+    
+    public void showRequestPermissionsInfoAlertDialogLog(final boolean makeSystemRequest) {
+        requestReadLogPermission();
+    }
 
     public boolean isSmsPermissionGranted() {
         return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED;
@@ -385,14 +573,20 @@ public class CalendarActivity extends AppCompatActivity {
     public boolean isContactPermissionGranted() {
         return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED;
     }
+    
+    public boolean isLogPermissionGranted() {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALL_LOG) == PackageManager.PERMISSION_GRANTED;
+    }
+    private void requestReadLogPermission() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_CALL_LOG)) {
+        }
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CALL_LOG}, CONTACTS_PERMISSION_CODE);
+    }
 
     private void requestReadAndSendSmsPermission() {
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_SMS)) {
-            // You may display a non-blocking explanation here, read more in the documentation:
-            // https://developer.android.com/training/permissions/requesting.html
         }
         if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.SEND_SMS)) {
-
         }
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_SMS, Manifest.permission.RECEIVE_SMS, Manifest.permission.SEND_SMS}, SMS_PERMISSION_CODE);
     }
