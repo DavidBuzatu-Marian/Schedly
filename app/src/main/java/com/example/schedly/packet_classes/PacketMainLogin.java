@@ -42,19 +42,22 @@ public class PacketMainLogin {
     /* firestore */
     FirebaseFirestore mFirebaseFirestore;
     /* store user info */
-    private String userWorkingHoursID;
-    private String userPhoneNumber;
-    private String userProfession;
-    private String userAppointmentsDuration;
+    private String mUserWorkingHoursID;
+    private String mUserPhoneNumber;
+    private String mUserProfession;
+    private String mUserAppointmentsDuration;
     private ProgressBar mProgressBar;
     private RelativeLayout mRootRelativeLayout;
+    private HashMap<String, String> mWorkingHours = new HashMap<>();
+    private String mUserDaysWithScheduleID;
+
 
 
     public PacketMainLogin(Activity activity,  boolean isMain) {
         mActivity = activity;
-        isMain = isMain;
+        mIsMain = isMain;
         mFirebaseFirestore = FirebaseFirestore.getInstance();
-        if(isMain) {
+        if(mIsMain) {
             /* we come from main activity
              * get views for progress bar
              */
@@ -69,29 +72,31 @@ public class PacketMainLogin {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
+                    DocumentSnapshot _document = task.getResult();
+                    if (_document.exists()) {
                         Log.d(TAG, "Success");
-                        userPhoneNumber = document.get("phoneNumber") != null ? document.get("phoneNumber").toString() : null;
-                        userProfession = document.get("profession") != null ? document.get("profession").toString() : null;
-                        userWorkingHoursID = document.get("workingDaysID") != null ? document.get("workingDaysID").toString() : null;
-                        userAppointmentsDuration = document.get("appointmentsDuration") != null ? document.get("appointmentsDuration").toString() : null;
+                        mUserPhoneNumber = _document.get("phoneNumber") != null ? _document.get("phoneNumber").toString() : null;
+                        mUserProfession = _document.get("profession") != null ? _document.get("profession").toString() : null;
+                        mUserWorkingHoursID = _document.get("workingDaysID") != null ? _document.get("workingDaysID").toString() : null;
+                        mUserAppointmentsDuration = _document.get("appointmentsDuration") != null ? _document.get("appointmentsDuration").toString() : null;
+                        mUserDaysWithScheduleID = _document.get("daysWithScheduleID") != null ? _document.get("daysWithScheduleID").toString() : null;
 
-                        if(userWorkingHoursID == null) {
+                        if(mUserWorkingHoursID == null) {
                             addUserWorkingDaysID(currentUser);
                         }
                         else {
+                            getWorkingHours();
                             redirectUser(currentUser);
                         }
                     } else {
-                        userPhoneNumber = null;
-                        userProfession = null;
+                        mUserPhoneNumber = null;
+                        mUserProfession = null;
                         addUserToDatabase(currentUser);
                         addUserWorkingDaysID(currentUser);
                     }
                 } else {
-                    userPhoneNumber = null;
-                    userProfession = null;
+                    mUserPhoneNumber = null;
+                    mUserProfession = null;
                     redirectUser(currentUser);
                     Log.d(TAG, "get failed with ", task.getException());
                 }
@@ -99,10 +104,30 @@ public class PacketMainLogin {
         });
     }
 
+    private void getWorkingHours() {
+        FirebaseFirestore _firebaseFirestore = FirebaseFirestore.getInstance();
+        _firebaseFirestore.collection("workingDays")
+                .document(mUserWorkingHoursID)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            Map<String, Object> _map = task.getResult().getData();
+                            Log.d("Calendar", _map.toString());
+                            for (Map.Entry<String, Object> _entry : _map.entrySet()) {
+                                Log.d("Appointment", _entry.getKey());
+                                mWorkingHours.put(_entry.getKey(), _entry.getValue().toString());
+                            }
+                        }
+                    }
+                });
+    }
+
     private void checkWorkingDaysSetup(FirebaseUser currentUser) {
         final FirebaseUser localUser = currentUser;
         mFirebaseFirestore.collection("workingDays")
-                .document(userWorkingHoursID)
+                .document(mUserWorkingHoursID)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
@@ -152,8 +177,8 @@ public class PacketMainLogin {
                         FirebaseFirestore mFireStore = FirebaseFirestore.getInstance();
                         Map<String, Object> userToAdd = new HashMap<>();
                         Log.d(TAG, "DocumentSnapshot written:" + documentReference.getId());
-                        userWorkingHoursID = documentReference.getId();
-                        userToAdd.put("workingDaysID", userWorkingHoursID);
+                        mUserWorkingHoursID = documentReference.getId();
+                        userToAdd.put("workingDaysID", mUserWorkingHoursID);
                         mFireStore.collection("users")
                                 .document(currentUser.getUid())
                                 .update(userToAdd)
@@ -182,7 +207,7 @@ public class PacketMainLogin {
 
     private void redirectUser(final FirebaseUser localUser) {
         /* REDIRECT */
-        if(userPhoneNumber == null || userProfession == null) {
+        if(mUserPhoneNumber == null || mUserProfession == null) {
             getToInitActivity(localUser);
         }
         else {
@@ -195,13 +220,13 @@ public class PacketMainLogin {
         if(mIsMain) {
             showProgressBar(false);
         }
-        if(userPhoneNumber == null) {
+        if(mUserPhoneNumber == null) {
             Intent firstStep = new Intent(mActivity, SetPhoneNumberActivity.class);
             firstStep.putExtra("userID", user.getUid());
             mActivity.startActivityForResult(firstStep, SPN_CANCEL);
         }
         else
-        if(userProfession == null) {
+        if(mUserProfession == null) {
             Intent secondStep = new Intent(mActivity, SetProfessionActivity.class);
             secondStep.putExtra("userID", user.getUid());
             mActivity.startActivityForResult(secondStep, SP_CANCEL);
@@ -216,7 +241,7 @@ public class PacketMainLogin {
         if(mIsMain) {
             showProgressBar(false);
         }
-        if(userAppointmentsDuration == null) {
+        if(mUserAppointmentsDuration == null) {
             Intent ScheduleDuration = new Intent(mActivity, ScheduleDurationActivity.class);
             ScheduleDuration.putExtra("userID", user.getUid());
             mActivity.startActivityForResult(ScheduleDuration, SD_CANCEL);
@@ -224,6 +249,10 @@ public class PacketMainLogin {
         else {
             Intent CalendarActivity = new Intent(mActivity, com.example.schedly.CalendarActivity.class);
             CalendarActivity.putExtra("userID", user.getUid());
+            CalendarActivity.putExtra("userWorkingHours", mWorkingHours);
+            CalendarActivity.putExtra("userDaysWithScheduleID", mUserDaysWithScheduleID);
+            CalendarActivity.putExtra("userAppointmentDuration", mUserAppointmentsDuration);
+            CalendarActivity.putExtra("userWorkingHoursID", mUserWorkingHoursID);
             mActivity.startActivityForResult(CalendarActivity, CA_CANCEL);
         }
     }

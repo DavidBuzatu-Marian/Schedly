@@ -50,7 +50,7 @@
         android:layout_height="match_parent"
         android:layout_below="@id/popup_appointment_VIEW_Bar"
         android:orientation="vertical"
-        android:padding="8dp">
+        android:layout_margin="8dp">
 
         <LinearLayout
             android:id="@+id/popup_appointment_LL_AddToContacts"
@@ -64,8 +64,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:layout_gravity="center"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
+                android:layout_marginStart="24dp"
+                android:layout_marginEnd="24dp"
                 android:background="@drawable/button_info_options"
                 android:drawableStart="@drawable/ic_baseline_perm_contact_calendar_24px"
                 android:fontFamily="@font/roboto_thin"
@@ -76,6 +76,34 @@
                 android:text="@string/popup_appointment_TV_AddToContacts"
                 android:textAllCaps="false"
                 android:textColor="#FFFFFF"
+                android:textSize="12sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/popup_appointment_LL_AddAppointment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/popup_add_BUT_AddAppoinrmwnr"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="24dp"
+                android:layout_marginEnd="24dp"
+                android:background="@drawable/button_info_appointment_add"
+                android:drawableStart="@drawable/ic_done_24px"
+                android:fontFamily="@font/roboto_thin"
+                android:gravity="center|center_vertical"
+                android:padding="12dp"
+                android:singleLine="true"
+                android:stateListAnimator="@animator/button_click_animator"
+                android:text="@string/popup_add_Done"
+                android:textAllCaps="false"
+                android:textColor="@color/colorSetUp"
                 android:textSize="12sp" />
 
         </LinearLayout>
@@ -92,7 +120,7 @@
     <Spinner
         android:id="@+id/popup_add_SP_Hours"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="20dp"
         android:layout_below="@id/popup_add_TV_Hours"
         android:layout_alignParentStart="true"
         style="@style/PopupAddSpinner"
@@ -119,7 +147,7 @@
         android:layout_height="1dp"
         android:layout_below="@id/popup_add_SP_Hours"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
         android:background="@color/colorAppointmentInfo" />
 

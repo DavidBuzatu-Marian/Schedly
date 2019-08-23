@@ -337,7 +337,7 @@
     <style name="PopupAddSpinner">
         <item name="android:textSize">18sp</item>
         <item name="android:textColor">@color/colorSetUp</item>
-        <item name="android:layout_marginStart">14dp</item>
+        <item name="android:layout_marginStart">10dp</item>
         <item name="android:layout_marginEnd">24dp</item>
         <item name="android:fontFamily">@font/roboto_light</item>
     </style>
@@ -366,7 +366,7 @@
         <item name="android:textColor">@color/colorSetUp</item>
         <item name="android:layout_marginStart">16dp</item>
         <item name="android:layout_marginEnd">24dp</item>
-        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:layout_marginTop">2dp</item>
         <item name="android:fontFamily">@font/roboto_light</item>
         <item name="android:layout_gravity">center_vertical</item>
     </style>

@@ -71,8 +71,8 @@
                 android:textAllCaps="false"
                 android:gravity="center|center_vertical"
                 android:textSize="12sp"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
+                android:layout_marginStart="24dp"
+                android:layout_marginEnd="24dp"
                 android:stateListAnimator="@animator/button_click_animator"/>
 
         </LinearLayout>
@@ -99,8 +99,8 @@
                 android:textAllCaps="false"
                 android:gravity="center|center_vertical"
                 android:textSize="12sp"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
+                android:layout_marginStart="24dp"
+                android:layout_marginEnd="24dp"
                 android:stateListAnimator="@animator/button_click_animator"/>
 
         </LinearLayout>
@@ -127,8 +127,8 @@
                 android:textAllCaps="false"
                 android:gravity="center|center_vertical"
                 android:textSize="12sp"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
+                android:layout_marginStart="24dp"
+                android:layout_marginEnd="24dp"
                 android:stateListAnimator="@animator/button_click_animator"/>
 
         </LinearLayout>
@@ -156,8 +156,8 @@
                 android:textAllCaps="false"
                 android:gravity="center|center_vertical"
                 android:textSize="12sp"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
+                android:layout_marginStart="24dp"
+                android:layout_marginEnd="24dp"
                 android:stateListAnimator="@animator/button_click_animator"/>
 
         </LinearLayout>

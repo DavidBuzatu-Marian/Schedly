@@ -35,8 +35,10 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CalendarView;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -49,6 +51,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -60,6 +64,7 @@ import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.format.DateTimeFormatter;
+import org.w3c.dom.Text;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -93,7 +98,7 @@ public class CalendarActivity extends AppCompatActivity {
     private int mCounter = 0;
     private String mUserAppointmentDuration;
     private ArrayList<Appointment> mDataSet = new ArrayList<>();
-    private Map<String, String> mWorkingHours = new HashMap<>();
+    private HashMap<String, String> mWorkingHours = new HashMap<>();
 
 
     @Override
@@ -114,9 +119,14 @@ public class CalendarActivity extends AppCompatActivity {
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             userID = extras.getString("userID");
+            mWorkingHours = (HashMap<String, String>) extras.getSerializable("userWorkingHours");
+            mUserDaysWithScheduleID = extras.getString("userDaysWithScheduleID");
+            mUserWorkingHoursID = extras.getString("userWorkingHoursID");
+            mUserAppointmentDuration = extras.getString("userAppointmentDuration");
         }
-        getUserDaysWithScheduleID();
-        /* broadcast test */
+        /* init calendar and get ID for days
+         * with schedule
+         */
         mCalendarView = findViewById(R.id.act_Calendar_CalendarV);
         mCalendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
@@ -127,6 +137,7 @@ public class CalendarActivity extends AppCompatActivity {
                 Log.d("DATE", mDate + "");
             }
         });
+        setUserDaysWithScheduleIDWrapper();
         /* RecyclerView */
         mRecyclerView = findViewById(R.id.act_Calendar_RV_Schedule);
         mRecyclerView.setHasFixedSize(true);
@@ -138,28 +149,11 @@ public class CalendarActivity extends AppCompatActivity {
 
     }
 
-    private void getWorkingHours() {
-        FirebaseFirestore _firebaseFirestore = FirebaseFirestore.getInstance();
-        _firebaseFirestore.collection("workingDays")
-                .document(mUserWorkingHoursID)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            Map<String, Object> _map = task.getResult().getData();
-                            Log.d("Calendar", _map.toString());
-                            for (Map.Entry<String, Object> _entry : _map.entrySet()) {
-                                Log.d("Appointment", _entry.getKey());
-                                mWorkingHours.put(_entry.getKey(), _entry.getValue().toString());
-                            }
-                        }
-                    }
-                });
-    }
-
     private void setImageViewListener(final String dayOfWeek, final String dateFormat) {
+        TextView _txtAdd = findViewById(R.id.act_Calendar_TV_AddNew);
         ImageView _imageAdd = findViewById(R.id.act_Calendar_IV_AddIcon);
+        _imageAdd.setVisibility(View.VISIBLE);
+        _txtAdd.setVisibility(View.VISIBLE);
         _imageAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -422,34 +416,56 @@ public class CalendarActivity extends AppCompatActivity {
             _tvDayInfo.setText(_dayOfWeek);
             _tvDayDate.setText(_dateFormat);
         }
-        setImageViewListener(_dayOfWeek, _dateFormat);
+        if(mWorkingHours.get(_dayOfWeek + "Start").equals("Free")) {
+            TextView _txtAdd = findViewById(R.id.act_Calendar_TV_AddNew);
+            ImageView _imageAdd = findViewById(R.id.act_Calendar_IV_AddIcon);
+            _imageAdd.setVisibility(View.GONE);
+            _txtAdd.setVisibility(View.GONE);
+
+            addFreeDayImage(true);
+
+            /* for disabling scroll on free day */
+
+//            AppBarLayout _ABL = findViewById(R.id.act_Calendar_ABL);
+//            CollapsingToolbarLayout _CTL = findViewById(R.id.act_Calendar_CTL);
+//            RelativeLayout.LayoutParams _layoutParamsRL = new RelativeLayout.LayoutParams(
+//                    FrameLayout.LayoutParams.MATCH_PARENT,
+//                    FrameLayout.LayoutParams.WRAP_CONTENT
+//            );
+//            RelativeLayout _relativeLayoutInABL = new RelativeLayout(this);
+//            _relativeLayoutInABL.setLayoutParams(_layoutParamsRL);
+//            int _CTLIndex = _ABL.indexOfChild(_CTL);
+//            _ABL.removeViewAt(_CTLIndex);
+//            _ABL.addView(_relativeLayoutInABL, _CTLIndex);
+
+        } else {
+            addFreeDayImage(false);
+            setImageViewListener(_dayOfWeek, _dateFormat);
+        }
     }
 
-    private void getUserDaysWithScheduleID() {
-        FirebaseFirestore _FireStore = FirebaseFirestore.getInstance();
-        DocumentReference _documentReference = _FireStore.collection("users").document(userID);
-        _documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot _document = task.getResult();
-                    mUserDaysWithScheduleID = _document.get("daysWithScheduleID") != null ? _document.get("daysWithScheduleID").toString() : null;
-                    mUserAppointmentDuration = _document.get("appointmentsDuration").toString();
-                    mUserWorkingHoursID = _document.get("workingDaysID").toString();
-                    getWorkingHours();
-                }
-                if(mUserDaysWithScheduleID == null) {
+    private void addFreeDayImage(boolean state) {
+        ImageView _imageView = findViewById(R.id.act_Calendar_IV_Free);
+        if(state) {
+            /* show it */
+            _imageView.setVisibility(View.VISIBLE);
+        }
+        else {
+            _imageView.setVisibility(View.GONE);
+        }
+    }
+
+    private void setUserDaysWithScheduleIDWrapper() {
+        if(mUserDaysWithScheduleID == null) {
                     setUserDaysWithScheduleID();
-                }
-                else {
-                    if (mDate == 0L) {
+        }
+        else {
+            if (mDate == 0L) {
                         getDateFromCalendarView(0, 0, 0, true);
                         Log.d("DATE", mDate + "");
-                    }
-                    startServiceSMSMonitoring();
-                }
             }
-        });
+            startServiceSMSMonitoring();
+        }
     }
 
     public void startServiceSMSMonitoring() {
