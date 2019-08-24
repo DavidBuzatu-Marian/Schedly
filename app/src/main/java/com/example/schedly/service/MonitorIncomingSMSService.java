@@ -72,6 +72,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
     private PacketService mPacketService;
     public static final int SERVICE_ID = 4000;
     public static boolean sServiceRunning = false;
+    private HashMap<String, String> mWorkingHours = new HashMap<>();
 
     public int onStartCommand(Intent intent, int flags, int startId) {
         if(Objects.requireNonNull(intent.getAction()).equals("ACTION.STOPFOREGROUND_ACTION")) {
@@ -90,6 +91,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
             mUserAppointmentDuration = extras.getString("userAppointmentDuration");
             mUserDaysWithScheduleID = extras.getString("userDaysWithScheduleID");
             mUserWorkingDaysID = extras.getString("userWorkingDaysID");
+            mWorkingHours = (HashMap<String, String>) extras.getSerializable("userWorkingHours");
         }
         sServiceRunning = true;
         Log.d("Service", mUserAppointmentDuration + mUserID + mUserDaysWithScheduleID);
@@ -143,6 +145,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
     public void messageReceived(TSMSMessage newSMSMessage) {
         String _sender, _message;
         mPacketService = new PacketService(mUserID, mUserAppointmentDuration, mUserDaysWithScheduleID, mUserWorkingDaysID);
+        mPacketService.setUserWorkingHours(mWorkingHours);
         mSMSQueue.add(newSMSMessage);
         try {
             while(!mSMSQueue.isEmpty()) {

@@ -33,9 +33,7 @@ public class threadFindDaysForAppointment extends Thread {
     private final int HOUR_AND_HALF = 5400000, TWO_HOURS = 7200000;
     private AtomicBoolean mThreadStop = new AtomicBoolean(true);
     private String mUserDaysWithScheduleID;
-    private String mUserID;
     private String mUserAppointmentDuration;
-    private String mCurrentDaySHoursID;
     private FirebaseFirestore mFireStore;
     private int mCounterNextDay, mCounterDaysForAppointment;
     private boolean mResult;
@@ -58,11 +56,12 @@ public class threadFindDaysForAppointment extends Thread {
     private String mPhoneNumber;
     // used to get the required working hours
     private final String[] mDaysOfTheWeek = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
-    private Map<String, Object> mUserWorkingDays;
+    private Map<String, String> mUserWorkingDays;
     private String mMessageType;
+    private Long mDateInMillisFromService = 0L;
 
     public threadFindDaysForAppointment(String UserDaysWithScheduleID,
-                                        Map<String, Object> userWorkingDays,
+                                        Map<String, String> userWorkingDays,
                                         FirebaseFirestore firebaseFirestore,
                                         String userAppointmentDuration) {
         mUserDaysWithScheduleID = UserDaysWithScheduleID;
@@ -91,17 +90,27 @@ public class threadFindDaysForAppointment extends Thread {
     public void setmSMSBody(String SMSBody) {
         mSMSBody.append(SMSBody);
     }
+    public void setmDateInMillisFromService(Long dateInMillisFromService) {
+        mDateInMillisFromService = dateInMillisFromService;
+    }
 
     public void run() {
+        Calendar _calendar = Calendar.getInstance();
         if(mMessageType.equals("TIME")) {
             mSMSBody.append("These are the closest days I can take you in:");
         }
+        /* we need current time */
+        if(mDateInMillisFromService == 0L) {
+            _calendar.setTimeInMillis(System.currentTimeMillis());
+        } else {
+            /* we have a date */
+            _calendar.setTimeInMillis(mDateInMillisFromService);
+        }
+        Log.d("Message at beginning:", mSMSBody.toString());
         mCounterDaysForAppointment = 0;
         // this counter is used for getting the next days
         mCounterNextDay = 0;
 
-        Calendar _calendar = Calendar.getInstance();
-        _calendar.setTimeInMillis(System.currentTimeMillis());
         _calendar.set(Calendar.HOUR_OF_DAY, 0);
         _calendar.set(Calendar.MINUTE, 0);
         _calendar.set(Calendar.MILLISECOND, 0);
@@ -114,9 +123,11 @@ public class threadFindDaysForAppointment extends Thread {
             }
             Log.d("FirebaseDATE", mCounterDaysForAppointment + "");
         }
-
+// RESUME FROM HERE
+        /* ********************************************************8
+        *****************************************************
+         */
         sendMessage();
-        Log.d("FirebaseMes", mSMSBody.toString());
     }
 
     private void sendMessage() {
@@ -126,6 +137,7 @@ public class threadFindDaysForAppointment extends Thread {
         _messageParts.add(mSMSBody.toString().substring(_indexOfComma + 2));
 
         for(String _message: _messageParts) {
+            Log.d("MESSAGE", _message);
             SmsManager.getDefault().sendTextMessage(mPhoneNumber, null, _message, null, null);
         }
         Log.d("MESSAGE", mSMSBody.toString());
@@ -163,8 +175,8 @@ public class threadFindDaysForAppointment extends Thread {
                          * we need to try the next date
                          */
                         mDaySchedule = new String[2];
-                        mDaySchedule[0] = mUserWorkingDays.get(mDayOfTheWeek + "Start").toString();
-                        mDaySchedule[1] = mUserWorkingDays.get(mDayOfTheWeek + "End").toString();
+                        mDaySchedule[0] = mUserWorkingDays.get(mDayOfTheWeek + "Start");
+                        mDaySchedule[1] = mUserWorkingDays.get(mDayOfTheWeek + "End");
 
                         if (mDaySchedule[0].equals("Free")) {
                             mResult = false;
@@ -199,8 +211,8 @@ public class threadFindDaysForAppointment extends Thread {
 
             getDayOfTheWeek(_dateInMillisLong);
             mDaySchedule = new String[2];
-            mDaySchedule[0] = mUserWorkingDays.get(mDayOfTheWeek + "Start").toString();
-            mDaySchedule[1] = mUserWorkingDays.get(mDayOfTheWeek + "End").toString();
+            mDaySchedule[0] = mUserWorkingDays.get(mDayOfTheWeek + "Start");
+            mDaySchedule[1] = mUserWorkingDays.get(mDayOfTheWeek + "End");
 
             if (mDaySchedule[0].equals("Free")) {
                 mResult = false;
@@ -345,4 +357,5 @@ public class threadFindDaysForAppointment extends Thread {
         mDayOfTheWeek = mDaysOfTheWeek[_calendar.get(Calendar.DAY_OF_WEEK) - 1];
         Log.d("FirebaseDay", mDayOfTheWeek + "; " + _calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()));
     }
+
 }

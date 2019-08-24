@@ -9,14 +9,6 @@
     android:clipToPadding="false"
     android:clipChildren="false">
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/dotted_view"
-        android:layout_alignParentStart="true"
-        android:rotation="90"
-        />
-
     <RadioButton
         android:id="@+id/act_Calendar_RB"
         android:layout_width="wrap_content"

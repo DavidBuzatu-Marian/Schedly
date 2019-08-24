@@ -13,6 +13,11 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.format.DateTimeFormatter;
+
 import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -20,6 +25,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -48,9 +54,7 @@ public class PacketService {
     // building the sms body
     private StringBuilder mSMSBody;
     private String mPhoneNumber;
-    // used to get the required working hours
-    private final String[] mDaysOfTheWeek = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
-    private volatile Map<String, Object> mUserWorkingDays;
+    private volatile Map<String, String> mUserWorkingDays;
 
     public PacketService(String userID, String userAppointmentDuration, String userDaysWithScheduleID, String userWorkingDaysID) {
         mUserID = userID;
@@ -58,7 +62,6 @@ public class PacketService {
         mUserDaysWithScheduleID = userDaysWithScheduleID;
         mUserWorkingDaysID = userWorkingDaysID;
         mFireStore = FirebaseFirestore.getInstance();
-        getUserWorkingHours();
     }
 
 
@@ -89,34 +92,19 @@ public class PacketService {
 
 
     private void getDayOfTheWeek(Long dateInMillis) {
-        Calendar _calendar = Calendar.getInstance();
-        _calendar.setTimeInMillis(dateInMillis);
-        mDayOfTheWeek = mDaysOfTheWeek[_calendar.get(Calendar.DAY_OF_WEEK) - 1];
-        Log.d("FirebaseDay", mDayOfTheWeek + "; " + _calendar.get(Calendar.DAY_OF_WEEK));
+        DateTimeFormatter _DTF = DateTimeFormatter.ofPattern("EEEE", Locale.getDefault());
+        LocalDate _date = Instant.ofEpochMilli(dateInMillis).atZone(ZoneId.systemDefault()).toLocalDate();
+        Log.d("FirebaseDay2", _date.format(_DTF));
+        mDayOfTheWeek = _date.format(_DTF);
     }
 
-    private void getUserWorkingHours() {
-        Log.d("Firebase", mUserWorkingDaysID);
-        mFireStore.collection("workingDays")
-                .document(mUserWorkingDaysID)
-                .get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        mUserWorkingDays = documentSnapshot.getData();
-                        mWorkThread = new threadFindDaysForAppointment(mUserDaysWithScheduleID,
-                                mUserWorkingDays,
-                                mFireStore,
-                                mUserAppointmentDuration);
-                        Log.d("Firebase", "Succes getting working hours!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d("Firebase", "Code failed");
-                    }
-                });
+    public void setUserWorkingHours(HashMap<String, String> workingHours) {
+        mUserWorkingDays = workingHours;
+        Log.d("Firebase", "Succes setting working hours!");
+        mWorkThread = new threadFindDaysForAppointment(mUserDaysWithScheduleID,
+                mUserWorkingDays,
+                mFireStore,
+                mUserAppointmentDuration);
     }
 
     /* used to get hours for a day
@@ -205,8 +193,7 @@ public class PacketService {
                         Log.d("FirebaseworkingDays", "Succes with id");
                         if (messageType.equals("DATE")) {
                             sendScheduleOptionsWrapper(mDateInMillis);
-                        }
-                        else if (messageType.equals("FULL")) {
+                        } else if (messageType.equals("FULL")) {
                             getCurrentDateAppointments(mCurrentDaySHoursID, mDateInMillis, messageType, dateFromUser);
                         }
                     }
@@ -218,8 +205,8 @@ public class PacketService {
     private void sendScheduleOptionsWrapper(Long dateInMillis) {
         getDayOfTheWeek(dateInMillis);
         mDaySchedule = new String[2];
-        mDaySchedule[0] = mUserWorkingDays.get(mDayOfTheWeek + "Start").toString();
-        mDaySchedule[1] = mUserWorkingDays.get(mDayOfTheWeek + "End").toString();
+        mDaySchedule[0] = mUserWorkingDays.get(mDayOfTheWeek + "Start");
+        mDaySchedule[1] = mUserWorkingDays.get(mDayOfTheWeek + "End");
 
         Log.d("Firebase", "Getting the values for: " + mDayOfTheWeek + ": " + mDaySchedule[0] + "; " + mDaySchedule[1]);
 
@@ -330,8 +317,8 @@ public class PacketService {
     private void checkIfAppointmentCanBeMade(String dateFromUser) {
         getDayOfTheWeek(mDateInMillis);
         mDaySchedule = new String[2];
-        mDaySchedule[0] = mUserWorkingDays.get(mDayOfTheWeek + "Start").toString();
-        mDaySchedule[1] = mUserWorkingDays.get(mDayOfTheWeek + "End").toString();
+        mDaySchedule[0] = mUserWorkingDays.get(mDayOfTheWeek + "Start");
+        mDaySchedule[1] = mUserWorkingDays.get(mDayOfTheWeek + "End");
 
         Log.d("Firebase", "Getting the values for: " + mDayOfTheWeek + ": " + mDaySchedule[0] + "; " + mDaySchedule[1]);
 
@@ -339,20 +326,24 @@ public class PacketService {
             Log.d("FirebaseSEND", "Free");
             mSMSBody = new StringBuilder("I am sorry, but I don't work on " + dateFromUser + ". But please chose one convenient date from below:");
             mWorkThread.setmSMSBody(mSMSBody.toString());
-            getAllDaysIDs(mTimeToSchedule, mPhoneNumber,"FULL");
+            getAllDaysIDs(mTimeToSchedule, mPhoneNumber, "FULL");
         } else {
             /* not a free day */
             String _hour = mDaySchedule[0];
             mSMSBody = new StringBuilder();
             if (mCurrentDayAppointments.containsKey(mTimeToSchedule)) {
-                mWorkThread.setmSMSBody("I am sorry, but this date and hour are already scheduled. If you want a schedule for this day, send a message with this date or you can try one of these other days:");
-                getAllDaysIDs(mTimeToSchedule, mPhoneNumber,"FULL");
+                mWorkThread.setmDateInMillisFromService(mDateInMillis);
+                mWorkThread.setmSMSBody("This date and hour are already scheduled. If you want a schedule for this day, send a message with this date or you can try one of these other days:");
+                Log.d("APP_ERROR", "This is scheduled.");
+                getAllDaysIDs(mTimeToSchedule, mPhoneNumber, "FULL");
             }
-            getClosestHour(_hour, mTimeToSchedule);
+            else {
+                getClosestHour(_hour, mTimeToSchedule, dateFromUser);
+            }
         }
     }
 
-    private void getClosestHour(String currentTime, String scheduleTime) {
+    private void getClosestHour(String currentTime, String scheduleTime, String dateFromUser) {
         /* we get appointment time in millis
          * appointment duration in millis
          * current time in millis
@@ -365,18 +356,20 @@ public class PacketService {
         String[] _scheduleTimeHm = scheduleTime.split(":");
         String[] _closeTimeHm = mDaySchedule[1].split(":");
 
-        int _timeH = Integer.parseInt(_curTimeHm[0]), _timeM = Integer.parseInt(_curTimeHm[1]);
+        int _timeH = Integer.parseInt(_curTimeHm[0]),
+                _timeM = Integer.parseInt(_curTimeHm[1]);
         long _curTimeMil = TimeUnit.HOURS.toMillis(_timeH) + TimeUnit.MINUTES.toMillis(_timeM);
         long _closeTimeMil = TimeUnit.HOURS.toMillis(Integer.parseInt(_closeTimeHm[0])) + TimeUnit.MINUTES.toMillis(Integer.parseInt(_closeTimeHm[1]));
         long _scheduleTimeMil = TimeUnit.HOURS.toMillis(Integer.parseInt(_scheduleTimeHm[0])) + TimeUnit.MINUTES.toMillis(Integer.parseInt(_scheduleTimeHm[1]));
+
         Log.d("App", "Here: " + _curTimeMil);
         /* check if this exact time is available */
         String _fixHour = checkExactTime(_curTimeMil, _closeTimeMil, _scheduleTimeMil, _appointmentDuration);
-        if(_fixHour != null) {
+        if (_fixHour != null) {
             Log.d("aPP", _fixHour);
             if (!mCurrentDayAppointments.containsKey(_fixHour)) {
-                Log.d("Appoint", "REturn 2" + ": " + _fixHour);
-                mSMSBody.append("Alright! You scheduled yourself on: ").append(_fixHour);
+                Log.d("Appoint", "REturn fixed appointment successfully" + ": " + _fixHour);
+                mSMSBody.append("Alright! You scheduled yourself on ").append(dateFromUser).append(", at:").append(_fixHour);
                 sendMessage();
                 saveAppointmentToDatabase(_fixHour);
             }
@@ -424,7 +417,7 @@ public class PacketService {
                                 .append(_freeAfter ? (" " + _hourAfter) : "")
                                 .append(". Please send a confirmation message with the date and time");
                         sendMessage();
-                        Log.d("Appoint", "REturn 1");
+                        Log.d("Appoint", "REturn message send with confirmation");
                     } else {
                         sendScheduleOptionsWrapper(mDateInMillis);
                     }
@@ -434,7 +427,7 @@ public class PacketService {
                 _curTimeMil += _appointmentDuration;
             }
 
-            if(!_foundTime) {
+            if (!_foundTime) {
                 sendScheduleOptionsWrapper(mDateInMillis);
             }
         }
@@ -442,7 +435,7 @@ public class PacketService {
 
     private String checkExactTime(long curTimeMil, long closeTimeMil, long scheduleTimeMil, long appointmentDuration) {
         long _curTime = curTimeMil;
-        while(_curTime < scheduleTimeMil && _curTime < closeTimeMil) {
+        while (_curTime < scheduleTimeMil && _curTime < closeTimeMil) {
             _curTime += appointmentDuration;
         }
         @SuppressLint("DefaultLocale") String _hour = String.format("%02d:%02d",
