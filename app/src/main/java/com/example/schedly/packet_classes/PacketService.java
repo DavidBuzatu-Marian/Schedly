@@ -336,8 +336,7 @@ public class PacketService {
                 mWorkThread.setmSMSBody("This date and hour are already scheduled. If you want a schedule for this day, send a message with this date or you can try one of these other days:");
                 Log.d("APP_ERROR", "This is scheduled.");
                 getAllDaysIDs(mTimeToSchedule, mPhoneNumber, "FULL");
-            }
-            else {
+            } else {
                 getClosestHour(_hour, mTimeToSchedule, dateFromUser);
             }
         }
@@ -365,15 +364,12 @@ public class PacketService {
         Log.d("App", "Here: " + _curTimeMil);
         /* check if this exact time is available */
         String _fixHour = checkExactTime(_curTimeMil, _closeTimeMil, _scheduleTimeMil, _appointmentDuration);
-        if (_fixHour != null) {
-            Log.d("aPP", _fixHour);
-            if (!mCurrentDayAppointments.containsKey(_fixHour)) {
-                Log.d("Appoint", "REturn fixed appointment successfully" + ": " + _fixHour);
-                mSMSBody.append("Alright! You scheduled yourself on ").append(dateFromUser).append(", at:").append(_fixHour);
-                sendMessage();
-                saveAppointmentToDatabase(_fixHour);
-            }
-        } else {
+        if (_fixHour != null && !mCurrentDayAppointments.containsKey(_fixHour)) {
+            Log.d("Appoint", "REturn fixed appointment successfully" + ": " + _fixHour);
+            mSMSBody.append("Alright! You scheduled yourself on ").append(dateFromUser).append(", at:").append(_fixHour);
+            sendMessage();
+            saveAppointmentToDatabase(_fixHour);
+        } else if (_fixHour == null) {
             /* until we have time and we are not stuck
              * try to find the perfect time
              */

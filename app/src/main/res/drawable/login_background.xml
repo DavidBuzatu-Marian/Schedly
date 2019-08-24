@@ -34,7 +34,7 @@
         <!--</shape>-->
     <!--</item>-->
     <item  android:gravity="bottom|left" android:bottom="-60dp" android:left="-50dp">
-        <shape xmlns:android="http://schemas.android.com/apk/res/android"
+        <shape
             android:shape="oval">
             <gradient
                 android:angle="90"
@@ -47,7 +47,7 @@
         </shape>
     </item>
     <item  android:gravity="bottom|left" android:bottom="-70dp" android:left="50dp">
-        <shape xmlns:android="http://schemas.android.com/apk/res/android"
+        <shape
             android:shape="oval">
             <gradient
                 android:angle="90"

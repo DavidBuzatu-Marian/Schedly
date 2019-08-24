@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/act_main_RL_Root"
-    android:padding="16dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
+    android:background="@drawable/login_background"
     android:clickable="true"
     android:focusable="true"
-    android:background="@drawable/login_background">
+    android:padding="16dp"
+    tools:context=".MainActivity">
 
     <ProgressBar
         android:id="@+id/act_main_PB"
@@ -20,16 +19,16 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:indeterminate="true"
-        android:visibility="gone"
-        android:translationZ="10dp"/>
+        android:translationZ="10dp"
+        android:visibility="gone" />
 
     <TextView
-        style="@style/TextViewSignUp"
         android:id="@+id/act_main_TV_SignIn"
+        style="@style/TextViewSignUp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/act_main_TV_SignIn"
-        android:layout_above="@id/act_main_BUT_Facebook"/>
+        android:layout_above="@id/act_main_BUT_Facebook"
+        android:text="@string/act_main_TV_SignIn" />
 
 
     <com.facebook.login.widget.LoginButton
@@ -38,78 +37,77 @@
         android:layout_height="40dp"
         android:layout_above="@id/act_main_BUT_Google"
         android:layout_centerHorizontal="true"
-        android:layout_marginEnd="48dp"
         android:layout_marginStart="48dp"
         android:layout_marginTop="18dp"
+        android:layout_marginEnd="48dp"
         android:stateListAnimator="@animator/button_click_animator"
-        android:visibility="invisible"/>
+        android:visibility="invisible" />
 
     <Button
         android:id="@+id/act_main_BUT_Facebook"
+        style="@style/ButtonFacebook"
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        style="@style/ButtonFacebook"
         android:layout_above="@id/act_main_BUT_Google"
         android:onClick="doLoginFacebook"
         android:stateListAnimator="@animator/button_click_animator" />
 
     <Button
         android:id="@+id/act_main_BUT_Google"
-        android:layout_above="@id/act_main_TV_textOr"
         style="@style/ButtonGoogle"
         android:layout_width="match_parent"
         android:layout_height="40dp"
+        android:layout_above="@id/act_main_TV_textOr"
         android:stateListAnimator="@animator/button_click_animator" />
 
     <TextView
         android:id="@+id/act_main_TV_textOr"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
         android:layout_above="@id/act_main_CV_FormContainer"
+        android:layout_centerHorizontal="true"
 
-        android:paddingStart="64dp"
-        android:paddingEnd="64dp"
         android:layout_marginTop="24dp"
         android:layout_marginBottom="24dp"
+        android:paddingStart="64dp"
+        android:paddingEnd="64dp"
 
         android:text="@string/or"
-        android:textColor="#AAAAAA"
-        />
+        android:textColor="#AAAAAA" />
 
 
     <androidx.cardview.widget.CardView
         android:id="@+id/act_main_CV_FormContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
         android:layout_centerInParent="true"
+        android:layout_gravity="center"
 
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
 
-        card_view:cardElevation="8dp"
+        android:minHeight="120dp"
         card_view:cardCornerRadius="16dp"
-        android:minHeight="160dp"
-        >
+        card_view:cardElevation="8dp">
 
         <LinearLayout
             android:id="@+id/act_main_LL_CV"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:minHeight="120dp">
 
             <com.google.android.material.textfield.TextInputLayout
-                android:theme="@style/TextInputLayoutTheme"
                 android:id="@+id/act_main_TIL_email"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:background="#FFFFFF"
-                android:textColorHint="#000000"
-                app:errorEnabled="true"
                 android:layout_marginTop="8dp"
+                android:background="#FFFFFF"
+                android:padding="8dp"
+                android:textColorHint="#000000"
+                android:theme="@style/TextInputLayoutTheme"
+                app:errorEnabled="true"
                 app:errorTextAppearance="@style/error_appearance"
 
                 >
@@ -117,76 +115,77 @@
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/act_main_TIET_email"
                     style="@style/InputEditText"
-                    android:hint="@string/hint_login_email"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:hint="@string/hint_login_email" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#E4E4E4"
-                />
+                android:background="#E4E4E4" />
 
             <RelativeLayout
                 android:id="@+id/act_main_RL_CV_Password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
+
                 <com.google.android.material.textfield.TextInputLayout
-                    android:theme="@style/TextInputLayoutTheme"
                     android:id="@+id/act_main_TIL_password"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="8dp"
-                    android:background="#FFFFFF"
-                    android:textColorHint="#000000"
-                    app:errorEnabled="true"
                     android:layout_marginTop="8dp"
-                    app:errorTextAppearance="@style/error_appearance"
-                    >
+                    android:background="#FFFFFF"
+                    android:padding="8dp"
+                    android:textColorHint="#000000"
+                    android:theme="@style/TextInputLayoutTheme"
+                    app:errorEnabled="true"
+                    app:errorTextAppearance="@style/error_appearance">
+
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/act_main_TIET_password"
                         style="@style/InputEditText"
-                        android:hint="@string/hint_login_password"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="textPassword"
-                        android:layout_marginTop="8dp"
                         android:layout_alignParentStart="true"
                         android:layout_alignParentTop="true"
-                        android:maxLength="20"
-                        android:ems="10">
-                    </com.google.android.material.textfield.TextInputEditText>
+                        android:layout_marginTop="8dp"
+                        android:ems="10"
+                        android:hint="@string/hint_login_password"
+                        android:inputType="textPassword"
+                        android:maxLength="20"/>
 
                 </com.google.android.material.textfield.TextInputLayout>
+
                 <TextView
                     android:id="@+id/act_main_TV_ForgotPassword"
-                    android:padding="8dp"
-                    android:layout_marginEnd="32dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
-                    android:textAlignment="center"
-                    android:gravity="center"
-                    android:textColor="#6598db"
-                    android:text="@string/act_main_TV_ForgotPassword"
+                    android:layout_marginEnd="32dp"
                     android:clickable="true"
-                    android:focusable="true"/>
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="@string/act_main_TV_ForgotPassword"
+                    android:textAlignment="center"
+                    android:textColor="#6598db" />
+
                 <ImageView
                     android:id="@+id/act_main_IV_ShowPassword"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_baseline_visibility_off_24px"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
+                    android:layout_marginEnd="8dp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:textAlignment="center"
                     android:gravity="center"
-                    android:layout_marginEnd="8dp"/>
+                    android:src="@drawable/ic_baseline_visibility_off_24px"
+                    android:textAlignment="center" />
             </RelativeLayout>
 
         </LinearLayout>
@@ -199,25 +198,26 @@
         style="@style/ButtonSubmit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@id/act_main_CV_FormContainer"
         android:layout_centerHorizontal="true"
         android:background="@drawable/button_submit"
         android:stateListAnimator="@animator/button_click_animator"
         android:text="@string/sign_in_button"
-        android:layout_below="@id/act_main_CV_FormContainer" />
+        android:minHeight="40dp"/>
+
     <TextView
         android:id="@+id/act_main_TV_SingUp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingStart="32dp"
-        android:paddingEnd="32dp"
-        android:layout_centerHorizontal="true"
-        android:gravity="center"
         android:layout_below="@id/act_main_BUT_signin"
-        android:text="@string/act_main_TV_SingUp"
-        android:layout_marginTop="24dp"
-        android:textColor="#555555"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
         android:clickable="true"
         android:focusable="true"
-        />
+        android:gravity="center"
+        android:paddingStart="32dp"
+        android:paddingEnd="32dp"
+        android:text="@string/act_main_TV_SingUp"
+        android:textColor="#555555" />
 
 </RelativeLayout>

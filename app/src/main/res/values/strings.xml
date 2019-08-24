@@ -125,5 +125,6 @@
     <string name="popup_add_Name">Name</string>
     <string name="popup_add_FreeHours">Select a free hour from the list</string>
     <string name="popup_add_Done">Add appointment</string>
+    <string name="act_Calendar_TV_Free">Free day</string>
 
 </resources>

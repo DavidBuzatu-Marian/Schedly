@@ -6,7 +6,8 @@
     android:id="@+id/act_Calendar_CL_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CalendarActivity">
+    tools:context=".CalendarActivity"
+    android:background="@color/colorAccent">
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/act_Calendar_ABL"
         android:layout_width="wrap_content"
@@ -46,8 +47,6 @@
                     app:cardCornerRadius="24dp"
 
                     android:layout_marginTop="60dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp"
                     android:layout_marginBottom="40dp">
                     <CalendarView
                         android:id="@+id/act_Calendar_CalendarV"
@@ -128,6 +127,7 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         android:scrollbars="vertical"
         android:layout_marginTop="24dp"
+        android:background="@color/colorAccent"
         >
 
     </androidx.recyclerview.widget.RecyclerView>

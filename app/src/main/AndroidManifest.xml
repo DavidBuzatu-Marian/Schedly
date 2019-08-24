@@ -19,7 +19,8 @@
 
         <activity
             android:name=".StartSplashActivity"
-            android:theme="@style/SplashTheme">
+            android:theme="@style/SplashTheme"
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -27,8 +28,10 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".SettingsActivity"/>
-        <activity android:name=".ForgotPasswordActivity" />
+        <activity android:name=".SettingsActivity"
+            android:screenOrientation="portrait" />
+        <activity android:name=".ForgotPasswordActivity"
+            android:screenOrientation="portrait" />
 
         <service
             android:name=".service.MonitorIncomingSMSService"
@@ -45,17 +48,22 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".ScheduleDurationActivity"/>
-        <activity android:name=".SetWorkingHoursActivity"/>
-        <activity android:name=".SetProfessionActivity"/>
+        <activity android:name=".ScheduleDurationActivity"
+            android:screenOrientation="portrait" />
+        <activity android:name=".SetWorkingHoursActivity"
+            android:screenOrientation="portrait" />
+        <activity android:name=".SetProfessionActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".SetPhoneNumberActivity"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
-        <activity android:name=".CalendarActivity">
+        <activity android:name=".CalendarActivity"
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.DIAL" />
 
@@ -67,10 +75,12 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity"/>
+        <activity android:name=".MainActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".SignUpWithEmailActivity"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
