@@ -215,12 +215,16 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
             mCDayID = appointment.getmCurrentDayID();
             String _name = appointment.getmName();
             mTextViewHour.setText(appointment.getmHour());
+            Log.d("DETECT", _name + ": " + appointment.getmPhoneNumber());
             if(_name != null) {
                 mTextViewName.setText(_name);
                 mTextViewPhoneNumber.setVisibility(View.GONE);
                 mTextViewPhoneNumber.setText(appointment.getmPhoneNumber());
             }
             else {
+                mTextViewName.setText("");
+//                mTextViewName.setVisibility(View.GONE);
+                mTextViewPhoneNumber.setVisibility(View.VISIBLE);
                 mTextViewPhoneNumber.setText(appointment.getmPhoneNumber());
             }
         }

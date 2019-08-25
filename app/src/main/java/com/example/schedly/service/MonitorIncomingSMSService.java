@@ -43,6 +43,11 @@ import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.HttpsCallableResult;
 import com.google.gson.Gson;
 
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.format.DateTimeFormatter;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayDeque;
@@ -228,18 +233,19 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
                     Properties data = _gson.fromJson(mResultFromDialogFlow.get("parameters").toString(), Properties.class);
                     mTime = getLocaleTimeString(data.getProperty("time"));
                     mDateFromUser = getLocaleDateString(data.getProperty("date"));
-                    if(mTime == null && mDateFromUser != null) {
-                        sendMessageForTime();
-                    }
-                    else if(mDateFromUser == null && mTime != null) {
-                        sendMessageForDate();
-                    }
-                    else if(mDateFromUser == null && mTime == null) {
-                        sendMessageForAppointment(mResultFromDialogFlow.get("response").toString());
-                    }
-                    else {
-                        Log.d("Succes", mDateFromUser + ": " + mTime);
-                        mPacketService.makeAppointmentForFixedParameters(mDateFromUser, mTime, mMessagePhoneNumber, mContactName.get(mMessagePhoneNumber));
+                    if(!dateFromUserIsNotPast(mDateFromUser)) {
+                        sendMessageForDatePast();
+                    } else {
+                        if (mTime == null && mDateFromUser != null) {
+                            sendMessageForTime();
+                        } else if (mDateFromUser == null && mTime != null) {
+                            sendMessageForDate();
+                        } else if (mDateFromUser == null && mTime == null) {
+                            sendMessageForAppointment(mResultFromDialogFlow.get("response").toString());
+                        } else {
+                            Log.d("Succes", mDateFromUser + ": " + mTime);
+                            mPacketService.makeAppointmentForFixedParameters(mDateFromUser, mTime, mMessagePhoneNumber, mContactName.get(mMessagePhoneNumber));
+                        }
                     }
                 }
                 else {
@@ -248,6 +254,27 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
                 }
             }
         });
+    }
+
+    private void sendMessageForDatePast() {
+        String _message = "Sorry, but your date: " + mDateFromUser + " has passed already. Try a valid one!";
+        SmsManager.getDefault().sendTextMessage(mMessagePhoneNumber, null, _message, null, null);
+    }
+
+    /* function to check if date from user
+     * is not in the past
+     */
+    private boolean dateFromUserIsNotPast(String dateFromUser) {
+        /* we got a date */
+        if(dateFromUser != null) {
+            LocalDate _localDate = LocalDate.now(ZoneId.systemDefault());
+            long _curDayInMillis = _localDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+            DateTimeFormatter _DTF = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            _localDate = LocalDate.parse(dateFromUser, _DTF);
+            long _userDayInMillis = _localDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+            return _userDayInMillis > _curDayInMillis;
+        }
+        return true;
     }
 
     private void sendMessageForTime() {

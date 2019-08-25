@@ -76,6 +76,7 @@ import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import static com.example.schedly.MainActivity.EMAIL_CHANGED;
 import static com.example.schedly.MainActivity.PASSWORD_CHANGED;
@@ -167,6 +168,16 @@ public class CalendarActivity extends AppCompatActivity {
 
         PacketCalendar _packetCalendar = new PacketCalendar(this, mWorkingHours, mUserDaysWithScheduleID, mUserAppointmentDuration);
         _packetCalendar.setDateForTVs(year, month, dayOfMonth, mDate);
+
+
+        LocalDate _localDate = LocalDate.now(ZoneId.systemDefault());
+        long _curDayInMillis = _localDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        DateTimeFormatter _DTF = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        _localDate = LocalDate.parse("2019-08-26", _DTF);
+        long _userDayInMillis = _localDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        String res = _userDayInMillis > _curDayInMillis ? "true" : "false";
+        Log.d("ERRRR", res + ":  " + _userDayInMillis);
+
 
         Log.d("Date", mDate + "");
         mDataSet.clear();
@@ -322,8 +333,12 @@ public class CalendarActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     Log.d("Appo", _documentReference.getPath());
                     Map<String, Object> _map = task.getResult().getData();
+
+                    Map<String, Object> _treeMap = new TreeMap<>(_map);
+
+
                     Log.d("Calendar", _map.toString());
-                    for (Map.Entry<String, Object> _entry : _map.entrySet()) {
+                    for (Map.Entry<String, Object> _entry : _treeMap.entrySet()) {
                         Log.d("Appointment", _entry.getKey());
                         if (_entry.getValue() == null) {
                             break;
@@ -331,7 +346,6 @@ public class CalendarActivity extends AppCompatActivity {
                         Gson gson = new Gson();
                         String json = gson.toJson(_entry.getValue());
                         Log.d("APPP", json);
-
 
                         mDataSet.add(mCounter, new Appointment(_entry.getKey(), gson, json, currentDayID, mUserDaysWithScheduleID));
                         mCounter++;
@@ -342,6 +356,47 @@ public class CalendarActivity extends AppCompatActivity {
                 mAdapter.notifyDataSetChanged();
             }
         });
+
+    }
+//    private void getEachAppointments() {
+//        FirebaseFirestore _FireStore = FirebaseFirestore.getInstance();
+//
+//        final DocumentReference _documentReference = _FireStore.collection("scheduledHours")
+//                .document(userID);
+//        _documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//            @Override
+//            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                if (task.isSuccessful()) {
+//                    Log.d("Appooooooo", _documentReference.getPath());
+//                    Object _res = task.getResult().get(mDate + "");
+//                    Map<String, Object> _map = new HashMap<>();
+//                    Log.d("FirebaseErr", _res.toString());
+////                    for (Map.Entry<String, Object> _entry : _map.entrySet()) {
+////                        Log.d("Appointment", _entry.getKey());
+////                        if (_entry.getValue() == null) {
+////                            break;
+////                        }
+////                        Gson gson = new Gson();
+////                        String json = gson.toJson(_entry.getValue());
+////                        Log.d("APPP", json);
+////
+////                        mDataSet.add(mCounter, new Appointment(_entry.getKey(), gson, json, currentDayID, mUserDaysWithScheduleID));
+////                        mCounter++;
+////                    }
+//                } else {
+//                    Log.d(ERR, "Error getting documents: ", task.getException());
+//                }
+//                mAdapter.notifyDataSetChanged();
+//            }
+//        });
+//    }
+
+    /* setter for the appointment list
+     * if we make a manual appointment or through SMS
+     * we call this function to update the recycler view
+     */
+
+    public void setmDataSet(Appointment appointment) {
     }
 
 
