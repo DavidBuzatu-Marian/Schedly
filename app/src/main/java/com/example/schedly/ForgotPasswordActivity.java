@@ -18,6 +18,8 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import static com.example.schedly.MainActivity.PR_SUCCESS;
+
 public class ForgotPasswordActivity extends AppCompatActivity {
 
 
@@ -64,6 +66,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                         if(task.isSuccessful()) {
                             Log.d("PASSWORD", "Email sent!");
                             ForgotPasswordActivity.this.finish();
+                            setResult(PR_SUCCESS);
                         }
                         else {
                             mTextInputLayoutEmail.setError("Email is not registered!");

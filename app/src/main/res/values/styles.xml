@@ -106,6 +106,14 @@
     <style name="TextViewSignUp">
         <item name="android:textSize">42sp</item>
         <item name="android:layout_marginTop">18dp</item>
+        <item name="android:fontFamily">@font/roboto_thin</item>
+        <item name="android:layout_centerHorizontal">true</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="TextViewSignUpExtra">
+        <item name="android:textSize">28sp</item>
+        <item name="android:layout_marginTop">36dp</item>
         <item name="android:fontFamily">sans-serif-thin</item>
         <item name="android:layout_centerHorizontal">true</item>
         <item name="android:gravity">center</item>

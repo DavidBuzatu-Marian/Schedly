@@ -465,8 +465,8 @@ public class PacketCalendar {
         mDate = milDate;
 
         if (year != 0) {
-            DateTimeFormatter _DTF = DateTimeFormatter.ofPattern("EEEE", Locale.getDefault());
-            DateTimeFormatter _DTFDate = DateTimeFormatter.ofPattern("dd-MM-yyyy", Locale.getDefault());
+            DateTimeFormatter _DTF = DateTimeFormatter.ofPattern("EEEE", Locale.US);
+            DateTimeFormatter _DTFDate = DateTimeFormatter.ofPattern("dd-MM-yyyy", Locale.US);
             LocalDate _date = LocalDate.of(year, month + 1, dayOfMonth);
             TextView _tvDayInfo = mActivity.findViewById(R.id.act_Calendar_TV_DayOfWeek);
             TextView _tvDayDate = mActivity.findViewById(R.id.act_Calendar_TV_Date);
@@ -475,8 +475,8 @@ public class PacketCalendar {
             _tvDayInfo.setText(_dayOfWeek);
             _tvDayDate.setText(_dateFormat);
         } else {
-            DateTimeFormatter _DTF = DateTimeFormatter.ofPattern("EEEE", Locale.getDefault());
-            DateTimeFormatter _DTFDate = DateTimeFormatter.ofPattern("dd-MM-yyyy", Locale.getDefault());
+            DateTimeFormatter _DTF = DateTimeFormatter.ofPattern("EEEE", Locale.US);
+            DateTimeFormatter _DTFDate = DateTimeFormatter.ofPattern("dd-MM-yyyy", Locale.US);
             LocalDate _date = LocalDate.now();
             Log.d("Date", month + ": " + dayOfMonth + ":y " + year);
             TextView _tvDayInfo = mActivity.findViewById(R.id.act_Calendar_TV_DayOfWeek);
@@ -486,6 +486,7 @@ public class PacketCalendar {
             _tvDayInfo.setText(_dayOfWeek);
             _tvDayDate.setText(_dateFormat);
         }
+        Log.d("Details", mWorkingHours.toString() + ": " + _dayOfWeek);
         if (mWorkingHours.get(_dayOfWeek + "Start").equals("Free")) {
             TextView _txtAdd = mActivity.findViewById(R.id.act_Calendar_TV_AddNew);
             ImageView _imageAdd = mActivity.findViewById(R.id.act_Calendar_IV_AddIcon);

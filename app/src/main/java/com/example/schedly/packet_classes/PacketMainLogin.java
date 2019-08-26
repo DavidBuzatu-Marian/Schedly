@@ -51,7 +51,7 @@ public class PacketMainLogin {
     private ConstraintLayout mRootConstraintLayout;
     private HashMap<String, String> mWorkingHours = new HashMap<>();
     private String mUserDaysWithScheduleID;
-
+    private boolean mDialogExists;
 
 
     public PacketMainLogin(Activity activity,  boolean isMain) {
@@ -63,7 +63,7 @@ public class PacketMainLogin {
              * get views for progress bar
              */
             mProgressBar = mActivity.findViewById(R.id.act_main_PB);
-            mRootConstraintLayout= mActivity.findViewById(R.id.act_main_RL_Root);
+            mRootConstraintLayout= mActivity.findViewById(R.id.act_main_CL_Root);
         }
     }
 
@@ -82,12 +82,15 @@ public class PacketMainLogin {
                         mUserAppointmentsDuration = _document.get("appointmentsDuration") != null ? _document.get("appointmentsDuration").toString() : null;
                         mUserDaysWithScheduleID = _document.get("daysWithScheduleID") != null ? _document.get("daysWithScheduleID").toString() : null;
 
-                        if(mUserWorkingHoursID == null) {
-                            addUserWorkingDaysID(currentUser);
+                        if(mUserPhoneNumber == null || mUserProfession == null) {
+                            redirectUser(currentUser);
                         }
                         else {
-                            getWorkingHours();
-                            redirectUser(currentUser);
+                            if (mUserWorkingHoursID == null) {
+                                addUserWorkingDaysID(currentUser);
+                            } else {
+                                checkWorkingDaysSetup(currentUser);
+                            }
                         }
                     } else {
                         mUserPhoneNumber = null;
@@ -105,24 +108,13 @@ public class PacketMainLogin {
         });
     }
 
-    private void getWorkingHours() {
-        FirebaseFirestore _firebaseFirestore = FirebaseFirestore.getInstance();
-        _firebaseFirestore.collection("workingDays")
-                .document(mUserWorkingHoursID)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            Map<String, Object> _map = task.getResult().getData();
-                            Log.d("Calendar", _map.toString());
-                            for (Map.Entry<String, Object> _entry : _map.entrySet()) {
-                                Log.d("Appointment", _entry.getKey());
-                                mWorkingHours.put(_entry.getKey(), _entry.getValue().toString());
-                            }
-                        }
-                    }
-                });
+    private void getWorkingHours(Task<DocumentSnapshot> task) {
+        Map<String, Object> _map = task.getResult().getData();
+        Log.d("Calendar", _map.toString());
+        for (Map.Entry<String, Object> _entry : _map.entrySet()) {
+            Log.d("Appointment", _entry.getKey());
+            mWorkingHours.put(_entry.getKey(), _entry.getValue().toString());
+        }
     }
 
     private void checkWorkingDaysSetup(FirebaseUser currentUser) {
@@ -138,6 +130,7 @@ public class PacketMainLogin {
                             getToInitActivity(localUser);
                         }
                         else {
+                            getWorkingHours(task);
                             getToCalendarActivity(localUser);
                         }
                     }
@@ -264,19 +257,23 @@ public class PacketMainLogin {
             mProgressBar.setVisibility(View.VISIBLE);
             mRootConstraintLayout.setClickable(false);
             mRootConstraintLayout.setEnabled(false);
-            disableView(false);
+            if(!mDialogExists) {
+                disableView(false);
+            }
         }
         else {
             mProgressBar.setVisibility(View.GONE);
             mRootConstraintLayout.setClickable(true);
             mRootConstraintLayout.setEnabled(true);
-            disableView(true);
+            if(!mDialogExists) {
+                disableView(true);
+            }
         }
 
     }
 
     private void disableView(boolean value) {
-        ViewGroup _viewGroup = mActivity.findViewById(R.id.act_main_RL_Root);
+        ViewGroup _viewGroup = mActivity.findViewById(R.id.act_main_CL_Root);
         loopThroughViews(_viewGroup, value);
         mActivity.findViewById(R.id.act_main_TIL_email).setEnabled(value);
         _viewGroup = mActivity.findViewById(R.id.act_main_RL_CV_Password);
@@ -291,5 +288,9 @@ public class PacketMainLogin {
             Log.d("Views", _childView.toString());
         }
         viewGroup.setEnabled(value);
+    }
+
+    public void setDialogViewExists(boolean value) {
+        mDialogExists = value;
     }
 }

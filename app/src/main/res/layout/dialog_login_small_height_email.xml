@@ -1,121 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/act_main_RL_Root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/login_background"
-    android:clickable="true"
-    android:focusable="true"
-    android:padding="16dp"
-    tools:context=".MainActivity">
-
-    <ProgressBar
-        android:id="@+id/act_main_PB"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:indeterminate="true"
-        android:translationZ="10dp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/act_main_TV_SignIn"
-        style="@style/TextViewSignUp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/act_main_BUT_Facebook"
-        android:layout_marginTop="16dp"
-        android:text="@string/act_main_TV_SignIn"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-
-    <com.facebook.login.widget.LoginButton
-        android:id="@+id/buttonFacebookLogin"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_above="@id/act_main_BUT_Google"
-        android:layout_centerHorizontal="true"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:stateListAnimator="@animator/button_click_animator"
-        android:visibility="invisible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/act_main_BUT_Facebook" />
-
-    <Button
-        android:id="@+id/act_main_BUT_Facebook"
-        style="@style/ButtonFacebook"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_above="@id/act_main_BUT_Google"
-        android:onClick="doLoginFacebook"
-
-        android:layout_marginTop="@dimen/btn_social_medium_marginT"
-        android:layout_marginStart="@dimen/btn_social_medium_marginSE"
-        android:layout_marginEnd="@dimen/btn_social_medium_marginSE"
-
-        android:stateListAnimator="@animator/button_click_animator"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/act_main_TV_SignIn" />
-
-    <Button
-        android:id="@+id/act_main_BUT_Google"
-        style="@style/ButtonGoogle"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_above="@id/act_main_TV_textOr"
-        android:layout_marginStart="@dimen/btn_social_medium_marginSE"
-        android:layout_marginEnd="@dimen/btn_social_medium_marginSE"
-        android:layout_marginTop="@dimen/btn_social_medium_marginT"
-
-        android:stateListAnimator="@animator/button_click_animator"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/act_main_BUT_Facebook" />
-
-    <TextView
-        android:id="@+id/act_main_TV_textOr"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/act_main_CV_FormContainer"
-        android:layout_centerHorizontal="true"
-
-        android:layout_marginTop="@dimen/medium_marginT"
-
-        android:text="@string/or"
-        android:textColor="#AAAAAA"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/act_main_BUT_Google" />
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:card_view="http://schemas.android.com/tools">
 
 
     <androidx.cardview.widget.CardView
         android:id="@+id/act_main_CV_FormContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:layout_gravity="center"
+
+
+        android:layout_marginTop="@dimen/medium_marginT"
 
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/act_main_TV_textOr"
+        app:layout_constraintTop_toTopOf="parent"
 
-        android:layout_marginTop="@dimen/medium_marginT"
         android:layout_marginStart="@dimen/container_medium_marginSE"
         android:layout_marginEnd="@dimen/container_medium_marginSE"
-
         card_view:cardCornerRadius="16dp"
         card_view:cardElevation="8dp">
 
@@ -210,11 +114,11 @@
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="8dp"
                     android:clickable="true"
+                    android:contentDescription="@string/title_activity_forgot_password"
                     android:focusable="true"
                     android:gravity="center"
                     android:src="@drawable/ic_baseline_visibility_off_24px"
-                    android:textAlignment="center"
-                    android:contentDescription="@string/title_activity_forgot_password"/>
+                    android:textAlignment="center" />
             </RelativeLayout>
 
         </LinearLayout>
@@ -253,6 +157,7 @@
         android:gravity="center"
         android:text="@string/act_main_TV_SingUp"
         android:textColor="#555555"
+        android:paddingBottom="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/act_main_BUT_signin" />

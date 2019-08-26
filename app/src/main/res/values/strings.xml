@@ -126,5 +126,9 @@
     <string name="popup_add_FreeHours">Select a free hour from the list</string>
     <string name="popup_add_Done">Add appointment</string>
     <string name="act_Calendar_TV_Free">Free day</string>
+    <string name="sign_in_options_socials">With socials</string>
+    <string name="sign_in_button_options_email">With email</string>
+    <string name="act_main_TV_SignIn_Extra">SIGN IN</string>
+    <string name="image">Background image</string>
 
 </resources>

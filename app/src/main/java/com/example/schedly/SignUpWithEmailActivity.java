@@ -184,11 +184,11 @@ public class SignUpWithEmailActivity extends AppCompatActivity {
     private void showProgressBar(boolean show) {
         if(show) {
             mProgressBar.setVisibility(View.VISIBLE);
-            findViewById(R.id.act_main_RL_Root).setClickable(false);
+            findViewById(R.id.act_main_CL_Root).setClickable(false);
         }
         else {
             mProgressBar.setVisibility(View.GONE);
-            findViewById(R.id.act_main_RL_Root).setClickable(true);
+            findViewById(R.id.act_main_CL_Root).setClickable(true);
         }
 
     }

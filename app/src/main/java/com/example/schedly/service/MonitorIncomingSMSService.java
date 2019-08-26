@@ -80,7 +80,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
     private HashMap<String, String> mWorkingHours = new HashMap<>();
 
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if(Objects.requireNonNull(intent.getAction()).equals("ACTION.STOPFOREGROUND_ACTION")) {
+        if(intent.getAction().equals("ACTION.STOPFOREGROUND_ACTION")) {
             Log.d("TEST", "STOPPED SERVICE");
             stopForeground(true);
             stopSelf();

@@ -1,7 +1,9 @@
 package com.example.schedly;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
@@ -45,11 +47,31 @@ public class StartSplashActivity extends AppCompatActivity {
             _packetMainLogin.getUserDetails(currentUser);
         }
         else {
-            Intent _intentMainActivity = new Intent(this, MainActivity.class);
-            startActivity(_intentMainActivity);
-            finish();
+
+            /* get screen size */
+            DisplayMetrics _displayMetrics = new DisplayMetrics();
+            getWindowManager().getDefaultDisplay().getMetrics(_displayMetrics);
+            int _height = _displayMetrics.heightPixels;
+            int _width = _displayMetrics.widthPixels;
+            /* if screen height smaller than 1200px
+             * show another login activity layout
+             */
+            Log.d("HEI", _height + ": is good");
+            if(_height < 1350) {
+                Log.d("HEI", _height + ": is bad");
+                Intent _intentMainActivity = new Intent(this, MainActivity.class);
+                _intentMainActivity.putExtra("SmallHeight", R.layout.activity_login_xsmall_devices);
+                startActivity(_intentMainActivity);
+                finish();
+            } else {
+                Intent _intentMainActivity = new Intent(this, MainActivity.class);
+                startActivity(_intentMainActivity);
+                finish();
+            }
         }
     }
+
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

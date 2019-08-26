@@ -3,18 +3,18 @@ package com.example.schedly;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,13 +47,11 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.Objects;
-
 import static com.example.schedly.CalendarActivity.LOG_OUT;
 
 public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
-    private CallbackManager mCallbackManager;
+    private CallbackManager mCallbackManager = null;
     private final String TAG = "RES";
     /* google sign in code */
     public static final int RC_SIGN_IN = 1001;
@@ -77,8 +75,9 @@ public class MainActivity extends AppCompatActivity {
     /* firestore */
     FirebaseFirestore mFirebaseFirestore;
     private GoogleSignInClient mGoogleSignInClient;
-    private boolean mShowPasswordTrue = false;;
+    private boolean mShowPasswordTrue = false;
     private PacketMainLogin mPacketMainLogin;
+    private View mDialogView;
 
     @Override
     public void onStart() {
@@ -96,59 +95,32 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-
+        Bundle _extras = getIntent().getExtras();
+        if(_extras != null) {
+            setContentView(_extras.getInt("SmallHeight"));
+            setButtonsOnClick();
+            /* for sign up */
+            final TextView buttonSignUpMain = findViewById(R.id.act_main_TV_SingUp);
+            buttonSignUpMain.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent signUpIntent = new Intent(MainActivity.this, SignUpWithEmailActivity.class);
+                    startActivity(signUpIntent);
+                }
+            });
+        } else {
+            setContentView(R.layout.activity_login);
+            setUpSocialsLogin();
+            setUpEmailLogin();
+        }
         mPacketMainLogin = new PacketMainLogin(this, true);
         mAuth = FirebaseAuth.getInstance();
 
-        /* FACEBOOK LOGIN */
-        mCallbackManager = CallbackManager.Factory.create();
+    }
 
-        LoginButton loginButtonFacebook = findViewById(R.id.buttonFacebookLogin);
-        loginButtonFacebook.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-                Log.d(TAG, "facebook:onSuccess:" + loginResult);
-                mPacketMainLogin.showProgressBar(true);
-                handleFacebookAccessToken(loginResult.getAccessToken());
-            }
-
-            @Override
-            public void onCancel() {
-                Log.d(TAG, "facebook:onCancel");
-                // ...
-            }
-
-            @Override
-            public void onError(FacebookException error) {
-                Log.d(TAG, "facebook:onError", error);
-                // ...
-            }
-
-        });
-
-        /* GOOGLE LOGIN */
-
-        // Configure sign-in to request the user's ID, email address, and basic
-        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_ID))
-                .requestEmail()
-                .build();
-        // Build a GoogleSignInClient with the options specified by gso.
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-
-        findViewById(R.id.act_main_BUT_Google).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mPacketMainLogin.showProgressBar(true);
-                signIn();
-            }
-        });
-
-
+    private void setUpEmailLogin(final View view) {
         /* for sign up */
-        final TextView buttonSignUpMain = findViewById(R.id.act_main_TV_SingUp);
+        final TextView buttonSignUpMain = view.findViewById(R.id.act_main_TV_SingUp);
         buttonSignUpMain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -156,6 +128,75 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(signUpIntent);
             }
         });
+        /* for password reset */
+        final TextView buttonForgotPassword = view.findViewById(R.id.act_main_TV_ForgotPassword);
+        buttonForgotPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent _forgotPassword = new Intent(MainActivity.this, ForgotPasswordActivity.class);
+                TextInputEditText _txtInputEmail = view.findViewById(R.id.act_main_TIET_email);
+                _forgotPassword.putExtra("Email", _txtInputEmail.getText().toString());
+                startActivityForResult(_forgotPassword, PR_SUCCESS);
+            }
+        });
+        /* for show password */
+        final ImageView imageViewShowPassword = view.findViewById(R.id.act_main_IV_ShowPassword);
+        imageViewShowPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final EditText editTextPass = view.findViewById(R.id.act_main_TIET_password);
+                if(mShowPasswordTrue) {
+                    editTextPass.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                    imageViewShowPassword.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_visibility_24px));
+                    editTextPass.setSelection(editTextPass.getText().length());
+                    mShowPasswordTrue = false;
+                }
+                else {
+                    editTextPass.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                    imageViewShowPassword.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_visibility_off_24px));
+                    editTextPass.setSelection(editTextPass.getText().length());
+                    mShowPasswordTrue = true;
+                }
+            }
+        });
+
+        /* for sign in */
+        final Button buttonSignInMain = view.findViewById(R.id.act_main_BUT_signin);
+        buttonSignInMain.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mPacketMainLogin.showProgressBar(true);
+                EditText editTextEmail = view.findViewById(R.id.act_main_TIET_email);
+                EditText editTextPass = view.findViewById(R.id.act_main_TIET_password);
+                TextInputLayout textInputLayoutEmail = view.findViewById(R.id.act_main_TIL_email);
+                TextInputLayout textInputLayoutPass = view.findViewById(R.id.act_main_TIL_password);
+                boolean errorFoundTrue = false;
+                final String ET_Email = editTextEmail.getText().toString();
+                final String ET_Password = editTextPass.getText().toString();
+                if(ET_Email.isEmpty()) {
+                    errorFoundTrue = true;
+                    textInputLayoutEmail.setError("Field required!");
+                    mPacketMainLogin.showProgressBar(false);
+                }
+                else {
+                    textInputLayoutEmail.setErrorEnabled(false);
+                }
+                if(ET_Password.isEmpty()) {
+                    errorFoundTrue = true;
+                    textInputLayoutPass.setError("Filed required!");
+                    mPacketMainLogin.showProgressBar(false);
+                }
+                else {
+                    textInputLayoutPass.setErrorEnabled(false);
+                }
+                if(!errorFoundTrue) {
+                    signInWithEmailAndPassword(ET_Email, ET_Password);
+                }
+            }
+        });
+    }
+
+    private void setUpEmailLogin() {
         /* for password reset */
         final TextView buttonForgotPassword = findViewById(R.id.act_main_TV_ForgotPassword);
         buttonForgotPassword.setOnClickListener(new View.OnClickListener() {
@@ -220,6 +261,100 @@ public class MainActivity extends AppCompatActivity {
                 if(!errorFoundTrue) {
                     signInWithEmailAndPassword(ET_Email, ET_Password);
                 }
+            }
+        });
+    }
+
+    private void setUpSocialsLogin(View view) {
+        /* FACEBOOK LOGIN */
+        mCallbackManager = CallbackManager.Factory.create();
+
+        LoginButton loginButtonFacebook = view.findViewById(R.id.buttonFacebookLogin);
+        loginButtonFacebook.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                Log.d(TAG, "facebook:onSuccess:" + loginResult);
+                mPacketMainLogin.showProgressBar(true);
+                handleFacebookAccessToken(loginResult.getAccessToken());
+            }
+
+            @Override
+            public void onCancel() {
+                Log.d(TAG, "facebook:onCancel");
+                // ...
+            }
+
+            @Override
+            public void onError(FacebookException error) {
+                Log.d(TAG, "facebook:onError", error);
+                // ...
+            }
+
+        });
+
+        /* GOOGLE LOGIN */
+
+        // Configure sign-in to request the user's ID, email address, and basic
+        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_ID))
+                .requestEmail()
+                .build();
+        // Build a GoogleSignInClient with the options specified by gso.
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+
+        view.findViewById(R.id.act_main_BUT_Google).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mPacketMainLogin.showProgressBar(true);
+                signIn();
+            }
+        });
+    }
+
+    private void setUpSocialsLogin() {
+        /* FACEBOOK LOGIN */
+        mCallbackManager = CallbackManager.Factory.create();
+
+        LoginButton loginButtonFacebook = findViewById(R.id.buttonFacebookLogin);
+        loginButtonFacebook.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                Log.d(TAG, "facebook:onSuccess:" + loginResult);
+                mPacketMainLogin.showProgressBar(true);
+                handleFacebookAccessToken(loginResult.getAccessToken());
+            }
+
+            @Override
+            public void onCancel() {
+                Log.d(TAG, "facebook:onCancel");
+                // ...
+            }
+
+            @Override
+            public void onError(FacebookException error) {
+                Log.d(TAG, "facebook:onError", error);
+                // ...
+            }
+
+        });
+
+        /* GOOGLE LOGIN */
+
+        // Configure sign-in to request the user's ID, email address, and basic
+        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_ID))
+                .requestEmail()
+                .build();
+        // Build a GoogleSignInClient with the options specified by gso.
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+
+        findViewById(R.id.act_main_BUT_Google).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mPacketMainLogin.showProgressBar(true);
+                signIn();
             }
         });
     }
@@ -310,7 +445,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                             catch (FirebaseAuthInvalidUserException ex) {
                                 final TextInputEditText _txtInputEmail = findViewById(R.id.act_main_TIET_email);
-                                Snackbar.make(findViewById(R.id.act_main_RL_Root), "Email not registered. Sign up here", Snackbar.LENGTH_LONG)
+                                Snackbar.make(findViewById(R.id.act_main_CL_Root), "Email not registered. Sign up here", Snackbar.LENGTH_LONG)
                                         .setAction("Sign Up", new View.OnClickListener() {
                                             @Override
                                             public void onClick(View view) {
@@ -335,14 +470,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void doLoginFacebook(View view) {
-        LoginButton loginButton = findViewById(R.id.buttonFacebookLogin);
+        LoginButton loginButton;
+        if(mDialogView.findViewById(R.id.buttonFacebookLogin) == null ) {
+            loginButton = findViewById(R.id.buttonFacebookLogin);
+        } else {
+            loginButton = mDialogView.findViewById(R.id.buttonFacebookLogin);
+        }
         loginButton.performClick();
     }
 
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        mCallbackManager.onActivityResult(requestCode, resultCode, data);
+        if(mCallbackManager != null) {
+            mCallbackManager.onActivityResult(requestCode, resultCode, data);
+        }
         super.onActivityResult(requestCode, resultCode, data);
 
         // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
@@ -370,13 +512,76 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Password changed. Please login again.", Toast.LENGTH_LONG).show();
                 break;
             case PR_SUCCESS:
-                Snackbar.make(findViewById(R.id.act_main_RL_Root), "An email with instructions for your password reset was sent", Snackbar.LENGTH_LONG).show();
+                Snackbar.make(findViewById(R.id.act_main_CL_Root), "An email with instructions for your password reset was sent", Snackbar.LENGTH_LONG).show();
                 break;
             case LOG_OUT:
                 mPacketMainLogin.showProgressBar(false);
                 break;
 
         }
+    }
+
+    private void setButtonsOnClick() {
+        Button _btnSocials = findViewById(R.id.act_main_BUT_signin_options_socials);
+        Button _btnEmail = findViewById(R.id.act_main_BUT_signin_options_email);
+
+        _btnSocials.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                callLoginSocialsDialog();
+            }
+        });
+
+        _btnEmail.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                callLoginEmailDialog();
+            }
+        });
+    }
+
+    private void callLoginEmailDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View _dialogLayout = inflater.inflate(R.layout.dialog_login_small_height_email, null);
+        builder.setView(_dialogLayout);
+        builder.setTitle("SIGN IN");
+        builder.setMessage("Use the credentials which you used for sign up");
+        AlertDialog dialog = builder.create();
+        dialog.show();
+        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialogInterface) {
+                mDialogView = null;
+                mPacketMainLogin.setDialogViewExists(false);
+            }
+        });
+        mDialogView = _dialogLayout;
+        mPacketMainLogin.setDialogViewExists(true);
+        setUpEmailLogin(_dialogLayout);
+    }
+
+    private void callLoginSocialsDialog()
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View _dialogLayout = inflater.inflate(R.layout.dialog_login_small_height_socials, null);
+        builder.setView(_dialogLayout);
+        builder.setTitle("SIGN IN");
+        builder.setMessage("Choose one method from below: ");
+        AlertDialog dialog = builder.create();
+        dialog.show();
+        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialogInterface) {
+                mDialogView = null;
+                mPacketMainLogin.setDialogViewExists(false);
+            }
+        });
+        mDialogView = _dialogLayout;
+        mPacketMainLogin.setDialogViewExists(true);
+        setUpSocialsLogin(_dialogLayout);
+
     }
 
     @Override

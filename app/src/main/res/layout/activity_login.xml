@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/act_main_RL_Root"
+    android:id="@+id/act_main_CL_Root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/login_background"
@@ -26,18 +26,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+
     <TextView
         android:id="@+id/act_main_TV_SignIn"
         style="@style/TextViewSignUp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@id/act_main_BUT_Facebook"
-        android:layout_marginTop="16dp"
+        android:layout_marginBottom="24dp"
         android:text="@string/act_main_TV_SignIn"
+        app:layout_constraintBottom_toTopOf="@+id/act_main_BUT_Facebook"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <com.facebook.login.widget.LoginButton
         android:id="@+id/buttonFacebookLogin"
@@ -49,6 +50,7 @@
         android:layout_marginEnd="16dp"
         android:stateListAnimator="@animator/button_click_animator"
         android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/act_main_BUT_Google"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/act_main_BUT_Facebook" />
@@ -59,16 +61,16 @@
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:layout_above="@id/act_main_BUT_Google"
-        android:onClick="doLoginFacebook"
-
-        android:layout_marginTop="@dimen/btn_social_medium_marginT"
         android:layout_marginStart="@dimen/btn_social_medium_marginSE"
-        android:layout_marginEnd="@dimen/btn_social_medium_marginSE"
 
+        android:layout_marginEnd="@dimen/btn_social_medium_marginSE"
+        android:layout_marginBottom="24dp"
+
+        android:onClick="doLoginFacebook"
         android:stateListAnimator="@animator/button_click_animator"
+        app:layout_constraintBottom_toTopOf="@+id/act_main_BUT_Google"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/act_main_TV_SignIn" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/act_main_BUT_Google"
@@ -78,12 +80,12 @@
         android:layout_above="@id/act_main_TV_textOr"
         android:layout_marginStart="@dimen/btn_social_medium_marginSE"
         android:layout_marginEnd="@dimen/btn_social_medium_marginSE"
-        android:layout_marginTop="@dimen/btn_social_medium_marginT"
 
+        android:layout_marginBottom="24dp"
         android:stateListAnimator="@animator/button_click_animator"
+        app:layout_constraintBottom_toTopOf="@+id/act_main_TV_textOr"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/act_main_BUT_Facebook" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/act_main_TV_textOr"
@@ -92,13 +94,12 @@
         android:layout_above="@id/act_main_CV_FormContainer"
         android:layout_centerHorizontal="true"
 
-        android:layout_marginTop="@dimen/medium_marginT"
-
+        android:layout_marginBottom="24dp"
         android:text="@string/or"
         android:textColor="#AAAAAA"
+        app:layout_constraintBottom_toTopOf="@+id/act_main_CV_FormContainer"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/act_main_BUT_Google" />
+        app:layout_constraintStart_toStartOf="parent" />
 
 
     <androidx.cardview.widget.CardView
@@ -108,9 +109,12 @@
         android:layout_centerInParent="true"
         android:layout_gravity="center"
 
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/act_main_TV_textOr"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHeight_percent=".5"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent=".5"
 
         android:layout_marginTop="@dimen/medium_marginT"
         android:layout_marginStart="@dimen/container_medium_marginSE"
