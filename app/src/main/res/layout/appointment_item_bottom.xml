@@ -14,9 +14,9 @@
         android:id="@+id/act_Calendar_RB"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:src="@drawable/dotted_view"
+        android:src="@drawable/dotted_view_bottom"
         android:scaleType="centerCrop"
-         />
+        />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/act_Calendar_CV_Appointment"

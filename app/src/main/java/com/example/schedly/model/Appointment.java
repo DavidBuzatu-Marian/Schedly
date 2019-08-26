@@ -26,6 +26,14 @@ public class Appointment{
         mUserDaysWithScheduleID = userDaysWithScheduleID;
     }
 
+    public Appointment(String hour, String name, String phoneNumber, String currentDayID, String userDaysWithScheduleID) {
+        mHour = hour;
+        mName = name;
+        mPhoneNumber = phoneNumber;
+        mCurrentDayID = currentDayID;
+        mUserDaysWithScheduleID = userDaysWithScheduleID;
+    }
+
 
     public String getmHour() {
         return mHour;

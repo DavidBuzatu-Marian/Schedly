@@ -49,11 +49,8 @@
 
     <style name="ButtonSubmit">
         <item name="android:textSize">18sp</item>
-        <item name="android:paddingStart">64dp</item>
-        <item name="android:paddingEnd">64dp</item>
         <item name="android:textColor">#FFFFFF</item>
         <item name="android:textAllCaps">true</item>
-        <item name="android:layout_marginTop">24dp</item>
         <item name="android:layout_centerHorizontal">true</item>
     </style>
 
@@ -63,9 +60,6 @@
         <item name="android:text">@string/common_signin_button_text_long</item>
         <item name="android:textColor">#757575</item>
         <item name="android:gravity">center_vertical</item>
-        <item name="android:layout_marginEnd">48dp</item>
-        <item name="android:layout_marginStart">48dp</item>
-        <item name="android:layout_marginTop">18dp</item>
         <item name="android:background">@drawable/button_google</item>
         <item name="android:drawableStart">@drawable/googleg_standard_color_18</item>
         <item name="android:drawablePadding">24dp</item>
@@ -78,9 +72,6 @@
         <item name="android:text">@string/act_main_BUT_facebook</item>
         <item name="android:textColor">#FFFFFF</item>
         <item name="android:gravity">center_vertical</item>
-        <item name="android:layout_marginEnd">48dp</item>
-        <item name="android:layout_marginStart">48dp</item>
-        <item name="android:layout_marginTop">18dp</item>
         <item name="android:background">@drawable/button_facebook</item>
         <item name="android:drawableStart">@drawable/com_facebook_button_icon</item>
         <item name="android:drawablePadding">24dp</item>

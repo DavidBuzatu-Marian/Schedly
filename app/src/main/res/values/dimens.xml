@@ -4,4 +4,44 @@
     <dimen name="input_button_border_radius">30dp</dimen>
     <dimen name="floating_hint_margin">6dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
+
+    <!-- Small Dimensions = "Medium Dimensions * 0.75" For Example: 210*.75 = 157.5-->
+    <dimen name = "btn_social_small_marginSE">36dp</dimen>
+    <dimen name = "btn_social_small_marginT">13.5dp</dimen>
+    <dimen name= "btn_social_small_padding">6dp</dimen>
+    <dimen name="small_marginT">18dp</dimen>
+    <dimen name="container_small_marginSE">12dp</dimen>
+    <dimen name="container_tv_small_marginT">6dp</dimen>
+    <dimen name="container_tv_small_padding">6dp</dimen>
+    <dimen name = "btn_signin_small_paddingSE">48dp</dimen>
+
+    <!-- Medium Dimensions -->
+    <dimen name = "btn_social_medium_marginSE">48dp</dimen>
+    <dimen name = "btn_social_medium_marginT">18dp</dimen>
+    <dimen name= "btn_social_medium_padding">8dp</dimen>
+    <dimen name="medium_marginT">24dp</dimen>
+    <dimen name="container_medium_marginSE">16dp</dimen>
+    <dimen name="container_tv_medium_marginT">8dp</dimen>
+    <dimen name="container_tv_medium_padding">8dp</dimen>
+    <dimen name = "btn_signin_medium_paddingSE">64dp</dimen>
+
+    <!-- Large Dimensions = "Medium Dimensions * 1.5" For Example: 210*1.5 = 315 -->
+    <dimen name = "btn_social_large_marginSE">72dp</dimen>
+    <dimen name = "btn_social_large_marginT">27dp</dimen>
+    <dimen name= "btn_social_large_padding">12dp</dimen>
+    <dimen name="large_marginT">36dp</dimen>
+    <dimen name="container_large_marginSE">24dp</dimen>
+    <dimen name="container_tv_large_marginT">12dp</dimen>
+    <dimen name="container_tv_large_padding">12dp</dimen>
+    <dimen name = "btn_signin_large_paddingSE">96dp</dimen>
+
+    <!-- XLarge Dimensions = "Medium Dimensions * 2" For Example: 210*1.5 = 420 -->
+    <dimen name = "btn_social_xlarge_marginSE">96dp</dimen>
+    <dimen name = "btn_social_xlarge_marginT">36dp</dimen>
+    <dimen name= "btn_social_xlarge_padding">16dp</dimen>
+    <dimen name="xlarge_marginT">48dp</dimen>
+    <dimen name="container_xlarge_marginSE">32dp</dimen>
+    <dimen name="container_tv_xlarge_marginT">16dp</dimen>
+    <dimen name="container_tv_xlarge_padding">16dp</dimen>
+    <dimen name = "btn_signin_xlarge_paddingSE">128dp</dimen>
 </resources>

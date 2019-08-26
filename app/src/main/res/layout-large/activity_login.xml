@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/act_main_RL_Root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/login_background"
+    android:clickable="true"
+    android:focusable="true"
+    android:padding="16dp"
+    tools:context=".MainActivity">
+
+    <ProgressBar
+        android:id="@+id/act_main_PB"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:indeterminate="true"
+        android:translationZ="10dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/act_main_TV_SignIn"
+        style="@style/TextViewSignUp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/act_main_BUT_Facebook"
+        android:layout_marginTop="16dp"
+        android:text="@string/act_main_TV_SignIn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <com.facebook.login.widget.LoginButton
+        android:id="@+id/buttonFacebookLogin"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_above="@id/act_main_BUT_Google"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:stateListAnimator="@animator/button_click_animator"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/act_main_BUT_Facebook" />
+
+    <Button
+        android:id="@+id/act_main_BUT_Facebook"
+        style="@style/ButtonFacebook"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_above="@id/act_main_BUT_Google"
+        android:onClick="doLoginFacebook"
+
+        android:layout_marginTop="@dimen/btn_social_large_marginT"
+        android:layout_marginStart="@dimen/btn_social_large_marginSE"
+        android:layout_marginEnd="@dimen/btn_social_large_marginSE"
+
+        android:stateListAnimator="@animator/button_click_animator"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/act_main_TV_SignIn" />
+
+    <Button
+        android:id="@+id/act_main_BUT_Google"
+        style="@style/ButtonGoogle"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_above="@id/act_main_TV_textOr"
+        android:layout_marginStart="@dimen/btn_social_large_marginSE"
+        android:layout_marginEnd="@dimen/btn_social_large_marginSE"
+        android:layout_marginTop="@dimen/btn_social_large_marginT"
+
+        android:stateListAnimator="@animator/button_click_animator"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/act_main_BUT_Facebook" />
+
+    <TextView
+        android:id="@+id/act_main_TV_textOr"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/act_main_CV_FormContainer"
+        android:layout_centerHorizontal="true"
+
+        android:layout_marginTop="@dimen/large_marginT"
+
+        android:text="@string/or"
+        android:textColor="#AAAAAA"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/act_main_BUT_Google" />
+
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/act_main_CV_FormContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/act_main_TV_textOr"
+
+        android:layout_marginTop="@dimen/large_marginT"
+        android:layout_marginStart="@dimen/container_large_marginSE"
+        android:layout_marginEnd="@dimen/container_large_marginSE"
+
+        card_view:cardCornerRadius="16dp"
+        card_view:cardElevation="8dp">
+
+        <LinearLayout
+            android:id="@+id/act_main_LL_CV"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/act_main_TIL_email"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/container_tv_large_marginT"
+                android:background="#FFFFFF"
+                android:padding="@dimen/container_tv_large_padding"
+                android:textColorHint="#000000"
+                android:theme="@style/TextInputLayoutTheme"
+                app:errorEnabled="true"
+                app:errorTextAppearance="@style/error_appearance"
+
+                >
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/act_main_TIET_email"
+                    style="@style/InputEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/hint_login_email" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E4E4E4" />
+
+            <RelativeLayout
+                android:id="@+id/act_main_RL_CV_Password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/act_main_TIL_password"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/container_tv_large_marginT"
+                    android:background="#FFFFFF"
+                    android:padding="@dimen/container_tv_large_padding"
+                    android:textColorHint="#000000"
+                    android:theme="@style/TextInputLayoutTheme"
+                    app:errorEnabled="true"
+                    app:errorTextAppearance="@style/error_appearance">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/act_main_TIET_password"
+                        style="@style/InputEditText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentStart="true"
+                        android:layout_alignParentTop="true"
+                        android:layout_marginTop="8dp"
+                        android:ems="10"
+                        android:hint="@string/hint_login_password"
+                        android:inputType="textPassword"
+                        android:maxLength="20" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    android:id="@+id/act_main_TV_ForgotPassword"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="32dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="@string/act_main_TV_ForgotPassword"
+                    android:textAlignment="center"
+                    android:textColor="#6598db" />
+
+                <ImageView
+                    android:id="@+id/act_main_IV_ShowPassword"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="8dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:src="@drawable/ic_baseline_visibility_off_24px"
+                    android:textAlignment="center"
+                    android:contentDescription="@string/title_activity_forgot_password"/>
+            </RelativeLayout>
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+
+    <Button
+        android:id="@+id/act_main_BUT_signin"
+        style="@style/ButtonSubmit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/act_main_CV_FormContainer"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/button_submit"
+        android:stateListAnimator="@animator/button_click_animator"
+        android:text="@string/sign_in_button"
+
+        android:layout_marginTop="@dimen/large_marginT"
+        android:paddingStart="@dimen/btn_signin_large_paddingSE"
+        android:paddingEnd="@dimen/btn_signin_large_paddingSE"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/act_main_CV_FormContainer" />
+
+    <TextView
+        android:id="@+id/act_main_TV_SingUp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/act_main_BUT_signin"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/large_marginT"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:text="@string/act_main_TV_SingUp"
+        android:textColor="#555555"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/act_main_BUT_signin" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

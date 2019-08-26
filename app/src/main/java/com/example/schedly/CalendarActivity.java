@@ -101,6 +101,7 @@ public class CalendarActivity extends AppCompatActivity {
     private String mUserAppointmentDuration;
     private ArrayList<Appointment> mDataSet = new ArrayList<>();
     private HashMap<String, String> mWorkingHours = new HashMap<>();
+    private PacketCalendar mPacketCalendar;
 
 
     @Override
@@ -166,9 +167,8 @@ public class CalendarActivity extends AppCompatActivity {
 
         mDate = _calendar.getTimeInMillis();
 
-        PacketCalendar _packetCalendar = new PacketCalendar(this, mWorkingHours, mUserDaysWithScheduleID, mUserAppointmentDuration);
-        _packetCalendar.setDateForTVs(year, month, dayOfMonth, mDate);
-
+        mPacketCalendar = new PacketCalendar(this, mWorkingHours, mUserDaysWithScheduleID, mUserAppointmentDuration);
+        mPacketCalendar.setDateForTVs(year, month, dayOfMonth, mDate);
 
         LocalDate _localDate = LocalDate.now(ZoneId.systemDefault());
         long _curDayInMillis = _localDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
@@ -313,6 +313,7 @@ public class CalendarActivity extends AppCompatActivity {
                     if (currentDayID != null) {
                         getEachAppointment();
                     } else {
+                        setParamsForPacketClass();
                         mAdapter.notifyDataSetChanged();
                     }
                 }
@@ -347,17 +348,36 @@ public class CalendarActivity extends AppCompatActivity {
                         String json = gson.toJson(_entry.getValue());
                         Log.d("APPP", json);
 
-                        mDataSet.add(mCounter, new Appointment(_entry.getKey(), gson, json, currentDayID, mUserDaysWithScheduleID));
-                        mCounter++;
+                        mDataSet.add(mCounter++, new Appointment(_entry.getKey(), gson, json, currentDayID, mUserDaysWithScheduleID));
+                        mDataSet.add(mCounter++, new Appointment(_entry.getKey(), gson, json, currentDayID, mUserDaysWithScheduleID));
+                        mDataSet.add(mCounter++, new Appointment(_entry.getKey(), gson, json, currentDayID, mUserDaysWithScheduleID));
+                        mDataSet.add(mCounter++, new Appointment(_entry.getKey(), gson, json, currentDayID, mUserDaysWithScheduleID));
+                        mDataSet.add(mCounter++, new Appointment(_entry.getKey(), gson, json, currentDayID, mUserDaysWithScheduleID));
+
                     }
                 } else {
                     Log.d(ERR, "Error getting documents: ", task.getException());
                 }
                 mAdapter.notifyDataSetChanged();
+                setParamsForPacketClass();
             }
         });
 
     }
+    private void setParamsForPacketClass() {
+        mPacketCalendar.setAdapter(mAdapter);
+        mPacketCalendar.setDataSet(mDataSet);
+        mPacketCalendar.setCounter(mCounter);
+    }
+
+    public int getCounter() {
+        return mCounter;
+    }
+
+    public void setCounter(int counter) {
+        mCounter = counter;
+    }
+
 //    private void getEachAppointments() {
 //        FirebaseFirestore _FireStore = FirebaseFirestore.getInstance();
 //
@@ -390,14 +410,6 @@ public class CalendarActivity extends AppCompatActivity {
 //            }
 //        });
 //    }
-
-    /* setter for the appointment list
-     * if we make a manual appointment or through SMS
-     * we call this function to update the recycler view
-     */
-
-    public void setmDataSet(Appointment appointment) {
-    }
 
 
     public void showRequestPermissionsInfoAlertDialog(String type) {

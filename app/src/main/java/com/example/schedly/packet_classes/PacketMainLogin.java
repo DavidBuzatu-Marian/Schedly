@@ -9,6 +9,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.example.schedly.MainActivity;
 import com.example.schedly.R;
@@ -47,7 +48,7 @@ public class PacketMainLogin {
     private String mUserProfession;
     private String mUserAppointmentsDuration;
     private ProgressBar mProgressBar;
-    private RelativeLayout mRootRelativeLayout;
+    private ConstraintLayout mRootConstraintLayout;
     private HashMap<String, String> mWorkingHours = new HashMap<>();
     private String mUserDaysWithScheduleID;
 
@@ -62,7 +63,7 @@ public class PacketMainLogin {
              * get views for progress bar
              */
             mProgressBar = mActivity.findViewById(R.id.act_main_PB);
-            mRootRelativeLayout = mActivity.findViewById(R.id.act_main_RL_Root);
+            mRootConstraintLayout= mActivity.findViewById(R.id.act_main_RL_Root);
         }
     }
 
@@ -261,14 +262,14 @@ public class PacketMainLogin {
     public void showProgressBar(boolean show) {
         if(show) {
             mProgressBar.setVisibility(View.VISIBLE);
-            mRootRelativeLayout.setClickable(false);
-            mRootRelativeLayout.setEnabled(false);
+            mRootConstraintLayout.setClickable(false);
+            mRootConstraintLayout.setEnabled(false);
             disableView(false);
         }
         else {
             mProgressBar.setVisibility(View.GONE);
-            mRootRelativeLayout.setClickable(true);
-            mRootRelativeLayout.setEnabled(true);
+            mRootConstraintLayout.setClickable(true);
+            mRootConstraintLayout.setEnabled(true);
             disableView(true);
         }
 

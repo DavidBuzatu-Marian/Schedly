@@ -1,5 +1,6 @@
 package com.example.schedly.adapter;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Point;
@@ -24,6 +25,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.schedly.CalendarActivity;
 import com.example.schedly.R;
 import com.example.schedly.model.Appointment;
 import com.google.firebase.firestore.FieldValue;
@@ -34,8 +36,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.CalendarScheduleViewHolder> {
+public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.CalendarScheduleViewHolder>
+{
 
+   private static final int TOP_POSITION = 0;
+    private static final int BOTTOM_POSITION = 1;
+    private static final int REGULAR_POSITION = 2;
 
     private ArrayList<Appointment> mDataSet;
     private AppCompatActivity mActivity;
@@ -45,10 +51,35 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         mDataSet = dataset;
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        if (position == 0) {
+            // we are at the top element, first in the list
+            return TOP_POSITION;
+        }
+
+        if (position == getItemCount()-1) {
+            // we are at the last element
+            return BOTTOM_POSITION;
+        }
+
+        return REGULAR_POSITION;
+    }
+
     @NonNull
     @Override
     public CalendarScheduleViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        RelativeLayout _viewGroup = (RelativeLayout) LayoutInflater.from(parent.getContext()).inflate(R.layout.appointment_item, parent, false);
+        int layout_id = 0;
+
+        switch(viewType) {
+            case TOP_POSITION : layout_id = R.layout.appointment_item_top;     break;
+            case BOTTOM_POSITION : layout_id = R.layout.appointment_item_bottom;  break;
+            case REGULAR_POSITION :
+            default: layout_id = R.layout.appointment_item;
+        }
+
+
+        RelativeLayout _viewGroup = (RelativeLayout) LayoutInflater.from(parent.getContext()).inflate(layout_id, parent, false);
 
         CalendarScheduleViewHolder _vh = new CalendarScheduleViewHolder(_viewGroup, parent);
         return _vh;
@@ -65,6 +96,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         return mDataSet.size();
     }
 
+
     public class CalendarScheduleViewHolder extends RecyclerView.ViewHolder {
 
         private TextView mTextViewHour;
@@ -74,6 +106,8 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         private final String mUnknownName = "Unknown";
         private String mUDWScheduleID;
         private String mCDayID;
+        private PopupWindow mPopWindow;
+
 
         public CalendarScheduleViewHolder(@NonNull View itemView, @NonNull final ViewGroup parent) {
             super(itemView);
@@ -101,19 +135,18 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
             final Point _size = new Point();
             _display.getSize(_size);
 
-            final PopupWindow _popWindow;
             // set height depends on the device size
-            _popWindow = new PopupWindow(_inflatedView, _size.x - 50,_size.y / 2, true );
+            mPopWindow = new PopupWindow(_inflatedView, _size.x - 50,_size.y / 2, true );
 //            // set a background drawable with rounders corners
-            _popWindow.setBackgroundDrawable(parent.getResources().getDrawable(R.drawable.bkg_appointment_options));
+            mPopWindow.setBackgroundDrawable(parent.getResources().getDrawable(R.drawable.bkg_appointment_options));
             // make it focusable to show the keyboard to enter in `EditText`
-            _popWindow.setFocusable(true);
+            mPopWindow.setFocusable(true);
             // make it outside touchable to dismiss the popup window
-            _popWindow.setOutsideTouchable(true);
-            _popWindow.setAnimationStyle(R.style.PopupAnimation);
+            mPopWindow.setOutsideTouchable(true);
+            mPopWindow.setAnimationStyle(R.style.PopupAnimation);
 
             // show the popup at bottom of the screen and set some margin at bottom ie,
-            _popWindow.showAtLocation(v, Gravity.BOTTOM, 0,0);
+            mPopWindow.showAtLocation(v, Gravity.BOTTOM, 0,0);
 
 
             setInformationInPopup(_inflatedView);
@@ -123,7 +156,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
             _closeImg.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    _popWindow.dismiss();
+                    mPopWindow.dismiss();
                 }
             });
 
@@ -185,6 +218,11 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
                                             .collection("scheduledHours")
                                             .document(mCDayID)
                                             .update(_deleteAppointment);
+                                    mPopWindow.dismiss();
+                                    int _counter = ((CalendarActivity) mActivity).getCounter() - 1;
+                                    mDataSet.remove(getAdapterPosition());
+                                    ((CalendarActivity) mActivity).setCounter(_counter);
+                                    notifyDataSetChanged();
                                 }})
                             .setNegativeButton(android.R.string.no, null).show();
                 }

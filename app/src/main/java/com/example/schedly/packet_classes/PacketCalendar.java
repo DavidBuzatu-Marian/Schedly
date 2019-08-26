@@ -24,8 +24,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.schedly.CalendarActivity;
 import com.example.schedly.R;
+import com.example.schedly.model.Appointment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -55,6 +58,9 @@ public class PacketCalendar {
     private String mCurrentDaySHID;
     private String mSelectedAppointmentHour;
     private PopupWindow mPopWindow;
+    private RecyclerView.Adapter mAdapter;
+    private ArrayList<Appointment> mDataSet = new ArrayList<>();
+    private int mCounter;
 
     public PacketCalendar(Activity activity, HashMap<String, String> workingHours, String userDaysWithScheduleID, String userAppointmentDuration) {
         mActivity = activity;
@@ -162,7 +168,6 @@ public class PacketCalendar {
                                 for (Map.Entry<String, Object> _entry : _map.entrySet()) {
                                     hours.remove(_entry.getKey());
                                 }
-
                                 setUpSpinner(inflatedView, hours);
                             }
                         }
@@ -263,7 +268,7 @@ public class PacketCalendar {
                 });
     }
 
-    private void saveAppointmentToDB(String name, String phoneNumber) {
+    private void saveAppointmentToDB(final String name, final String phoneNumber) {
         Log.d("Details", name);
         if(phoneNumber.equals("")) {
             Toast.makeText(mActivity, "Phone number is required!", Toast.LENGTH_LONG).show();
@@ -283,6 +288,11 @@ public class PacketCalendar {
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
+                            mCounter = ((CalendarActivity) mActivity).getCounter();
+                            mDataSet.add(mCounter, new Appointment(mSelectedAppointmentHour, name.equals("") ? null : name, phoneNumber, mCurrentDaySHID, mUserDaysWithScheduleID));
+                            mCounter++;
+                            mAdapter.notifyDataSetChanged();
+                            ((CalendarActivity) mActivity).setCounter(mCounter);
                             mPopWindow.dismiss();
                         }
                     })
@@ -313,12 +323,12 @@ public class PacketCalendar {
             _callLogNames.add(_value[1]);
         }
 
-//        ArrayList<String[]> _contactsDetails = getContacts(_callLogPNumbers);
-//        for (String[] _value : _contactsDetails) {
-//            /* add each phone number */
-//            _callLogPNumbers.add(_value[0]);
-//            _callLogNames.add(_value[1]);
-//        }
+        ArrayList<String[]> _contactsDetails = getContacts(_callLogPNumbers);
+        for (String[] _value : _contactsDetails) {
+            /* add each phone number */
+            _callLogPNumbers.add(_value[0]);
+            _callLogNames.add(_value[1]);
+        }
 
         ArrayAdapter<String> _adapterNumber = new ArrayAdapter<>(mActivity,
                 android.R.layout.simple_dropdown_item_1line, _callLogPNumbers);
@@ -419,36 +429,36 @@ public class PacketCalendar {
         return _details;
     }
 
-//    private ArrayList<String[]> getContacts(ArrayList<String> _callLogNumbers) {
-//        ArrayList<String[]> _details = new ArrayList<>();
-//
-//        String[] _projection = new String[]{
-//                ContactsContract.Contacts.DISPLAY_NAME,
-//                ContactsContract.CommonDataKinds.Phone.NUMBER
-//        };
-//
-//        Cursor _managedCursor = getApplicationContext().getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
-//        while (_managedCursor.moveToNext()) {
-//
-//            boolean _stateTrue = false;
-//            String[] _NumberAndName = new String[2];
-//            if(_managedCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER) != -1) {
-//                _NumberAndName[0] = _managedCursor.getString(_managedCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)); // number
-//                _NumberAndName[1] = _managedCursor.getString(_managedCursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)); // name
-//                Log.d("Contact", _NumberAndName[1] + ": " + _NumberAndName[0]);
-//                for (String _phoneNumberUsed : _callLogNumbers) {
-//                    if (_phoneNumberUsed.equals(_NumberAndName[0])) {
-//                        _stateTrue = true;
-//                    }
-//                }
-//                if (!_stateTrue) {
-//                    _details.add(_NumberAndName);
-//                }
-//            }
-//        }
-//
-//        return _details;
-//    }
+    private ArrayList<String[]> getContacts(ArrayList<String> _callLogNumbers) {
+        ArrayList<String[]> _details = new ArrayList<>();
+
+        String[] _projection = new String[]{
+                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+                ContactsContract.CommonDataKinds.Phone.NUMBER
+        };
+
+        Cursor _managedCursor = getApplicationContext().getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, _projection, null, null, null);
+        while (_managedCursor.moveToNext()) {
+
+            boolean _stateTrue = false;
+            String[] _NumberAndName = new String[2];
+            if(_managedCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER) != -1) {
+                _NumberAndName[0] = _managedCursor.getString(_managedCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)); // number
+                _NumberAndName[1] = _managedCursor.getString(_managedCursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)); // name
+                Log.d("Contact", _NumberAndName[1] + ": " + _NumberAndName[0]);
+                for (String _phoneNumberUsed : _callLogNumbers) {
+                    if (_phoneNumberUsed.equals(_NumberAndName[0])) {
+                        _stateTrue = true;
+                    }
+                }
+                if (!_stateTrue) {
+                    _details.add(_NumberAndName);
+                }
+            }
+        }
+
+        return _details;
+    }
 
     public void setDateForTVs(int year, int month, int dayOfMonth, long milDate) {
         String _dayOfWeek, _dateFormat;
@@ -512,5 +522,17 @@ public class PacketCalendar {
         } else {
             _imageView.setVisibility(View.GONE);
         }
+    }
+
+    public void setAdapter(RecyclerView.Adapter adapter) {
+        mAdapter = adapter;
+    }
+
+    public void setDataSet(ArrayList<Appointment> dataSet) {
+        mDataSet = dataSet;
+    }
+
+    public void setCounter(int counter) {
+        mCounter = counter;
     }
 }
