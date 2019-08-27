@@ -24,7 +24,7 @@ public class PacketSpinnerView extends AppCompatSpinner {
     /* Spinners */
     @SuppressLint("UseSparseArrays")
     private HashMap<Integer, Integer> mIDsArray = new HashMap<>();
-
+    private HashMap<String, String> mWorkingHours = new HashMap<>();
     private int mDaysIterator;
     private String[] mStartHours = new String[8];
     private String[] mEndHours = new String[8];
@@ -167,6 +167,8 @@ public class PacketSpinnerView extends AppCompatSpinner {
             mDaysIterator = 0;
             for (DaysOfWeek _day: DaysOfWeek.values()) {
                 if(mDaysIterator < 6 && mDaysIterator > 0) {
+                    mWorkingHours.put(_day.geteDisplayName() + "Start", mStartHours[0]);
+                    mWorkingHours.put(_day.geteDisplayName() + "End", mEndHours[0]);
                     daysToAdd.put(_day.geteDisplayName() + "Start", mStartHours[0]);
                     daysToAdd.put(_day.geteDisplayName() + "End", mEndHours[0]);
                 }
@@ -181,12 +183,20 @@ public class PacketSpinnerView extends AppCompatSpinner {
 
     public void putToDays(boolean isChecked, Map<String, Object> daysToAdd, String dayName) {
         if(isChecked) {
+            mWorkingHours.put(dayName + "Start", "Free");
+            mWorkingHours.put(dayName + "End", "Free");
             daysToAdd.put(dayName + "Start", "Free");
             daysToAdd.put(dayName + "End", "Free");
         }
         else {
+            mWorkingHours.put(dayName + "Start", mStartHours[mDaysIterator]);
+            mWorkingHours.put(dayName + "End", mEndHours[mDaysIterator]);
             daysToAdd.put(dayName + "Start", mStartHours[mDaysIterator]);
             daysToAdd.put(dayName + "End", mEndHours[mDaysIterator]);
         }
+    }
+
+    public HashMap<String, String> getWorkingDays() {
+        return mWorkingHours;
     }
 }

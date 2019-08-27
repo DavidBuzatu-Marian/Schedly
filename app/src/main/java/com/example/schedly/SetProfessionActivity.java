@@ -20,6 +20,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.example.schedly.CalendarActivity.LOG_OUT;
 import static com.example.schedly.MainActivity.CA_CANCEL;
 import static com.example.schedly.MainActivity.SWH_CANCEL;
 
@@ -28,6 +29,7 @@ public class SetProfessionActivity extends AppCompatActivity implements View.OnC
     private String TAG = "RES";
     private int selectedProfession;
     private String selectedProfessionName;
+    private String mUserPhoneNumber;
     AnimationTransitionOnActivity _animationTransitionOnActivity;
 
     @Override
@@ -37,10 +39,11 @@ public class SetProfessionActivity extends AppCompatActivity implements View.OnC
         Bundle extras = getIntent().getExtras();
 
 
-        if(extras != null) {
+        if(extras != null) { ;
+            mUserPhoneNumber = extras.getString("userPhoneNumber");
             userID = extras.getString("userID");
+            Log.d("Extras", mUserPhoneNumber + ", " + userID);
         }
-        Log.d("ID", userID);
         /* set buttons on click listeners */
         Button dentistButton = findViewById(R.id.act_SProfession_BUT_Dentist);
         dentistButton.setOnClickListener(this);
@@ -96,6 +99,7 @@ public class SetProfessionActivity extends AppCompatActivity implements View.OnC
     private void startSetWorkingHours(String userID) {
         Intent workingHoursIntent = new Intent(SetProfessionActivity.this, SetWorkingHoursActivity.class);
         workingHoursIntent.putExtra("userID", userID);
+        workingHoursIntent.putExtra("userPhoneNumber", mUserPhoneNumber);
         startActivityForResult(workingHoursIntent, SWH_CANCEL);
     }
 
@@ -144,6 +148,10 @@ public class SetProfessionActivity extends AppCompatActivity implements View.OnC
         super.onActivityResult(requestCode, resultCode, data);
         Log.d("Code", "" + requestCode + "");
         switch (resultCode) {
+            case LOG_OUT:
+                setResult(LOG_OUT);
+                this.finish();
+                break;
             case CA_CANCEL:
                 setResult(CA_CANCEL);
                 this.finish();

@@ -108,16 +108,19 @@ public class PacketMainLogin {
         });
     }
 
-    private void getWorkingHours(Task<DocumentSnapshot> task) {
+    private void getWorkingHours(Task<DocumentSnapshot> task, FirebaseUser localUser) {
         Map<String, Object> _map = task.getResult().getData();
-        Log.d("Calendar", _map.toString());
+        Log.d("GettingHoursPacketMain", _map.toString());
         for (Map.Entry<String, Object> _entry : _map.entrySet()) {
             Log.d("Appointment", _entry.getKey());
             mWorkingHours.put(_entry.getKey(), _entry.getValue().toString());
         }
+
+        getToCalendarActivity(localUser);
     }
 
     private void checkWorkingDaysSetup(FirebaseUser currentUser) {
+        Log.d("CheckPacketMain", "CheckingWorkingHours");
         final FirebaseUser localUser = currentUser;
         mFirebaseFirestore.collection("workingDays")
                 .document(mUserWorkingHoursID)
@@ -130,8 +133,7 @@ public class PacketMainLogin {
                             getToInitActivity(localUser);
                         }
                         else {
-                            getWorkingHours(task);
-                            getToCalendarActivity(localUser);
+                            getWorkingHours(task, localUser);
                         }
                     }
                 });
@@ -219,13 +221,15 @@ public class PacketMainLogin {
             firstStep.putExtra("userID", user.getUid());
             mActivity.startActivityForResult(firstStep, SPN_CANCEL);
         }
-        else
-        if(mUserProfession == null) {
+        else if(mUserProfession == null) {
             Intent secondStep = new Intent(mActivity, SetProfessionActivity.class);
+            secondStep.putExtra("userPhoneNumber", mUserPhoneNumber);
             secondStep.putExtra("userID", user.getUid());
             mActivity.startActivityForResult(secondStep, SP_CANCEL);
         } else {
             Intent thirdStep = new Intent(mActivity, SetWorkingHoursActivity.class);
+            thirdStep.putExtra("userPhoneNumber", mUserPhoneNumber);
+            thirdStep.putExtra("userWorkingHoursID", mUserWorkingHoursID);
             thirdStep.putExtra("userID", user.getUid());
             mActivity.startActivityForResult(thirdStep, SWH_CANCEL);
         }
@@ -237,10 +241,14 @@ public class PacketMainLogin {
         }
         if(mUserAppointmentsDuration == null) {
             Intent ScheduleDuration = new Intent(mActivity, ScheduleDurationActivity.class);
+            ScheduleDuration.putExtra("userPhoneNumber", mUserPhoneNumber);
+            ScheduleDuration.putExtra("userWorkingHoursID", mUserWorkingHoursID);
+            ScheduleDuration.putExtra("userWorkingHours", mWorkingHours);
             ScheduleDuration.putExtra("userID", user.getUid());
             mActivity.startActivityForResult(ScheduleDuration, SD_CANCEL);
         }
         else {
+            Log.d("StartinCalPacketMain", "Start");
             Intent CalendarActivity = new Intent(mActivity, com.example.schedly.CalendarActivity.class);
             CalendarActivity.putExtra("userID", user.getUid());
             CalendarActivity.putExtra("userWorkingHours", mWorkingHours);

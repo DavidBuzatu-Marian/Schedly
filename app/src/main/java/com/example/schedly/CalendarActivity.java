@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
@@ -12,70 +11,37 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.graphics.Point;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.CallLog;
-import android.provider.ContactsContract;
 import android.util.Log;
-import android.view.Display;
-import android.view.Gravity;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
-import android.widget.Button;
 import android.widget.CalendarView;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.PopupWindow;
-import android.widget.RelativeLayout;
-import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.schedly.adapter.CalendarAdapter;
 import com.example.schedly.model.Appointment;
 import com.example.schedly.packet_classes.PacketCalendar;
-import com.example.schedly.packet_classes.PacketService;
 import com.example.schedly.service.MonitorIncomingSMSService;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
 
-import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.format.DateTimeFormatter;
-import org.w3c.dom.Text;
-
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 import static com.example.schedly.MainActivity.EMAIL_CHANGED;
@@ -349,11 +315,6 @@ public class CalendarActivity extends AppCompatActivity {
                         Log.d("APPP", json);
 
                         mDataSet.add(mCounter++, new Appointment(_entry.getKey(), gson, json, currentDayID, mUserDaysWithScheduleID));
-                        mDataSet.add(mCounter++, new Appointment(_entry.getKey(), gson, json, currentDayID, mUserDaysWithScheduleID));
-                        mDataSet.add(mCounter++, new Appointment(_entry.getKey(), gson, json, currentDayID, mUserDaysWithScheduleID));
-                        mDataSet.add(mCounter++, new Appointment(_entry.getKey(), gson, json, currentDayID, mUserDaysWithScheduleID));
-                        mDataSet.add(mCounter++, new Appointment(_entry.getKey(), gson, json, currentDayID, mUserDaysWithScheduleID));
-
                     }
                 } else {
                     Log.d(ERR, "Error getting documents: ", task.getException());
@@ -526,6 +487,7 @@ public class CalendarActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        Log.d("Result", resultCode + ":");
         if (resultCode == LOG_OUT) {
             setResult(LOG_OUT);
             finish();

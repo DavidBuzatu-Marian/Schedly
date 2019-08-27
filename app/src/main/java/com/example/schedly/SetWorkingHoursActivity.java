@@ -21,8 +21,10 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.HashMap;
 import java.util.Map;
 
+import static com.example.schedly.CalendarActivity.LOG_OUT;
 import static com.example.schedly.MainActivity.CA_CANCEL;
 import static com.example.schedly.MainActivity.SD_CANCEL;
 
@@ -34,6 +36,9 @@ public class SetWorkingHoursActivity extends AppCompatActivity {
 
     private PacketSpinnerView mPacketSpinnerView;
     private PacketCardView mPacketCardView;
+
+    private String mUserPhoneNumber;
+    private HashMap<String, String> mWorkingHours = new HashMap<>();
     AnimationTransitionOnActivity _animationTransitionOnActivity;
 
     @Override
@@ -43,8 +48,12 @@ public class SetWorkingHoursActivity extends AppCompatActivity {
 
         Bundle extras = getIntent().getExtras();
         if(extras != null) {
+            mUserPhoneNumber = extras.getString("userPhoneNumber");
+            workingDaysID = extras.getString("userWorkingDays");
             userID = extras.getString("userID");
-            getUserWorkingDaysID(userID);
+            if(workingDaysID == null) {
+                getUserWorkingDaysID(userID);
+            }
         }
 
         FloatingActionButton floatingActionButton = findViewById(R.id.act_SWHours_floating_action_button);
@@ -91,6 +100,7 @@ public class SetWorkingHoursActivity extends AppCompatActivity {
     private void addUserDataToDatabase(final String userID) {
         FirebaseFirestore mFireStore = FirebaseFirestore.getInstance();
         Map<String, Object> daysToAdd = mPacketSpinnerView.getDaysToAdd();
+        mWorkingHours =  mPacketSpinnerView.getWorkingDays();
 
         mFireStore.collection("workingDays")
                 .document(workingDaysID)
@@ -112,9 +122,12 @@ public class SetWorkingHoursActivity extends AppCompatActivity {
     }
 
     private void startCalendar(String userID) {
-        Intent calendarIntent = new Intent(SetWorkingHoursActivity.this, ScheduleDurationActivity.class);
-        calendarIntent.putExtra("userID", userID);
-        startActivityForResult(calendarIntent, SD_CANCEL);
+        Intent scheduleHoursIntent = new Intent(SetWorkingHoursActivity.this, ScheduleDurationActivity.class);
+        scheduleHoursIntent.putExtra("userPhoneNumber", mUserPhoneNumber);
+        scheduleHoursIntent.putExtra("userWorkingDaysID", workingDaysID);
+        scheduleHoursIntent.putExtra("userWorkingHours", mWorkingHours);
+        scheduleHoursIntent.putExtra("userID", userID);
+        startActivityForResult(scheduleHoursIntent, SD_CANCEL);
     }
 
 
@@ -122,9 +135,15 @@ public class SetWorkingHoursActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         Log.d("request", requestCode + "");
-        if (resultCode == CA_CANCEL) {
-            setResult(CA_CANCEL);
-            this.finish();
+        switch (resultCode) {
+            case LOG_OUT:
+                setResult(LOG_OUT);
+                this.finish();
+                break;
+            case CA_CANCEL:
+                setResult(CA_CANCEL);
+                this.finish();
+                break;
         }
     }
 }

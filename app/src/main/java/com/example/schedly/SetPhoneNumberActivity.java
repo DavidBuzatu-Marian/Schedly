@@ -21,6 +21,7 @@ import com.hbb20.CountryCodePicker;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.example.schedly.CalendarActivity.LOG_OUT;
 import static com.example.schedly.MainActivity.CA_CANCEL;
 import static com.example.schedly.MainActivity.SP_CANCEL;
 
@@ -105,12 +106,18 @@ public class SetPhoneNumberActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
-        if (requestCode == SP_CANCEL) {
-            mEditTextCarrierNumber.setText(mPhoneNumberReturn);
-        }
-        else if(resultCode == CA_CANCEL) {
-            setResult(CA_CANCEL);
-            this.finish();
+        switch (resultCode) {
+            case SP_CANCEL:
+                mEditTextCarrierNumber.setText(mPhoneNumberReturn);
+                break;
+            case LOG_OUT:
+                setResult(LOG_OUT);
+                this.finish();
+                break;
+            case CA_CANCEL:
+                setResult(CA_CANCEL);
+                this.finish();
+                break;
         }
     }
 

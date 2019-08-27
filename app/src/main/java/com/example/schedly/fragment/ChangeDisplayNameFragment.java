@@ -51,7 +51,7 @@ public class ChangeDisplayNameFragment extends Fragment {
             public void onClick(View v) {
                 String _name = mDisplayNameEditText.getText().toString();
                 if (validName(_name)) {
-                    saveNewDisplayNameInDatabase(_name);
+                    saveNew2DisplayNameInDatabase(_name);
                 }
             }
         });

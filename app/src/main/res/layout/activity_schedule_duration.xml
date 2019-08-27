@@ -7,27 +7,34 @@
     android:layout_height="fill_parent"
     android:background="@drawable/set_up_background"
     tools:context=".SetWorkingHoursActivity">
+    <ImageView
+        android:id="@+id/act_SDuration_IV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_set_duration"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentTop="true"/>
+    <View
+        android:id="@+id/act_SDuration_V_AnimationFill"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="#FFFFFF"
+        android:translationZ="100dp"
+        android:visibility="invisible" />
 
     <ScrollView
         android:id="@+id/act_SDuration_SV"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:layout_height="fill_parent"
+        android:layout_below="@id/act_SDuration_IV">
 
         <RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content">
 
-            <View
-                android:id="@+id/act_SDuration_V_AnimationFill"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:background="#FFFFFF"
-                android:translationZ="100dp"
-                android:visibility="invisible" />
-
             <TextView
                 android:id="@+id/act_SDuration_TV_Title"
-                style="@style/RequestScheduleDurationTextView"
+                style="@style/RequestScheduleDurationTextViewHead"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
@@ -53,6 +60,8 @@
 
                 android:layout_marginStart="24dp"
                 android:layout_marginEnd="24dp"
+                android:layout_marginTop="18dp"
+                android:layout_marginBottom="24dp"
 
                 card_view:cardCornerRadius="32dp"
                 card_view:cardElevation="12dp">

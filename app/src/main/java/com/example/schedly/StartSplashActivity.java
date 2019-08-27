@@ -89,6 +89,7 @@ public class StartSplashActivity extends AppCompatActivity {
             finish();
         }
         if(resultCode == LOG_OUT) {
+            Log.d("Result", "Good");
             Intent _intentMainActivity = new Intent(this, MainActivity.class);
             startActivity(_intentMainActivity);
             finish();

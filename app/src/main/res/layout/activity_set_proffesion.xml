@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
@@ -7,64 +7,83 @@
     android:background="@drawable/set_up_background"
     tools:context=".SetProfessionActivity">
 
+    <ImageView
+        android:id="@+id/act_SProfession_IV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/ic_set_profession"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <View android:id="@+id/act_SProfession_V_AnimationFill"
+    <View
+        android:id="@+id/act_SProfession_V_AnimationFill"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:visibility="invisible"
+        android:background="#FFFFFF"
         android:translationZ="100dp"
-        android:background="#FFFFFF" />
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/coordinatorLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/act_SProfession_TV_Select"
-        style="@style/RequestProfessionTextView"
+        style="@style/RequestProfessionTextViewHead"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/select_profession"
-        android:layout_centerHorizontal="true"
         android:gravity="center"
-        />
+        android:text="@string/select_profession"
+
+        app:layout_constraintTop_toBottomOf="@+id/act_SProfession_IV" />
+
     <TextView
         android:id="@+id/act_SProfession_TV_Select_Extra"
         style="@style/RequestProfessionTextViewExtra"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/act_SProfession_TV_Extra"
+        android:layout_below="@id/act_SProfession_TV_Select"
         android:layout_centerHorizontal="true"
         android:gravity="center"
-        android:layout_below="@id/act_SProfession_TV_Select"
-        />
+        android:text="@string/act_SProfession_TV_Extra"
+        app:layout_constraintTop_toBottomOf="@+id/act_SProfession_TV_Select" />
 
     <LinearLayout
         android:id="@+id/act_SProfession_LL_Buttons"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:layout_below="@id/act_SProfession_TV_Select_Extra"
         android:gravity="center_horizontal"
-        android:layout_marginTop="18dp"
-        android:layout_marginBottom="18dp">
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@+id/act_SProfession_TV_Select_Extra">
+
         <Button
             android:id="@+id/act_SProfession_BUT_Hairstylist"
             style="@style/ButtonProfession"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="@string/act_SProfession_BUT_Hairstylist"
-            android:background="@drawable/button_profession" />
+            android:background="@drawable/button_profession"
+            android:text="@string/act_SProfession_BUT_Hairstylist" />
+
         <Button
             android:id="@+id/act_SProfession_BUT_Dentist"
             style="@style/ButtonProfession"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="@string/act_SProfession_BUT_Dentist"
-            android:background="@drawable/button_profession" />
+            android:background="@drawable/button_profession"
+            android:text="@string/act_SProfession_BUT_Dentist" />
 
         <Button
             android:id="@+id/act_SProfession_BUT_Freelancer"
             style="@style/ButtonProfession"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="@string/act_SProfession_BUT_Freelancer"
-            android:background="@drawable/button_profession" />
+            android:background="@drawable/button_profession"
+            android:text="@string/act_SProfession_BUT_Freelancer" />
+
         <Button
             android:id="@+id/act_SProfession_BUT_HouseSitter"
             style="@style/ButtonProfession"
@@ -80,6 +99,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/button_profession"
             android:text="@string/act_SProfession_BUT_PersonalTrainer" />
+
         <Button
             android:id="@+id/act_SProfession_BUT_Other"
             style="@style/ButtonProfession"
@@ -91,6 +111,7 @@
 
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/coordinatorLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:backgroundTint="@color/colorText">
@@ -104,7 +125,7 @@
             android:layout_gravity="bottom|end"
             android:layout_margin="16dp"
             app:backgroundTint="@color/colorPrimaryDark"
-            app:srcCompat="@drawable/ic_baseline_arrow_forward_24px"/>
+            app:srcCompat="@drawable/ic_baseline_arrow_forward_24px" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

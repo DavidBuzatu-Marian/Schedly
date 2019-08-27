@@ -175,13 +175,13 @@
         <item name="android:textSize">18sp</item>
     </style>
     <!-- set profession -->
-    <style name="RequestProfessionTextView">
+    <style name="RequestProfessionTextViewHead">
         <item name="android:textSize">40sp</item>
         <item name="android:textColor">@color/colorSetUp</item>
         <item name="android:layout_marginStart">18dp</item>
         <item name="android:layout_marginEnd">18dp</item>
-        <item name="android:layout_marginTop">140dp</item>
-        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:fontFamily">@font/roboto_medium</item>
     </style>
 
     <style name="RequestProfessionTextViewExtra">
@@ -266,12 +266,11 @@
     </style>
 
     <!-- set appointment duration -->
-    <style name="RequestScheduleDurationTextView">
+    <style name="RequestScheduleDurationTextViewHead">
         <item name="android:textSize">40sp</item>
         <item name="android:textColor">@color/colorSetUp</item>
         <item name="android:layout_marginStart">18dp</item>
         <item name="android:layout_marginEnd">18dp</item>
-        <item name="android:layout_marginTop">100dp</item>
         <item name="android:fontFamily">sans-serif-medium</item>
     </style>
 

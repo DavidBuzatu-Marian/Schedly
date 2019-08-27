@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
     private GoogleSignInClient mGoogleSignInClient;
     private boolean mShowPasswordTrue = false;
     private PacketMainLogin mPacketMainLogin;
-    private View mDialogView;
+    private View mDialogView = null;
 
     @Override
     public void onStart() {
@@ -407,7 +407,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInWithCredential:success");
+                            Log.d(TAG, "signInWithCredential:success GOOGLE");
                             @NonNull FirebaseUser user = mAuth.getCurrentUser();
                             mPacketMainLogin.getUserDetails(user);
                         } else {
@@ -471,7 +471,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void doLoginFacebook(View view) {
         LoginButton loginButton;
-        if(mDialogView.findViewById(R.id.buttonFacebookLogin) == null ) {
+        if(mDialogView == null ) {
             loginButton = findViewById(R.id.buttonFacebookLogin);
         } else {
             loginButton = mDialogView.findViewById(R.id.buttonFacebookLogin);
@@ -494,13 +494,13 @@ public class MainActivity extends AppCompatActivity {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             handleSignInResult(task);
         }
-        if(requestCode == SPN_CANCEL || requestCode == SP_CANCEL || requestCode == SWH_CANCEL || requestCode == SD_CANCEL) {
-            mPacketMainLogin.showProgressBar(false);
-            mGoogleSignInClient.signOut();
-            LoginManager.getInstance().logOut();
-            FirebaseAuth.getInstance().signOut();
-            Toast.makeText(MainActivity.this,"All fields are required!", Toast.LENGTH_LONG).show();
-        }
+//        else if(requestCode == SPN_CANCEL || requestCode == SP_CANCEL || requestCode == SWH_CANCEL || requestCode == SD_CANCEL) {
+//            mPacketMainLogin.showProgressBar(false);
+//            mGoogleSignInClient.signOut();
+//            LoginManager.getInstance().logOut();
+//            FirebaseAuth.getInstance().signOut();
+//            Toast.makeText(MainActivity.this,"All fields are required!", Toast.LENGTH_LONG).show();
+//        }
         switch (resultCode) {
             case SUWESuccess:
                 Toast.makeText(MainActivity.this, "Account created successfully!", Toast.LENGTH_SHORT).show();
@@ -517,7 +517,12 @@ public class MainActivity extends AppCompatActivity {
             case LOG_OUT:
                 mPacketMainLogin.showProgressBar(false);
                 break;
-
+            default:
+                mPacketMainLogin.showProgressBar(false);
+                mGoogleSignInClient.signOut();
+                LoginManager.getInstance().logOut();
+                FirebaseAuth.getInstance().signOut();
+                Toast.makeText(MainActivity.this,"All fields are required!", Toast.LENGTH_LONG).show();
         }
     }
 

@@ -10,6 +10,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         style="@style/ButtonSubmit"
+        android:layout_marginTop="10dp"
+        android:paddingStart="@dimen/btn_signin_medium_paddingSE"
+        android:paddingEnd="@dimen/btn_signin_medium_paddingSE"
+
         android:background="@drawable/button_submit"
         android:text="@string/frag_Settings_Save"
         android:stateListAnimator="@animator/button_click_animator" />

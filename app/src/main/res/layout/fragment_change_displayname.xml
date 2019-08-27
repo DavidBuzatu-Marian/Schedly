@@ -20,6 +20,10 @@
         android:layout_height="wrap_content"
         android:background="@drawable/button_submit"
         android:text="@string/frag_Settings_Save"
+        android:layout_marginTop="10dp"
+        android:paddingStart="@dimen/btn_signin_medium_paddingSE"
+        android:paddingEnd="@dimen/btn_signin_medium_paddingSE"
+
         android:layout_below="@id/frag_CDName_ET_DisplayName"
         android:layout_centerHorizontal="true"
         android:stateListAnimator="@animator/button_click_animator" />

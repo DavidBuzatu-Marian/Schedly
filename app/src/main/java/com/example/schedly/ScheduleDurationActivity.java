@@ -19,6 +19,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.example.schedly.CalendarActivity.LOG_OUT;
 import static com.example.schedly.MainActivity.CA_CANCEL;
 
 public class ScheduleDurationActivity extends AppCompatActivity {
@@ -26,6 +27,8 @@ public class ScheduleDurationActivity extends AppCompatActivity {
     private String mUserID;
     private final String TAG = "SDuration";
     AnimationTransitionOnActivity _animationTransitionOnActivity;
+    private String mUserPhoneNumber, mUserWorkingHoursID, mUserAppointmentsDuration;
+    private HashMap<String, String> mWorkingHours = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +37,9 @@ public class ScheduleDurationActivity extends AppCompatActivity {
 
         Bundle _extras = getIntent().getExtras();
         if(_extras != null) {
+            mUserPhoneNumber = _extras.getString("userPhoneNumber");
+            mUserWorkingHoursID = _extras.getString("userWorkingHoursID");
+            mWorkingHours = (HashMap<String, String>) _extras.getSerializable("userWorkingHours");
             mUserID = _extras.getString("userID");
         }
 
@@ -68,6 +74,7 @@ public class ScheduleDurationActivity extends AppCompatActivity {
     }
 
     private void addDurationToDB(String minutes, String name) {
+        mUserAppointmentsDuration = minutes;
         FirebaseFirestore _firebaseFirestore = FirebaseFirestore.getInstance();
         Map<String, Object> duration = new HashMap<>();
         duration.put("appointmentsDuration", minutes);
@@ -93,6 +100,9 @@ public class ScheduleDurationActivity extends AppCompatActivity {
     private void startCalendar(String userID) {
         Intent _calendarIntent = new Intent(ScheduleDurationActivity.this, CalendarActivity.class);
         _calendarIntent.putExtra("userID", userID);
+        _calendarIntent.putExtra("userWorkingHours", mWorkingHours);
+        _calendarIntent.putExtra("userAppointmentDuration", mUserAppointmentsDuration);
+        _calendarIntent.putExtra("userWorkingHoursID", mUserWorkingHoursID);
         _calendarIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivityForResult(_calendarIntent, CA_CANCEL);
     }
@@ -101,9 +111,15 @@ public class ScheduleDurationActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode == CA_CANCEL) {
-            setResult(CA_CANCEL);
-            this.finish();
+        switch (resultCode) {
+            case LOG_OUT:
+                setResult(LOG_OUT);
+                this.finish();
+                break;
+            case CA_CANCEL:
+                setResult(CA_CANCEL);
+                this.finish();
+                break;
         }
     }
 }

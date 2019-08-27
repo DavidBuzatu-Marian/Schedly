@@ -130,5 +130,6 @@
     <string name="sign_in_button_options_email">With email</string>
     <string name="act_main_TV_SignIn_Extra">SIGN IN</string>
     <string name="image">Background image</string>
+    <string name="act_SUWEmail_ET_PhoneNumber">Phone number</string>
 
 </resources>
