@@ -53,7 +53,7 @@
         android:layout_marginTop="@dimen/medium_marginT"
         android:layout_marginEnd="16dp"
 
-        android:background="@drawable/button_submit"
+        android:background="@drawable/button_socials_or_email"
         android:paddingStart="@dimen/btn_signin_medium_paddingSE"
         android:paddingEnd="@dimen/btn_signin_medium_paddingSE"
 
@@ -70,7 +70,7 @@
         android:layout_height="wrap_content"
 
         android:layout_centerHorizontal="true"
-        android:background="@drawable/button_submit"
+        android:background="@drawable/button_socials_or_email"
         android:stateListAnimator="@animator/button_click_animator"
         android:text="@string/sign_in_button_options_email"
 

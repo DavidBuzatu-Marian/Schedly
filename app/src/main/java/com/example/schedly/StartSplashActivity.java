@@ -49,25 +49,27 @@ public class StartSplashActivity extends AppCompatActivity {
         else {
 
             /* get screen size */
-            DisplayMetrics _displayMetrics = new DisplayMetrics();
-            getWindowManager().getDefaultDisplay().getMetrics(_displayMetrics);
-            int _height = _displayMetrics.heightPixels;
-            int _width = _displayMetrics.widthPixels;
-            /* if screen height smaller than 1200px
-             * show another login activity layout
-             */
-            Log.d("HEI", _height + ": is good");
-            if(_height < 1350) {
-                Log.d("HEI", _height + ": is bad");
-                Intent _intentMainActivity = new Intent(this, MainActivity.class);
-                _intentMainActivity.putExtra("SmallHeight", R.layout.activity_login_xsmall_devices);
-                startActivity(_intentMainActivity);
-                finish();
-            } else {
-                Intent _intentMainActivity = new Intent(this, MainActivity.class);
-                startActivity(_intentMainActivity);
-                finish();
-            }
+           redirectWithScreenSize();
+        }
+    }
+
+    private void redirectWithScreenSize() {
+        DisplayMetrics _displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(_displayMetrics);
+        int _height = _displayMetrics.heightPixels;
+        int _width = _displayMetrics.widthPixels;
+        /* if screen height smaller than 1200px
+         * show another login activity layout
+         */
+        if(_height < 1350) {
+            Intent _intentMainActivity = new Intent(this, MainActivity.class);
+            _intentMainActivity.putExtra("SmallHeight", R.layout.activity_login_xsmall_devices);
+            startActivity(_intentMainActivity);
+            finish();
+        } else {
+            Intent _intentMainActivity = new Intent(this, MainActivity.class);
+            startActivity(_intentMainActivity);
+            finish();
         }
     }
 
@@ -84,8 +86,7 @@ public class StartSplashActivity extends AppCompatActivity {
             mGoogleSignInClient.signOut();
             LoginManager.getInstance().logOut();
             FirebaseAuth.getInstance().signOut();
-            Intent _intentMainActivity = new Intent(this, MainActivity.class);
-            startActivity(_intentMainActivity);
+            redirectWithScreenSize();
             finish();
         }
         if(resultCode == LOG_OUT) {

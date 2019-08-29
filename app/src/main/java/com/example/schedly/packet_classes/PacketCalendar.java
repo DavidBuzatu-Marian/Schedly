@@ -2,6 +2,7 @@ package com.example.schedly.packet_classes;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Point;
@@ -123,7 +124,7 @@ public class PacketCalendar {
                         mCurrentDaySHID = documentSnapshot.get(mDate.toString()) != null
                                 ? documentSnapshot.get(mDate.toString()).toString() : null;
                         ArrayList<String> _hours = getHoursForDate(dayOfWeek);
-                        if(mCurrentDaySHID == null ) {
+                        if (mCurrentDaySHID == null) {
 
                         }
                         getFreeHours(mCurrentDaySHID, _firebaseFirestore, _hours, inflatedView);
@@ -276,7 +277,7 @@ public class PacketCalendar {
 
     private void saveAppointmentToDB(final String name, final String phoneNumber) {
         Log.d("Details", name);
-        if(phoneNumber.equals("")) {
+        if (phoneNumber.equals("")) {
             Toast.makeText(mActivity, "Phone number is required!", Toast.LENGTH_LONG).show();
         } else {
             Map<String, String> _detailsOfAppointment = new HashMap<>();
@@ -319,34 +320,43 @@ public class PacketCalendar {
         _txtDate.setText(dateFormat);
         _txtDayOfWeek.setText(dayOfWeek);
 
-
-        ArrayList<String[]> _callLogDetails = getCallLog();
+        HashMap<String, String> _callLogDetails = getCallLog();
         final ArrayList<String> _callLogPNumbers = new ArrayList<>();
         final ArrayList<String> _callLogNames = new ArrayList<>();
-        for (String[] _value : _callLogDetails) {
+        for (HashMap.Entry<String, String> _entry: _callLogDetails.entrySet()) {
             /* add each phone number */
-            _callLogPNumbers.add(_value[0]);
-            _callLogNames.add(_value[1]);
+            _callLogPNumbers.add(_entry.getKey());
+            if(_entry.getValue() == null ) {
+                _callLogNames.add("");
+            } else {
+                _callLogNames.add(_entry.getValue());
+            }
         }
 
-//        ArrayList<String[]> _contactsDetails = getContacts(_callLogPNumbers);
-//        for (String[] _value : _contactsDetails) {
-//            /* add each phone number */
-//            _callLogPNumbers.add(_value[0]);
-//            _callLogNames.add(_value[1]);
-//        }
+        HashMap<String, String> _contactsDetails = getContactList(_callLogPNumbers);
+
+        for (HashMap.Entry<String, String> _entry: _contactsDetails.entrySet()) {
+            /* add each phone number */
+            _callLogPNumbers.add(_entry.getKey());
+            if(_entry.getValue() == null ) {
+                _callLogNames.add("");
+            } else {
+                _callLogNames.add(_entry.getValue());
+            }
+        }
 
         ArrayAdapter<String> _adapterNumber = new ArrayAdapter<>(mActivity,
                 android.R.layout.simple_dropdown_item_1line, _callLogPNumbers);
-//        ArrayAdapter<String> _adapterNames = new ArrayAdapter<>(mActivity,
-//                android.R.layout.simple_dropdown_item_1line, _callLogNames);
+        ArrayAdapter<String> _adapterNames = new ArrayAdapter<>(mActivity,
+                android.R.layout.simple_dropdown_item_1line, _callLogNames);
 
         /* auto set name if number exists
          * set number if name exists */
         final AutoCompleteTextView _txtName = inflatedView.findViewById(R.id.popup_add_ATV_Name);
+        Log.d("Err", _txtName.getId() + "");
         final AutoCompleteTextView _txtNumber = inflatedView.findViewById(R.id.popup_add_ATV_PhoneNumber);
         _txtNumber.setAdapter(_adapterNumber);
-//        _txtName.setAdapter(_adapterNames);
+        _txtName.setAdapter(_adapterNames);
 
         setListenersForATVs(_txtName, _txtNumber, _callLogNames, _callLogPNumbers);
     }
@@ -399,8 +409,8 @@ public class PacketCalendar {
         });
     }
 
-    private ArrayList<String[]> getCallLog() {
-        ArrayList<String[]> _details = new ArrayList<>();
+    private HashMap<String, String> getCallLog() {
+        HashMap<String, String> _details = new HashMap<>();
 
         String[] _projection = new String[]{
                 CallLog.Calls.CACHED_NAME,
@@ -416,20 +426,72 @@ public class PacketCalendar {
             String[] _NumberAndName = new String[2];
             _NumberAndName[0] = _managedCursor.getString(1); // number
             _NumberAndName[1] = _managedCursor.getString(0); // name
-            for (String[] _detail : _details) {
-                if (_NumberAndName[1] != null && _detail[1] != null) {
-                    if (_detail[0].equals(_NumberAndName[0]) && _detail[1].equals(_NumberAndName[1])) {
-                        _stateTrue = true;
-                    }
-                } else {
-                    if (_detail[0].equals(_NumberAndName[0])) {
-                        _stateTrue = true;
-                    }
-                }
+            if(_details.containsKey(_NumberAndName[0])) {
+                _stateTrue = true;
             }
             if (!_stateTrue) {
-                _details.add(_NumberAndName);
+                _details.put(_NumberAndName[0], _NumberAndName[1]);
             }
+        }
+
+        return _details;
+    }
+
+    private HashMap<String, String> getContactList(ArrayList<String> _callLogNumbers) {
+        HashMap<String, String> _details = new HashMap<>();
+        ContentResolver _contentResolver = mActivity.getContentResolver();
+        Cursor _cursor = _contentResolver.query(ContactsContract.Contacts.CONTENT_URI,
+                null, null, null, null);
+
+        /* we got some values */
+        if ((_cursor != null ? _cursor.getCount() : 0) > 0) {
+            /* while we have values ... */
+            while (_cursor != null && _cursor.moveToNext()) {
+                /* get the id in order to get number later */
+                String _contactID = _cursor.getString(
+                        _cursor.getColumnIndex(ContactsContract.Contacts._ID));
+                String _contactName = _cursor.getString(_cursor.getColumnIndex(
+                        ContactsContract.Contacts.DISPLAY_NAME));
+
+                if (_cursor.getInt(_cursor.getColumnIndex(
+                        ContactsContract.Contacts.HAS_PHONE_NUMBER)) > 0) {
+                    String[] _NumberAndName = new String[2];
+                    Cursor _phoneCursor = _contentResolver.query(
+                            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                            null,
+                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
+                            new String[]{_contactID}, null);
+
+                    while (_phoneCursor.moveToNext()) {
+                        boolean _stateTrue = false;
+                        String _contactPNumber = _phoneCursor.getString(_phoneCursor.getColumnIndex(
+                                ContactsContract.CommonDataKinds.Phone.NUMBER));
+                        if(_contactPNumber.contains(" ")) {
+                            _contactPNumber = _contactPNumber.replaceAll(" ", "");
+                        }
+
+                        _NumberAndName[0] = _contactPNumber;
+                        _NumberAndName[1] = _contactName; // name
+
+                        for (String _phoneNumberUsed : _callLogNumbers) {
+                            if (_phoneNumberUsed.equals(_contactPNumber)) {
+                                _stateTrue = true;
+                            }
+                        }
+
+                        if(_details.containsKey(_NumberAndName[0])) {
+                            _stateTrue = true;
+                        }
+                        if (!_stateTrue) {
+                            _details.put(_NumberAndName[0], _NumberAndName[1]);
+                        }
+                    }
+                    _phoneCursor.close();
+                }
+            }
+        }
+        if (_cursor != null) {
+            _cursor.close();
         }
 
         return _details;

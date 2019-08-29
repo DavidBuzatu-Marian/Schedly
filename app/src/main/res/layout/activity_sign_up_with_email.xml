@@ -29,7 +29,7 @@
         android:src="@drawable/ic_register"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/act_SUWEmail_TV_Welcome" />
+        app:layout_constraintTop_toTopOf="parent" />
 
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -60,7 +60,7 @@
         android:text="@string/act_SUWEmail_TV_Register"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/act_SUWEmail_IV" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/act_SUWEmail_CV_FormContainer"
@@ -69,7 +69,8 @@
         android:layout_centerInParent="true"
         android:layout_gravity="center"
 
-        app:layout_constraintTop_toBottomOf="@+id/act_SUWEmail_IV"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/act_SUWEmail_TV_Welcome"
         card_view:cardCornerRadius="16dp"
         card_view:cardElevation="8dp"
         tools:layout_editor_absoluteX="16dp">
@@ -162,8 +163,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="48dp"
-                    android:importantForAutofill="no"
                     android:hint="@string/act_SUWEmail_ET_PhoneNumber"
+                    android:importantForAutofill="no"
                     android:inputType="phone"
                     android:singleLine="true" />
             </LinearLayout>

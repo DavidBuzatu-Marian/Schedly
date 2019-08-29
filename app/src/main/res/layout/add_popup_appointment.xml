@@ -32,6 +32,8 @@
         android:layout_below="@id/popup_add_ATV_PhoneNumber"
         android:background="@android:color/transparent"
         android:focusable="true"
+        android:inputType="text"
+        android:dropDownHeight="160dp"
         android:hint="@string/popup_add_Name" />
 
     <ImageView

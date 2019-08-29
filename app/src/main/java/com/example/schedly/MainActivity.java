@@ -442,11 +442,21 @@ public class MainActivity extends AppCompatActivity {
                                 throw task.getException();
                             }
                             catch (FirebaseAuthInvalidCredentialsException ex) {
-                                TextInputLayout _textInputLayoutPass = findViewById(R.id.act_main_TIL_password);
+                                TextInputLayout _textInputLayoutPass;
+                                if(mDialogView != null) {
+                                    _textInputLayoutPass = mDialogView.findViewById(R.id.act_main_TIL_password);
+                                } else {
+                                    _textInputLayoutPass = findViewById(R.id.act_main_TIL_password);
+                                }
                                 _textInputLayoutPass.setError(getText(R.string.loginFailPasswordIncorrect));
                             }
                             catch (FirebaseAuthInvalidUserException ex) {
-                                final TextInputEditText _txtInputEmail = findViewById(R.id.act_main_TIET_email);
+                                final TextInputEditText _txtInputEmail;
+                                if(mDialogView != null) {
+                                    _txtInputEmail = mDialogView.findViewById(R.id.act_main_TIL_password);
+                                } else {
+                                    _txtInputEmail = findViewById(R.id.act_main_TIL_password);
+                                }
                                 Snackbar.make(findViewById(R.id.act_main_CL_Root), "Email not registered. Sign up here", Snackbar.LENGTH_LONG)
                                         .setAction("Sign Up", new View.OnClickListener() {
                                             @Override
@@ -496,13 +506,13 @@ public class MainActivity extends AppCompatActivity {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             handleSignInResult(task);
         }
-//        else if(requestCode == SPN_CANCEL || requestCode == SP_CANCEL || requestCode == SWH_CANCEL || requestCode == SD_CANCEL) {
-//            mPacketMainLogin.showProgressBar(false);
-//            mGoogleSignInClient.signOut();
-//            LoginManager.getInstance().logOut();
-//            FirebaseAuth.getInstance().signOut();
-//            Toast.makeText(MainActivity.this,"All fields are required!", Toast.LENGTH_LONG).show();
-//        }
+        else if(requestCode == SPN_CANCEL || requestCode == SP_CANCEL || requestCode == SWH_CANCEL || requestCode == SD_CANCEL) {
+            mPacketMainLogin.showProgressBar(false);
+            mGoogleSignInClient.signOut();
+            LoginManager.getInstance().logOut();
+            FirebaseAuth.getInstance().signOut();
+            Toast.makeText(MainActivity.this,"All fields are required!", Toast.LENGTH_LONG).show();
+        }
         else {
             switch (resultCode) {
                 case SUWESuccess:
@@ -520,15 +530,6 @@ public class MainActivity extends AppCompatActivity {
                 case LOG_OUT:
                     mPacketMainLogin.showProgressBar(false);
                     break;
-                case SP_CANCEL:
-                case SPN_CANCEL:
-                case SWH_CANCEL:
-                case SD_CANCEL:
-                    mPacketMainLogin.showProgressBar(false);
-                    mGoogleSignInClient.signOut();
-                    LoginManager.getInstance().logOut();
-                    FirebaseAuth.getInstance().signOut();
-                    Toast.makeText(MainActivity.this, "All fields are required!", Toast.LENGTH_LONG).show();
             }
         }
     }

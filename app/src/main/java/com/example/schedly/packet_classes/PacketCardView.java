@@ -74,7 +74,7 @@ public class PacketCardView extends CardView {
                 _layoutParamsCV.addRule(RelativeLayout.BELOW, _previousDay.getCardViewId());
             }
 
-            _layoutParamsCV.setMargins(64, 9, 64, 9);
+            _layoutParamsCV.setMargins(64, 12, 64, 12);
             _cardview.setRadius(32);
             _cardview.setCardElevation(6);
             _cardview.setId(_day.getCardViewId());

@@ -45,6 +45,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private Preference mChangePhoneNumber, mChangeDisplayName, mChangeAppointmentsDuration;
     private String mUserID, mUserPhoneNumber, mUserDisplayName, mUserWorkingHoursID;
     private String mUserAppointmentsDuration;
+    private Preference mFeedback;
     private SwitchPreference mDisableMonitorization;
     private GoogleSignInClient mGoogleSignInClient;
     private FragmentActivity mActivity = getActivity();
@@ -181,6 +182,21 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 transaction.replace(R.id.frag_Settings_FL_Holder, _newFragment);
                 transaction.addToBackStack(null);
                 transaction.commit();
+                return true;
+            }
+        });
+
+
+        mFeedback = findPreference("help_feedback");
+        mFeedback.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                Intent _sendFeedback = new Intent(Intent.ACTION_SEND);
+                String[] recipients={"TeamSchedly@gmail.com"};
+                _sendFeedback.putExtra(Intent.EXTRA_EMAIL, recipients);
+                _sendFeedback.setType("text/plain");
+                _sendFeedback.setPackage("com.google.android.gm");
+                mActivity.startActivity(_sendFeedback);
                 return true;
             }
         });

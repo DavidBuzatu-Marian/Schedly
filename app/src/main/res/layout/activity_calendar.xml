@@ -112,6 +112,7 @@
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
     <View
+        android:id="@+id/act_Calendar_View"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         app:layout_anchor="@id/act_Calendar_ABL"

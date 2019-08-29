@@ -272,7 +272,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
             DateTimeFormatter _DTF = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             _localDate = LocalDate.parse(dateFromUser, _DTF);
             long _userDayInMillis = _localDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
-            return _userDayInMillis > _curDayInMillis;
+            return _userDayInMillis >= _curDayInMillis;
         }
         return true;
     }

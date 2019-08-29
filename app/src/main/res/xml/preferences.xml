@@ -41,7 +41,7 @@
         app:title="Help">
 
         <Preference
-            app:key="feedback"
+            app:key="help_feedback"
             app:summary="Report technical issues or suggest new features"
             app:title="Send feedback"/>
 
