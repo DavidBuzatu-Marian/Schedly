@@ -6,11 +6,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -30,15 +33,19 @@ import com.hbb20.CountryCodePicker;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.example.schedly.MainActivity.SUWEmailFail;
+import static com.example.schedly.MainActivity.SUWEmailSuccess;
+
 public class SignUpWithEmailActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
-    private final String TAG = "RES";
+    private final String TAG = "RESULT";
     /* country getter */
     private CountryCodePicker ccp;
     private final int SUWESuccess = 2000;
     private EditText editTextCarrierNumber;
     TextInputLayout textInputLayoutEmail;
     TextInputLayout textInputLayoutPass;
+    private boolean mShowPasswordTrue = false;
     ProgressBar mProgressBar;
 
     @Override
@@ -71,6 +78,7 @@ public class SignUpWithEmailActivity extends AppCompatActivity {
                 final EditText editTextPass = findViewById(R.id.act_SUWEmail_TIET_password);
                 if(inputValidation(editTextEmail.getText().toString(), editTextPass.getText().toString())) {
                     showProgressBar(true);
+                    Log.d("RESULT", "OKAY");
                     signUpWithEmailAndPassword(editTextEmail.getText().toString(), editTextPass.getText().toString());
                 }
             }
@@ -80,7 +88,28 @@ public class SignUpWithEmailActivity extends AppCompatActivity {
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                setResult(SUWEmailFail);
                 SignUpWithEmailActivity.this.finish();
+            }
+        });
+
+        final ImageView imageViewShowPassword = findViewById(R.id.act_SUWEmail_IV_ShowPassword);
+        imageViewShowPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final EditText editTextPass = findViewById(R.id.act_SUWEmail_TIET_password);
+                if(mShowPasswordTrue) {
+                    editTextPass.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                    imageViewShowPassword.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_visibility_24px));
+                    editTextPass.setSelection(editTextPass.getText().length());
+                    mShowPasswordTrue = false;
+                }
+                else {
+                    editTextPass.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                    imageViewShowPassword.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_visibility_off_24px));
+                    editTextPass.setSelection(editTextPass.getText().length());
+                    mShowPasswordTrue = true;
+                }
             }
         });
     }
@@ -179,17 +208,25 @@ public class SignUpWithEmailActivity extends AppCompatActivity {
         db.collection("users")
                 .document(user.getUid())
                 .set(userToAdd);
+        Log.d(TAG, "CREATED");
+        setResult(SUWEmailSuccess);
         SignUpWithEmailActivity.this.finish();
     }
     private void showProgressBar(boolean show) {
         if(show) {
             mProgressBar.setVisibility(View.VISIBLE);
-            findViewById(R.id.act_main_CL_Root).setClickable(false);
+            findViewById(R.id.act_SUWEmail_CL_Root).setClickable(false);
         }
         else {
             mProgressBar.setVisibility(View.GONE);
-            findViewById(R.id.act_main_CL_Root).setClickable(true);
+            findViewById(R.id.act_SUWEmail_CL_Root).setClickable(true);
         }
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        setResult(SUWEmailFail);
     }
 }

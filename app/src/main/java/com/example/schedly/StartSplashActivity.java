@@ -30,6 +30,7 @@ public class StartSplashActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     FirebaseFirestore mFirebaseFirestore;
     private GoogleSignInClient mGoogleSignInClient;
+    private int mResultCode = 0, mRequestCode = 0;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -47,7 +48,6 @@ public class StartSplashActivity extends AppCompatActivity {
             _packetMainLogin.getUserDetails(currentUser);
         }
         else {
-
             /* get screen size */
            redirectWithScreenSize();
         }
@@ -64,10 +64,14 @@ public class StartSplashActivity extends AppCompatActivity {
         if(_height < 1350) {
             Intent _intentMainActivity = new Intent(this, MainActivity.class);
             _intentMainActivity.putExtra("SmallHeight", R.layout.activity_login_xsmall_devices);
+            _intentMainActivity.putExtra("resultCode", mResultCode);
+            _intentMainActivity.putExtra("requestCode", mRequestCode);
             startActivity(_intentMainActivity);
             finish();
         } else {
             Intent _intentMainActivity = new Intent(this, MainActivity.class);
+            _intentMainActivity.putExtra("resultCode", mResultCode);
+            _intentMainActivity.putExtra("requestCode", mRequestCode);
             startActivity(_intentMainActivity);
             finish();
         }
@@ -86,11 +90,13 @@ public class StartSplashActivity extends AppCompatActivity {
             mGoogleSignInClient.signOut();
             LoginManager.getInstance().logOut();
             FirebaseAuth.getInstance().signOut();
+            mRequestCode = requestCode;
             redirectWithScreenSize();
             finish();
         }
         if(resultCode == LOG_OUT) {
             Log.d("Result", "Good");
+            mResultCode = resultCode;
             redirectWithScreenSize();
             finish();
         }

@@ -140,8 +140,8 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_anchor="@id/act_Calendar_View"
-        app:layout_anchorGravity="bottom|center"
+        app:layout_anchor="@id/act_Calendar_RV_Schedule"
+        app:layout_anchorGravity="center"
         android:layout_gravity="center"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
         <ImageView

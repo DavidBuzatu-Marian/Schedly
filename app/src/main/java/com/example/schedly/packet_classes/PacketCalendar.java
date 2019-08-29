@@ -85,8 +85,10 @@ public class PacketCalendar {
                 final Point _size = new Point();
                 _display.getSize(_size);
                 // set height depends on the device size
-                if(_size.y < 1350) {
+                if (_size.y < 1350) {
                     mPopWindow = new PopupWindow(_inflatedView, _size.x - 50, _size.y, true);
+                } else if (_size.y > 1350 && _size.y < 1900) {
+                    mPopWindow = new PopupWindow(_inflatedView, _size.x - 50, _size.y * 3 / 4, true);
                 } else {
                     mPopWindow = new PopupWindow(_inflatedView, _size.x - 50, _size.y / 2, true);
                 }

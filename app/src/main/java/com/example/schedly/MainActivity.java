@@ -53,6 +53,11 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private CallbackManager mCallbackManager = null;
     private final String TAG = "RES";
+
+    /* CREATED ACCOUNT WITH EMAIL */
+    public static final int SUWEmailSuccess = 2006;
+    /* FAILED ACCOUNT WITH EMAIL */
+    public static final int SUWEmailFail = 2100;
     /* google sign in code */
     public static final int RC_SIGN_IN = 1001;
     public static final int SUWESuccess = 2000;
@@ -80,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean mShowPasswordTrue = false;
     private PacketMainLogin mPacketMainLogin;
     private View mDialogView = null;
+    private int mResultCode, mRequestCode;
 
     @Override
     public void onStart() {
@@ -98,8 +104,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle _extras = getIntent().getExtras();
-        if(_extras != null) {
+        if (_extras != null && _extras.containsKey("SmallHeight")) {
             setContentView(_extras.getInt("SmallHeight"));
+            mRequestCode = _extras.getInt("requestCode");
+            mResultCode = _extras.getInt("resultCode");
+            responseToResult(mRequestCode, mResultCode, null);
             setButtonsOnClick();
             /* for sign up */
         } else {
@@ -113,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent signUpIntent = new Intent(MainActivity.this, SignUpWithEmailActivity.class);
-                startActivity(signUpIntent);
+                startActivityForResult(signUpIntent, SUWEmailSuccess);
             }
         });
 
@@ -149,13 +158,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 final EditText editTextPass = view.findViewById(R.id.act_main_TIET_password);
-                if(mShowPasswordTrue) {
+                if (mShowPasswordTrue) {
                     editTextPass.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
                     imageViewShowPassword.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_visibility_24px));
                     editTextPass.setSelection(editTextPass.getText().length());
                     mShowPasswordTrue = false;
-                }
-                else {
+                } else {
                     editTextPass.setTransformationMethod(PasswordTransformationMethod.getInstance());
                     imageViewShowPassword.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_visibility_off_24px));
                     editTextPass.setSelection(editTextPass.getText().length());
@@ -177,23 +185,21 @@ public class MainActivity extends AppCompatActivity {
                 boolean errorFoundTrue = false;
                 final String ET_Email = editTextEmail.getText().toString();
                 final String ET_Password = editTextPass.getText().toString();
-                if(ET_Email.isEmpty()) {
+                if (ET_Email.isEmpty()) {
                     errorFoundTrue = true;
                     textInputLayoutEmail.setError("Field required!");
                     mPacketMainLogin.showProgressBar(false);
-                }
-                else {
+                } else {
                     textInputLayoutEmail.setErrorEnabled(false);
                 }
-                if(ET_Password.isEmpty()) {
+                if (ET_Password.isEmpty()) {
                     errorFoundTrue = true;
                     textInputLayoutPass.setError("Filed required!");
                     mPacketMainLogin.showProgressBar(false);
-                }
-                else {
+                } else {
                     textInputLayoutPass.setErrorEnabled(false);
                 }
-                if(!errorFoundTrue) {
+                if (!errorFoundTrue) {
                     signInWithEmailAndPassword(ET_Email, ET_Password);
                 }
             }
@@ -218,13 +224,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 final EditText editTextPass = findViewById(R.id.act_main_TIET_password);
-                if(mShowPasswordTrue) {
+                if (mShowPasswordTrue) {
                     editTextPass.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
                     imageViewShowPassword.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_visibility_24px));
                     editTextPass.setSelection(editTextPass.getText().length());
                     mShowPasswordTrue = false;
-                }
-                else {
+                } else {
                     editTextPass.setTransformationMethod(PasswordTransformationMethod.getInstance());
                     imageViewShowPassword.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_visibility_off_24px));
                     editTextPass.setSelection(editTextPass.getText().length());
@@ -246,23 +251,21 @@ public class MainActivity extends AppCompatActivity {
                 boolean errorFoundTrue = false;
                 final String ET_Email = editTextEmail.getText().toString();
                 final String ET_Password = editTextPass.getText().toString();
-                if(ET_Email.isEmpty()) {
+                if (ET_Email.isEmpty()) {
                     errorFoundTrue = true;
                     textInputLayoutEmail.setError("Field required!");
                     mPacketMainLogin.showProgressBar(false);
-                }
-                else {
+                } else {
                     textInputLayoutEmail.setErrorEnabled(false);
                 }
-                if(ET_Password.isEmpty()) {
+                if (ET_Password.isEmpty()) {
                     errorFoundTrue = true;
                     textInputLayoutPass.setError("Filed required!");
                     mPacketMainLogin.showProgressBar(false);
-                }
-                else {
+                } else {
                     textInputLayoutPass.setErrorEnabled(false);
                 }
-                if(!errorFoundTrue) {
+                if (!errorFoundTrue) {
                     signInWithEmailAndPassword(ET_Email, ET_Password);
                 }
             }
@@ -393,6 +396,7 @@ public class MainActivity extends AppCompatActivity {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
+
     private void handleSignInResult(@NonNull Task<GoogleSignInAccount> completedTask) {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
@@ -442,19 +446,17 @@ public class MainActivity extends AppCompatActivity {
                             Log.w(TAG, "signInWithEmail:failure", task.getException());
                             try {
                                 throw task.getException();
-                            }
-                            catch (FirebaseAuthInvalidCredentialsException ex) {
+                            } catch (FirebaseAuthInvalidCredentialsException ex) {
                                 TextInputLayout _textInputLayoutPass;
-                                if(mDialogView != null) {
+                                if (mDialogView != null) {
                                     _textInputLayoutPass = mDialogView.findViewById(R.id.act_main_TIL_password);
                                 } else {
                                     _textInputLayoutPass = findViewById(R.id.act_main_TIL_password);
                                 }
                                 _textInputLayoutPass.setError(getText(R.string.loginFailPasswordIncorrect));
-                            }
-                            catch (FirebaseAuthInvalidUserException ex) {
+                            } catch (FirebaseAuthInvalidUserException ex) {
                                 final TextInputEditText _txtInputEmail;
-                                if(mDialogView != null) {
+                                if (mDialogView != null) {
                                     _txtInputEmail = mDialogView.findViewById(R.id.act_main_TIL_password);
                                 } else {
                                     _txtInputEmail = findViewById(R.id.act_main_TIL_password);
@@ -469,12 +471,10 @@ public class MainActivity extends AppCompatActivity {
                                                 startActivity(_signUpIntent);
                                             }
                                         }).show();
-                            }
-                            catch (FirebaseTooManyRequestsException ex) {
+                            } catch (FirebaseTooManyRequestsException ex) {
                                 Toast.makeText(MainActivity.this, R.string.loginFailTooManyReq,
                                         Toast.LENGTH_SHORT).show();
-                            }
-                            catch (Exception ex) {
+                            } catch (Exception ex) {
                                 Toast.makeText(MainActivity.this, R.string.loginFail,
                                         Toast.LENGTH_SHORT).show();
                             }
@@ -485,7 +485,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void doLoginFacebook(View view) {
         LoginButton loginButton;
-        if(mDialogView == null ) {
+        if (mDialogView == null) {
             loginButton = findViewById(R.id.buttonFacebookLogin);
         } else {
             loginButton = mDialogView.findViewById(R.id.buttonFacebookLogin);
@@ -496,46 +496,11 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(mCallbackManager != null) {
+        if (mCallbackManager != null) {
             mCallbackManager.onActivityResult(requestCode, resultCode, data);
         }
         super.onActivityResult(requestCode, resultCode, data);
-
-        // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
-        if (requestCode == RC_SIGN_IN) {
-            // The Task returned from this call is always completed, no need to attach
-            // a listener.
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            handleSignInResult(task);
-        }
-        else if(requestCode == SPN_CANCEL || requestCode == SP_CANCEL || requestCode == SWH_CANCEL || requestCode == SD_CANCEL) {
-            mPacketMainLogin.showProgressBar(false);
-            mGoogleSignInClient.signOut();
-            LoginManager.getInstance().logOut();
-            FirebaseAuth.getInstance().signOut();
-            Toast.makeText(MainActivity.this,"All fields are required!", Toast.LENGTH_LONG).show();
-        }
-        else {
-            switch (resultCode) {
-                case SUWESuccess:
-                    Toast.makeText(MainActivity.this, "Account created successfully!", Toast.LENGTH_SHORT).show();
-                    break;
-                case EMAIL_CHANGED:
-                    Toast.makeText(MainActivity.this, "Email changed. Please login again.", Toast.LENGTH_LONG).show();
-                    break;
-                case PASSWORD_CHANGED:
-                    Toast.makeText(MainActivity.this, "Password changed. Please login again.", Toast.LENGTH_LONG).show();
-                    break;
-                case WORKING_HOURS_CHANGED:
-                    Toast.makeText(MainActivity.this, "Working hours changed. Please login again.", Toast.LENGTH_LONG).show();
-                case PR_SUCCESS:
-                    Snackbar.make(findViewById(R.id.act_main_CL_Root), "An email with instructions for your password reset was sent", Snackbar.LENGTH_LONG).show();
-                    break;
-                case LOG_OUT:
-                    mPacketMainLogin.showProgressBar(false);
-                    break;
-            }
-        }
+        responseToResult(requestCode, resultCode, data);
     }
 
     private void setButtonsOnClick() {
@@ -578,8 +543,7 @@ public class MainActivity extends AppCompatActivity {
         setUpEmailLogin(_dialogLayout);
     }
 
-    private void callLoginSocialsDialog()
-    {
+    private void callLoginSocialsDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
         View _dialogLayout = inflater.inflate(R.layout.dialog_login_small_height_socials, null);
@@ -599,6 +563,44 @@ public class MainActivity extends AppCompatActivity {
         mPacketMainLogin.setDialogViewExists(true);
         setUpSocialsLogin(_dialogLayout);
 
+    }
+    private void responseToResult(int requestCode, int resultCode, Intent data ) {
+        Log.d("REQUEST", requestCode + "");
+        // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
+        if (requestCode == RC_SIGN_IN) {
+            // The Task returned from this call is always completed, no need to attach
+            // a listener.
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            handleSignInResult(task);
+        } else if (requestCode == SPN_CANCEL || requestCode == SP_CANCEL || requestCode == SWH_CANCEL || requestCode == SD_CANCEL) {
+            mPacketMainLogin.showProgressBar(false);
+            mGoogleSignInClient.signOut();
+            LoginManager.getInstance().logOut();
+            FirebaseAuth.getInstance().signOut();
+            Toast.makeText(MainActivity.this, "All fields are required!", Toast.LENGTH_LONG).show();
+        } else {
+            switch (resultCode) {
+                case SUWEmailSuccess:
+                    Toast.makeText(MainActivity.this, "Account created successfully!", Toast.LENGTH_SHORT).show();
+                    PacketMainLogin _packetMainLogin = new PacketMainLogin(this, false);
+                    _packetMainLogin.getUserDetails(mAuth.getCurrentUser());
+                    break;
+                case EMAIL_CHANGED:
+                    Toast.makeText(MainActivity.this, "Email changed. Please login again.", Toast.LENGTH_LONG).show();
+                    break;
+                case PASSWORD_CHANGED:
+                    Toast.makeText(MainActivity.this, "Password changed. Please login again.", Toast.LENGTH_LONG).show();
+                    break;
+                case WORKING_HOURS_CHANGED:
+                    Toast.makeText(MainActivity.this, "Working hours changed. Please login again.", Toast.LENGTH_LONG).show();
+                case PR_SUCCESS:
+                    Snackbar.make(findViewById(R.id.act_main_CL_Root), "An email with instructions for your password reset was sent", Snackbar.LENGTH_LONG).show();
+                    break;
+                case LOG_OUT:
+                    mPacketMainLogin.showProgressBar(false);
+                    break;
+            }
+        }
     }
 
     @Override
