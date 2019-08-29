@@ -85,7 +85,11 @@ public class PacketCalendar {
                 final Point _size = new Point();
                 _display.getSize(_size);
                 // set height depends on the device size
-                mPopWindow = new PopupWindow(_inflatedView, _size.x - 50, _size.y / 2, true);
+                if(_size.y < 1350) {
+                    mPopWindow = new PopupWindow(_inflatedView, _size.x - 50, _size.y, true);
+                } else {
+                    mPopWindow = new PopupWindow(_inflatedView, _size.x - 50, _size.y / 2, true);
+                }
                 mPopWindow.setBackgroundDrawable(mActivity.getDrawable(R.drawable.bkg_appointment_options));
                 // make it focusable to show the keyboard to enter in `EditText`
                 mPopWindow.setFocusable(true);

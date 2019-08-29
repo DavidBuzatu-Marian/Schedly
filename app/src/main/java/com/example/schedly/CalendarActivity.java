@@ -46,6 +46,7 @@ import java.util.TreeMap;
 
 import static com.example.schedly.MainActivity.EMAIL_CHANGED;
 import static com.example.schedly.MainActivity.PASSWORD_CHANGED;
+import static com.example.schedly.MainActivity.WORKING_HOURS_CHANGED;
 
 public class CalendarActivity extends AppCompatActivity {
 
@@ -488,17 +489,23 @@ public class CalendarActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         Log.d("Result", resultCode + ":");
-        if (resultCode == LOG_OUT) {
-            setResult(LOG_OUT);
-            finish();
-        }
-        if (resultCode == EMAIL_CHANGED) {
-            setResult(EMAIL_CHANGED);
-            finish();
-        }
-        if (resultCode == PASSWORD_CHANGED) {
-            setResult(PASSWORD_CHANGED);
-            finish();
+        switch(resultCode) {
+            case LOG_OUT:
+                setResult(LOG_OUT);
+                finish();
+                break;
+            case EMAIL_CHANGED:
+                setResult(EMAIL_CHANGED);
+                finish();
+                break;
+            case PASSWORD_CHANGED:
+                setResult(PASSWORD_CHANGED);
+                finish();
+                break;
+            case WORKING_HOURS_CHANGED:
+                setResult(WORKING_HOURS_CHANGED);
+                finish();
+                break;
         }
     }
 

@@ -70,6 +70,8 @@ public class MainActivity extends AppCompatActivity {
     public static final int EMAIL_CHANGED = 4002;
     /* password changed */
     public static final int PASSWORD_CHANGED = 4003;
+    /* working days changed */
+    public static final int WORKING_HOURS_CHANGED = 4004;
     /* password reset */
     public static final int PR_SUCCESS = 4010;
     /* firestore */
@@ -524,6 +526,8 @@ public class MainActivity extends AppCompatActivity {
                 case PASSWORD_CHANGED:
                     Toast.makeText(MainActivity.this, "Password changed. Please login again.", Toast.LENGTH_LONG).show();
                     break;
+                case WORKING_HOURS_CHANGED:
+                    Toast.makeText(MainActivity.this, "Working hours changed. Please login again.", Toast.LENGTH_LONG).show();
                 case PR_SUCCESS:
                     Snackbar.make(findViewById(R.id.act_main_CL_Root), "An email with instructions for your password reset was sent", Snackbar.LENGTH_LONG).show();
                     break;

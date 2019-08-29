@@ -22,7 +22,10 @@ import java.util.Map;
 
 import static com.example.schedly.CalendarActivity.LOG_OUT;
 import static com.example.schedly.MainActivity.CA_CANCEL;
+import static com.example.schedly.MainActivity.EMAIL_CHANGED;
+import static com.example.schedly.MainActivity.PASSWORD_CHANGED;
 import static com.example.schedly.MainActivity.SWH_CANCEL;
+import static com.example.schedly.MainActivity.WORKING_HOURS_CHANGED;
 
 public class SetProfessionActivity extends AppCompatActivity implements View.OnClickListener{
     private String userID;
@@ -155,6 +158,18 @@ public class SetProfessionActivity extends AppCompatActivity implements View.OnC
             case CA_CANCEL:
                 setResult(CA_CANCEL);
                 this.finish();
+                break;
+            case EMAIL_CHANGED:
+                setResult(EMAIL_CHANGED);
+                finish();
+                break;
+            case PASSWORD_CHANGED:
+                setResult(PASSWORD_CHANGED);
+                finish();
+                break;
+            case WORKING_HOURS_CHANGED:
+                setResult(WORKING_HOURS_CHANGED);
+                finish();
                 break;
         }
 

@@ -36,10 +36,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.CalendarScheduleViewHolder>
-{
+public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.CalendarScheduleViewHolder> {
 
-   private static final int TOP_POSITION = 0;
+    private static final int TOP_POSITION = 0;
     private static final int BOTTOM_POSITION = 1;
     private static final int REGULAR_POSITION = 2;
 
@@ -58,7 +57,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
             return TOP_POSITION;
         }
 
-        if (position == getItemCount()-1) {
+        if (position == getItemCount() - 1) {
             // we are at the last element
             return BOTTOM_POSITION;
         }
@@ -71,11 +70,16 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
     public CalendarScheduleViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         int layout_id = 0;
 
-        switch(viewType) {
-            case TOP_POSITION : layout_id = R.layout.appointment_item_top;     break;
-            case BOTTOM_POSITION : layout_id = R.layout.appointment_item_bottom;  break;
-            case REGULAR_POSITION :
-            default: layout_id = R.layout.appointment_item;
+        switch (viewType) {
+            case TOP_POSITION:
+                layout_id = R.layout.appointment_item_top;
+                break;
+            case BOTTOM_POSITION:
+                layout_id = R.layout.appointment_item_bottom;
+                break;
+            case REGULAR_POSITION:
+            default:
+                layout_id = R.layout.appointment_item;
         }
 
 
@@ -128,7 +132,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
 
         private void showOptionsPopup(View v, @NonNull ViewGroup parent) {
             // inflate the custom popup layout
-            final View _inflatedView = LayoutInflater.from(parent.getContext()).inflate(R.layout.edit_popup_appointment, null,false);
+            final View _inflatedView = LayoutInflater.from(parent.getContext()).inflate(R.layout.edit_popup_appointment, null, false);
 
             // get device size
             Display _display = parent.getDisplay();
@@ -136,8 +140,12 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
             _display.getSize(_size);
 
             // set height depends on the device size
-            mPopWindow = new PopupWindow(_inflatedView, _size.x - 50,_size.y / 2, true );
-//            // set a background drawable with rounders corners
+            if (_size.y < 1350) {
+                mPopWindow = new PopupWindow(_inflatedView, _size.x - 50, _size.y, true);
+            } else {
+                mPopWindow = new PopupWindow(_inflatedView, _size.x - 50, _size.y / 2, true);
+            }
+            // set a background drawable with rounders corners
             mPopWindow.setBackgroundDrawable(parent.getResources().getDrawable(R.drawable.bkg_appointment_options));
             // make it focusable to show the keyboard to enter in `EditText`
             mPopWindow.setFocusable(true);
@@ -146,7 +154,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
             mPopWindow.setAnimationStyle(R.style.PopupAnimation);
 
             // show the popup at bottom of the screen and set some margin at bottom ie,
-            mPopWindow.showAtLocation(v, Gravity.BOTTOM, 0,0);
+            mPopWindow.showAtLocation(v, Gravity.BOTTOM, 0, 0);
 
 
             setInformationInPopup(_inflatedView);
@@ -171,9 +179,9 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
             _buttonMessage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent _smsIntent =  new Intent(Intent.ACTION_SENDTO);
+                    Intent _smsIntent = new Intent(Intent.ACTION_SENDTO);
                     _smsIntent.addCategory(Intent.CATEGORY_DEFAULT);
-                    _smsIntent.setData(Uri.parse("sms:" +  mTextViewPhoneNumber.getText().toString()));
+                    _smsIntent.setData(Uri.parse("sms:" + mTextViewPhoneNumber.getText().toString()));
 //                    smsIntent.putExtra("sms_body","Body of Message");
                     mActivity.startActivity(_smsIntent);
                 }
@@ -187,10 +195,9 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
                     mActivity.startActivity(_callIntent);
                 }
             });
-            if(!mTextViewName.getText().toString().equals("")) {
+            if (!mTextViewName.getText().toString().equals("")) {
                 _buttonAddToContacts.setVisibility(View.GONE);
-            }
-            else {
+            } else {
                 _buttonAddToContacts.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -223,7 +230,8 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
                                     mDataSet.remove(getAdapterPosition());
                                     ((CalendarActivity) mActivity).setCounter(_counter);
                                     notifyDataSetChanged();
-                                }})
+                                }
+                            })
                             .setNegativeButton(android.R.string.no, null).show();
                 }
             });
@@ -236,11 +244,10 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
             String _textForInfoCard = "Appointment starts at: " + mTextViewHour.getText();
             //LinearLayout _linearLayoutAddToContacts = inflatedView.findViewById(R.id.popup_appointment_LL_AddToContacts);
 
-            if(mTextViewName.getText().toString().equals("")) {
+            if (mTextViewName.getText().toString().equals("")) {
                 _textViewName.setText(mUnknownName);
                 _textViewPhoneNumber.setText(mTextViewPhoneNumber.getText().toString());
-            }
-            else {
+            } else {
                 _textViewName.setText(mTextViewName.getText().toString());
                 _textViewPhoneNumber.setText(mTextViewPhoneNumber.getText().toString());
             }
@@ -254,12 +261,11 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
             String _name = appointment.getmName();
             mTextViewHour.setText(appointment.getmHour());
             Log.d("DETECT", _name + ": " + appointment.getmPhoneNumber());
-            if(_name != null) {
+            if (_name != null) {
                 mTextViewName.setText(_name);
                 mTextViewPhoneNumber.setVisibility(View.GONE);
                 mTextViewPhoneNumber.setText(appointment.getmPhoneNumber());
-            }
-            else {
+            } else {
                 mTextViewName.setText("");
 //                mTextViewName.setVisibility(View.GONE);
                 mTextViewPhoneNumber.setVisibility(View.VISIBLE);

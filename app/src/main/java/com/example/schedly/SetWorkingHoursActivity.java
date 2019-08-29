@@ -26,7 +26,10 @@ import java.util.Map;
 
 import static com.example.schedly.CalendarActivity.LOG_OUT;
 import static com.example.schedly.MainActivity.CA_CANCEL;
+import static com.example.schedly.MainActivity.EMAIL_CHANGED;
+import static com.example.schedly.MainActivity.PASSWORD_CHANGED;
 import static com.example.schedly.MainActivity.SD_CANCEL;
+import static com.example.schedly.MainActivity.WORKING_HOURS_CHANGED;
 
 public class SetWorkingHoursActivity extends AppCompatActivity {
     private String userID;
@@ -143,6 +146,18 @@ public class SetWorkingHoursActivity extends AppCompatActivity {
             case CA_CANCEL:
                 setResult(CA_CANCEL);
                 this.finish();
+                break;
+            case EMAIL_CHANGED:
+                setResult(EMAIL_CHANGED);
+                finish();
+                break;
+            case PASSWORD_CHANGED:
+                setResult(PASSWORD_CHANGED);
+                finish();
+                break;
+            case WORKING_HOURS_CHANGED:
+                setResult(WORKING_HOURS_CHANGED);
+                finish();
                 break;
         }
     }

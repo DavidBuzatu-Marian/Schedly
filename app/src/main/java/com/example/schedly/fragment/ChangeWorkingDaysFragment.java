@@ -33,6 +33,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.Map;
 
 import static com.example.schedly.MainActivity.PASSWORD_CHANGED;
+import static com.example.schedly.MainActivity.WORKING_HOURS_CHANGED;
 
 public class ChangeWorkingDaysFragment extends Fragment {
     private FragmentActivity mActivity;
@@ -117,7 +118,7 @@ public class ChangeWorkingDaysFragment extends Fragment {
         FirebaseAuth.getInstance().signOut();
         Intent stopServiceIntent = new Intent(mActivity, MonitorIncomingSMSService.class);
         stopServiceIntent.setAction("ACTION.STOPFOREGROUND_ACTION");
-        getActivity().setResult(PASSWORD_CHANGED);
+        getActivity().setResult(WORKING_HOURS_CHANGED);
         getActivity().finish();
     }
 }
