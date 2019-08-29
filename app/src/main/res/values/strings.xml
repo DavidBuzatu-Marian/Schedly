@@ -1,10 +1,9 @@
 <resources>
     <string name="facebook_app_id">293320568283992</string>
     <string name="fb_login_protocol_scheme">fb293320568283992</string>
-    <string name="server_client_id">125094146390-fr01v2t3dl946mj4be36d4h5svj798sv.apps.googleusercontent.com</string>
-
-
+    <string name="server_client_id">125094146390-nvc0ro3tsg4ihkcon42j1v59lkfhn5ge.apps.googleusercontent.com</string>
     <string name="default_web_client_ID">125094146390-m0fk6oqclr1edebu3gdaldiq3r52cika.apps.googleusercontent.com</string>
+
     <string name="app_name">Schedly</string>
     <string name="sign_up_button"><![CDATA[Sign Up >]]></string>
     <string name="sign_in_button"><![CDATA[Sign In >]]></string>

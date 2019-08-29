@@ -15,14 +15,6 @@
       },
       "oauth_client": [
         {
-          "client_id": "125094146390-d4sntj4gaq01onvb105jpbkf51ivr29f.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.schedly",
-            "certificate_hash": "917e69d2fd61e97fb08c475710d5d11e33c42a56"
-          }
-        },
-        {
           "client_id": "125094146390-ribh33ms6l9quvt4omibrlkdktphhq5b.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

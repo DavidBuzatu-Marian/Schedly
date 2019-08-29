@@ -134,7 +134,7 @@
         android:id="@+id/act_Calendar_IV_Free"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/ic_working_hours"
+        android:background="@drawable/ic_free_day"
         android:layout_gravity="center"
         app:layout_anchor="@id/act_Calendar_RV_Schedule"
         app:layout_anchorGravity="center_horizontal|center"

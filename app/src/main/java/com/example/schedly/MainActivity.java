@@ -100,19 +100,21 @@ public class MainActivity extends AppCompatActivity {
             setContentView(_extras.getInt("SmallHeight"));
             setButtonsOnClick();
             /* for sign up */
-            final TextView buttonSignUpMain = findViewById(R.id.act_main_TV_SingUp);
-            buttonSignUpMain.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent signUpIntent = new Intent(MainActivity.this, SignUpWithEmailActivity.class);
-                    startActivity(signUpIntent);
-                }
-            });
         } else {
             setContentView(R.layout.activity_login);
             setUpSocialsLogin();
             setUpEmailLogin();
         }
+
+        final TextView buttonSignUpMain = findViewById(R.id.act_main_TV_SingUp);
+        buttonSignUpMain.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent signUpIntent = new Intent(MainActivity.this, SignUpWithEmailActivity.class);
+                startActivity(signUpIntent);
+            }
+        });
+
         mPacketMainLogin = new PacketMainLogin(this, true);
         mAuth = FirebaseAuth.getInstance();
 
@@ -501,28 +503,33 @@ public class MainActivity extends AppCompatActivity {
 //            FirebaseAuth.getInstance().signOut();
 //            Toast.makeText(MainActivity.this,"All fields are required!", Toast.LENGTH_LONG).show();
 //        }
-        switch (resultCode) {
-            case SUWESuccess:
-                Toast.makeText(MainActivity.this, "Account created successfully!", Toast.LENGTH_SHORT).show();
-                break;
-            case EMAIL_CHANGED:
-                Toast.makeText(MainActivity.this, "Email changed. Please login again.", Toast.LENGTH_LONG).show();
-                break;
-            case PASSWORD_CHANGED:
-                Toast.makeText(MainActivity.this, "Password changed. Please login again.", Toast.LENGTH_LONG).show();
-                break;
-            case PR_SUCCESS:
-                Snackbar.make(findViewById(R.id.act_main_CL_Root), "An email with instructions for your password reset was sent", Snackbar.LENGTH_LONG).show();
-                break;
-            case LOG_OUT:
-                mPacketMainLogin.showProgressBar(false);
-                break;
-            default:
-                mPacketMainLogin.showProgressBar(false);
-                mGoogleSignInClient.signOut();
-                LoginManager.getInstance().logOut();
-                FirebaseAuth.getInstance().signOut();
-                Toast.makeText(MainActivity.this,"All fields are required!", Toast.LENGTH_LONG).show();
+        else {
+            switch (resultCode) {
+                case SUWESuccess:
+                    Toast.makeText(MainActivity.this, "Account created successfully!", Toast.LENGTH_SHORT).show();
+                    break;
+                case EMAIL_CHANGED:
+                    Toast.makeText(MainActivity.this, "Email changed. Please login again.", Toast.LENGTH_LONG).show();
+                    break;
+                case PASSWORD_CHANGED:
+                    Toast.makeText(MainActivity.this, "Password changed. Please login again.", Toast.LENGTH_LONG).show();
+                    break;
+                case PR_SUCCESS:
+                    Snackbar.make(findViewById(R.id.act_main_CL_Root), "An email with instructions for your password reset was sent", Snackbar.LENGTH_LONG).show();
+                    break;
+                case LOG_OUT:
+                    mPacketMainLogin.showProgressBar(false);
+                    break;
+                case SP_CANCEL:
+                case SPN_CANCEL:
+                case SWH_CANCEL:
+                case SD_CANCEL:
+                    mPacketMainLogin.showProgressBar(false);
+                    mGoogleSignInClient.signOut();
+                    LoginManager.getInstance().logOut();
+                    FirebaseAuth.getInstance().signOut();
+                    Toast.makeText(MainActivity.this, "All fields are required!", Toast.LENGTH_LONG).show();
+            }
         }
     }
 
