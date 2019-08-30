@@ -22,6 +22,9 @@
         <Preference
             app:key="displayName_change"
             android:title="Change your display name"/>
+        <Preference
+            app:key="appointmentDuration_change"
+            android:title="Change your appointment duration"/>
 
     </PreferenceCategory>
 

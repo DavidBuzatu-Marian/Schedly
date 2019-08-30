@@ -16,10 +16,12 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 import androidx.preference.SwitchPreference;
 
-import com.example.schedly.CalendarActivity;
 import com.example.schedly.R;
 import com.example.schedly.SettingsActivity;
 import com.example.schedly.service.MonitorIncomingSMSService;
+import com.example.schedly.setting.AppointmentDuration;
+import com.example.schedly.setting.DisplayName;
+import com.example.schedly.setting.PhoneNumber;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -30,12 +32,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.UserInfo;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.example.schedly.CalendarActivity.LOG_OUT;
 
@@ -43,8 +41,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private Preference mChangeEmailPreference;
     private Preference mChangePasswordPreference, mChangeWorkingHours;
     private Preference mChangePhoneNumber, mChangeDisplayName, mChangeAppointmentsDuration;
-    private String mUserID, mUserPhoneNumber, mUserDisplayName, mUserWorkingHoursID;
-    private String mUserAppointmentsDuration;
+    public String mUserID, mUserPhoneNumber, mUserDisplayName, mUserWorkingHoursID;
+    public String mUserAppointmentsDuration;
     private Preference mFeedback;
     private SwitchPreference mDisableMonitorization;
     private GoogleSignInClient mGoogleSignInClient;
@@ -118,15 +116,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private void setPreferencesForCurrentUser() {
         mChangePhoneNumber = findPreference("phoneNumber_change");
         mChangePhoneNumber.setSummary(mUserPhoneNumber);
-        mChangePhoneNumber.setFragment("com.example.schedly.ChangePhoneNumberFragment");
         mChangePhoneNumber.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                Fragment _newFragment = new ChangePhoneNumberFragment();
-                FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                transaction.replace(R.id.frag_Settings_FL_Holder, _newFragment);
-                transaction.addToBackStack(null);
-                transaction.commit();
+                new PhoneNumber(mActivity, mUserPhoneNumber, mChangePhoneNumber, SettingsFragment.this);
                 return true;
             }
         });
@@ -159,15 +152,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
         mChangeDisplayName = findPreference("displayName_change");
         mChangeDisplayName.setSummary(mUserDisplayName);
-        mChangeDisplayName.setFragment("com.example.schedly.ChangeDisplayNameFragment");
         mChangeDisplayName.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                Fragment _newFragment = new ChangeDisplayNameFragment();
-                FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                transaction.replace(R.id.frag_Settings_FL_Holder, _newFragment);
-                transaction.addToBackStack(null);
-                transaction.commit();
+                new DisplayName(mActivity, mUserDisplayName, mChangeDisplayName, SettingsFragment.this);
                 return true;
             }
         });
@@ -182,6 +170,15 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 transaction.replace(R.id.frag_Settings_FL_Holder, _newFragment);
                 transaction.addToBackStack(null);
                 transaction.commit();
+                return true;
+            }
+        });
+        mChangeAppointmentsDuration = findPreference("appointmentDuration_change");
+        mChangeAppointmentsDuration.setSummary(mUserAppointmentsDuration);
+        mChangeAppointmentsDuration.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                new AppointmentDuration(mActivity, mChangeAppointmentsDuration, SettingsFragment.this);
                 return true;
             }
         });
@@ -275,4 +272,16 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         });
     }
 
+    public void setmUserDisplayName(String name) {
+        mUserDisplayName = name;
+    }
+
+    public void setmUserAppointmentDuration(String duration) {
+        mUserAppointmentsDuration = duration;
+        Log.d("SetDuration", mUserAppointmentsDuration);
+    }
+
+    public void setmUserPhoneNumber(String phoneNumber) {
+        mUserPhoneNumber = phoneNumber;
+    }
 }

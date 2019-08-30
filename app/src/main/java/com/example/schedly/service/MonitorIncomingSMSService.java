@@ -144,17 +144,16 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
         _startSettingsIntent.putExtra("userDaysWithScheduleID", mUserDaysWithScheduleID);
         _startSettingsIntent.putExtra("userAppointmentDuration", mUserAppointmentDuration);
         _startSettingsIntent.putExtra("userWorkingDaysID", mUserWorkingDaysID);
-        PendingIntent _intentSettings = PendingIntent.getBroadcast(this, SETTINGS_RETURN, _startSettingsIntent, 0);
-
+        PendingIntent _intentSettings = PendingIntent.getActivity(this, SETTINGS_RETURN, _startSettingsIntent, 0);
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
         Notification notification = notificationBuilder.setOngoing(true)
-                .setSmallIcon(R.drawable.ic_baseline_menu_24px)
+                .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle("Schedly is making appointments for you")
                 .setPriority(NotificationManager.IMPORTANCE_MIN)
                 .setCategory(Notification.CATEGORY_SERVICE)
                 .setContentIntent(_intentDefault)
-                .addAction(R.drawable.ic_close, getString(R.string.notification_disable_monitoring), _intentSettings)
+                .addAction(R.drawable.ic_close, "Disable monitoring", _intentSettings)
                 .build();
         startForeground(SERVICE_ID, notification);
     }

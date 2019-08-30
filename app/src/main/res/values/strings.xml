@@ -135,5 +135,6 @@
     <string name="helpDateSelected">On a selected date, your appointments will be displayed one below another. You can manage them from there</string>
     <string name="helpAddExplained">You can still make appointments manually. You can find your phone numbers by simply typing the number in the fileds. The same goes for contact names. A message will be automatically sent to the client with the information</string>
     <string name="helpEditExplained">You can call directly your client, message him/ her, add to contacts and cancel appointment. By canceling appointment, a message will be sent to the client with the information.</string>
+    <string name="settings_appointmentDuration">Duration in minutes</string>
 
 </resources>
