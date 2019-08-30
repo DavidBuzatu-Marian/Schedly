@@ -2,12 +2,14 @@ package com.example.schedly;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
 
 import com.example.schedly.packet_classes.PacketMainLogin;
 import com.facebook.login.LoginManager;
@@ -41,6 +43,15 @@ public class StartSplashActivity extends AppCompatActivity {
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
         mFirebaseFirestore = FirebaseFirestore.getInstance();
+        /* preference check for first login
+         * this is used in calendar activity
+         * in order to display helpers
+         */
+        boolean _isPreferenceSet = getFirstLoginPreference();
+        if(!_isPreferenceSet) {
+            setFirstLoginPreference();
+        }
+        /* check if user is logged, redirect accordingly */
         if(currentUser != null) {
             Log.d("Firebase", "Logged");
             /* get user info and redirect */
@@ -48,9 +59,21 @@ public class StartSplashActivity extends AppCompatActivity {
             _packetMainLogin.getUserDetails(currentUser);
         }
         else {
-            /* get screen size */
+            /* get screen size and redirect to corresponding main */
            redirectWithScreenSize();
         }
+    }
+
+    private void setFirstLoginPreference() {
+        SharedPreferences _userPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor _userEditor = _userPreferences.edit();
+        _userEditor.putBoolean("firstLogin", true);
+        _userEditor.apply();
+    }
+
+    private boolean getFirstLoginPreference() {
+        SharedPreferences _userPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        return _userPreferences.contains("firstLogin");
     }
 
     private void redirectWithScreenSize() {
@@ -61,20 +84,14 @@ public class StartSplashActivity extends AppCompatActivity {
         /* if screen height smaller than 1200px
          * show another login activity layout
          */
+        Intent _intentMainActivity = new Intent(this, MainActivity.class);
+        _intentMainActivity.putExtra("resultCode", mResultCode);
+        _intentMainActivity.putExtra("requestCode", mRequestCode);
         if(_height < 1350) {
-            Intent _intentMainActivity = new Intent(this, MainActivity.class);
             _intentMainActivity.putExtra("SmallHeight", R.layout.activity_login_xsmall_devices);
-            _intentMainActivity.putExtra("resultCode", mResultCode);
-            _intentMainActivity.putExtra("requestCode", mRequestCode);
-            startActivity(_intentMainActivity);
-            finish();
-        } else {
-            Intent _intentMainActivity = new Intent(this, MainActivity.class);
-            _intentMainActivity.putExtra("resultCode", mResultCode);
-            _intentMainActivity.putExtra("requestCode", mRequestCode);
-            startActivity(_intentMainActivity);
-            finish();
         }
+        startActivity(_intentMainActivity);
+        finish();
     }
 
 

@@ -238,7 +238,7 @@ public class threadFindDaysForAppointment extends Thread {
     private boolean checkDayForCurrentHour(String mTimeToSchedule, boolean dayHasAppointments, Long dateInMillis) throws ParseException {
         int _appointmentDurationInteger = Integer.parseInt(mUserAppointmentDuration);
         SimpleDateFormat _sDFormat = new SimpleDateFormat("HH:mm");
-        SimpleDateFormat _sDFormatDate = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+        SimpleDateFormat _sDFormatDate = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         String _dateBefore = "", _dateAfter = "";
         String _hour = mDaySchedule[0];
         Calendar _calendar = Calendar.getInstance();

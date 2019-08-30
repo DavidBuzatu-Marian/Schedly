@@ -27,6 +27,7 @@ import androidx.core.app.NotificationCompat;
 
 import com.example.schedly.MainActivity;
 import com.example.schedly.R;
+import com.example.schedly.SettingsActivity;
 import com.example.schedly.StartSplashActivity;
 import com.example.schedly.model.MessageListener;
 import com.example.schedly.model.SMSBroadcastReceiver;
@@ -60,6 +61,8 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.Random;
 import java.util.UUID;
+
+import static com.example.schedly.CalendarActivity.SETTINGS_RETURN;
 
 public class MonitorIncomingSMSService extends Service implements MessageListener {
 
@@ -132,15 +135,26 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
         manager.createNotificationChannel(channel);
         Intent calendarIntent = new Intent(this, StartSplashActivity.class);
 
-        PendingIntent intent = PendingIntent.getActivity(this, 0,
+        PendingIntent _intentDefault = PendingIntent.getActivity(this, 0,
                 calendarIntent, 0);
+
+        /* intent for stopping monitoring */
+        Intent _startSettingsIntent = new Intent(this, SettingsActivity.class);
+        _startSettingsIntent.putExtra("userID", mUserID);
+        _startSettingsIntent.putExtra("userDaysWithScheduleID", mUserDaysWithScheduleID);
+        _startSettingsIntent.putExtra("userAppointmentDuration", mUserAppointmentDuration);
+        _startSettingsIntent.putExtra("userWorkingDaysID", mUserWorkingDaysID);
+        PendingIntent _intentSettings = PendingIntent.getBroadcast(this, SETTINGS_RETURN, _startSettingsIntent, 0);
+
+
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
         Notification notification = notificationBuilder.setOngoing(true)
                 .setSmallIcon(R.drawable.ic_baseline_menu_24px)
                 .setContentTitle("Schedly is making appointments for you")
                 .setPriority(NotificationManager.IMPORTANCE_MIN)
                 .setCategory(Notification.CATEGORY_SERVICE)
-                .setContentIntent(intent)
+                .setContentIntent(_intentDefault)
+                .addAction(R.drawable.ic_close, getString(R.string.notification_disable_monitoring), _intentSettings)
                 .build();
         startForeground(SERVICE_ID, notification);
     }

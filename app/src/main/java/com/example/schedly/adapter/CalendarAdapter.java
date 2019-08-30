@@ -28,6 +28,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.schedly.CalendarActivity;
 import com.example.schedly.R;
 import com.example.schedly.model.Appointment;
+import com.example.schedly.packet_classes.PacketCalendarHelpers;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -68,7 +69,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
     @NonNull
     @Override
     public CalendarScheduleViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        int layout_id = 0;
+        int layout_id;
 
         switch (viewType) {
             case TOP_POSITION:
@@ -120,6 +121,9 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
             mTextViewName = itemView.findViewById(R.id.appointment_item_TV_Name);
             mTextViewPhoneNumber = itemView.findViewById(R.id.appointment_item_TV_PhoneNumber);
             mImageViewEdit = itemView.findViewById(R.id.appointment_item_IV_AppointmentOptions);
+
+            PacketCalendarHelpers _PCH = new PacketCalendarHelpers(mActivity);
+            _PCH.displayHelpOnEdit();
 
             mImageViewEdit.setOnClickListener(new View.OnClickListener() {
                 @Override

@@ -130,5 +130,10 @@
     <string name="act_main_TV_SignIn_Extra">SIGN IN</string>
     <string name="image">Background image</string>
     <string name="act_SUWEmail_ET_PhoneNumber">Phone number</string>
+    <string name="helpSMSExplained">Schedly will now monitor you SMS and make appointments automatically! Make sure you have numerous SMS to send without costs. A good format for a valid date (September the 3rd) is: 2019-09-03. An example message would be: I want an appointment on 2019-09-03 at 9:45AM</string>
+    <string name="notification_disable_monitoring">Disable monitoring</string>
+    <string name="helpDateSelected">On a selected date, your appointments will be displayed one below another. You can manage them from there</string>
+    <string name="helpAddExplained">You can still make appointments manually. You can find your phone numbers by simply typing the number in the fileds. The same goes for contact names. A message will be automatically sent to the client with the information</string>
+    <string name="helpEditExplained">You can call directly your client, message him/ her, add to contacts and cancel appointment. By canceling appointment, a message will be sent to the client with the information.</string>
 
 </resources>

@@ -22,9 +22,11 @@ import android.widget.CalendarView;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.elconfidencial.bubbleshowcase.BubbleShowCaseBuilder;
 import com.example.schedly.adapter.CalendarAdapter;
 import com.example.schedly.model.Appointment;
 import com.example.schedly.packet_classes.PacketCalendar;
+import com.example.schedly.packet_classes.PacketCalendarHelpers;
 import com.example.schedly.service.MonitorIncomingSMSService;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -76,6 +78,7 @@ public class CalendarActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calendar);
 
+        /* permisions */
         if (!isSmsPermissionGranted()) {
             showRequestPermissionsInfoAlertDialog("SMS");
         }
@@ -94,6 +97,11 @@ public class CalendarActivity extends AppCompatActivity {
             mUserWorkingHoursID = extras.getString("userWorkingHoursID");
             mUserAppointmentDuration = extras.getString("userAppointmentDuration");
         }
+
+        /* dipslay Helpers */
+        final PacketCalendarHelpers _PCH = new PacketCalendarHelpers(CalendarActivity.this);
+        _PCH.displayHelpers();
+
         /* init calendar and get ID for days
          * with schedule
          */
@@ -104,11 +112,18 @@ public class CalendarActivity extends AppCompatActivity {
 //                PacketService _psTest = new PacketService(userID, mUserAppointmentDuration, mUserDaysWithScheduleID, mUserWorkingHoursID);
 //                _psTest.setUserWorkingHours(mWorkingHours);
 //                _psTest.makeAppointmentForFixedParameters("2019-09-22", "13:45", "0734543831", "Princess");
+                _PCH.displayHelpOnDate(view);
                 getDateFromCalendarView(year, month, dayOfMonth, false);
                 Log.d("DATE", mDate + "");
             }
         });
+
         setUserDaysWithScheduleIDWrapper();
+        setRecyclerView();
+
+    }
+
+    private void setRecyclerView() {
         /* RecyclerView */
         mRecyclerView = findViewById(R.id.act_Calendar_RV_Schedule);
         mRecyclerView.setHasFixedSize(true);
@@ -117,7 +132,6 @@ public class CalendarActivity extends AppCompatActivity {
 
         mAdapter = new CalendarAdapter(CalendarActivity.this, mDataSet);
         mRecyclerView.setAdapter(mAdapter);
-
     }
 
     private void getDateFromCalendarView(int year, int month, int dayOfMonth, boolean onStart) {
@@ -136,14 +150,6 @@ public class CalendarActivity extends AppCompatActivity {
 
         mPacketCalendar = new PacketCalendar(this, mWorkingHours, mUserDaysWithScheduleID, mUserAppointmentDuration);
         mPacketCalendar.setDateForTVs(year, month, dayOfMonth, mDate);
-
-        LocalDate _localDate = LocalDate.now(ZoneId.systemDefault());
-        long _curDayInMillis = _localDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
-        DateTimeFormatter _DTF = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        _localDate = LocalDate.parse("2019-08-26", _DTF);
-        long _userDayInMillis = _localDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
-        String res = _userDayInMillis > _curDayInMillis ? "true" : "false";
-        Log.d("ERRRR", res + ":  " + _userDayInMillis);
 
 
         Log.d("Date", mDate + "");
@@ -340,39 +346,6 @@ public class CalendarActivity extends AppCompatActivity {
         mCounter = counter;
     }
 
-//    private void getEachAppointments() {
-//        FirebaseFirestore _FireStore = FirebaseFirestore.getInstance();
-//
-//        final DocumentReference _documentReference = _FireStore.collection("scheduledHours")
-//                .document(userID);
-//        _documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-//            @Override
-//            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-//                if (task.isSuccessful()) {
-//                    Log.d("Appooooooo", _documentReference.getPath());
-//                    Object _res = task.getResult().get(mDate + "");
-//                    Map<String, Object> _map = new HashMap<>();
-//                    Log.d("FirebaseErr", _res.toString());
-////                    for (Map.Entry<String, Object> _entry : _map.entrySet()) {
-////                        Log.d("Appointment", _entry.getKey());
-////                        if (_entry.getValue() == null) {
-////                            break;
-////                        }
-////                        Gson gson = new Gson();
-////                        String json = gson.toJson(_entry.getValue());
-////                        Log.d("APPP", json);
-////
-////                        mDataSet.add(mCounter, new Appointment(_entry.getKey(), gson, json, currentDayID, mUserDaysWithScheduleID));
-////                        mCounter++;
-////                    }
-//                } else {
-//                    Log.d(ERR, "Error getting documents: ", task.getException());
-//                }
-//                mAdapter.notifyDataSetChanged();
-//            }
-//        });
-//    }
-
 
     public void showRequestPermissionsInfoAlertDialog(String type) {
         if (type.equals("SMS")) {
@@ -456,29 +429,28 @@ public class CalendarActivity extends AppCompatActivity {
 
     private void requestReadContactsPermission() {
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_CONTACTS)) {
-            // You may display a non-blocking explanation here, read more in the documentation:
-            // https://developer.android.com/training/permissions/requesting.html
         }
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS}, CONTACTS_PERMISSION_CODE);
+    }
+
+    private void closeUponPermissionDenied(int[] grantResults) {
+        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+        } else {
+            finishAffinity();
+            finish();
+        }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case SMS_PERMISSION_CODE: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                } else {
-                    Toast.makeText(CalendarActivity.this, "NOT PERMITTED", Toast.LENGTH_SHORT);
-                }
+                closeUponPermissionDenied(grantResults);
                 break;
             }
             case CONTACTS_PERMISSION_CODE: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                } else {
-                    Toast.makeText(CalendarActivity.this, "NOT PERMITTED", Toast.LENGTH_SHORT).show();
-                }
+                closeUponPermissionDenied(grantResults);
                 break;
             }
         }

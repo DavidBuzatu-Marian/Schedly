@@ -584,7 +584,9 @@ public class PacketCalendar {
 //            _ABL.addView(_relativeLayoutInABL, _CTLIndex);
 
         } else {
+            PacketCalendarHelpers _PCH = new PacketCalendarHelpers(mActivity);
             addFreeDayImage(false);
+            _PCH.displayHelpOnAdd();
             setImageViewListener(_dayOfWeek, _dateFormat);
         }
     }
