@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.graphics.Point;
 import android.provider.CallLog;
 import android.provider.ContactsContract;
+import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
@@ -62,6 +63,7 @@ public class PacketCalendar {
     private RecyclerView.Adapter mAdapter;
     private ArrayList<Appointment> mDataSet = new ArrayList<>();
     private int mCounter;
+    private String mCompleteDate;
 
     public PacketCalendar(Activity activity, HashMap<String, String> workingHours, String userDaysWithScheduleID, String userAppointmentDuration) {
         mActivity = activity;
@@ -302,11 +304,12 @@ public class PacketCalendar {
                         @Override
                         public void onSuccess(Void aVoid) {
                             mCounter = ((CalendarActivity) mActivity).getCounter();
-                            mDataSet.add(mCounter, new Appointment(mSelectedAppointmentHour, name.equals("") ? null : name, phoneNumber, mCurrentDaySHID, mUserDaysWithScheduleID));
+                            mDataSet.add(mCounter, new Appointment(mSelectedAppointmentHour, name.equals("") ? null : name, phoneNumber, mCurrentDaySHID, mUserDaysWithScheduleID, mCompleteDate));
                             mCounter++;
                             mAdapter.notifyDataSetChanged();
                             ((CalendarActivity) mActivity).setCounter(mCounter);
                             mPopWindow.dismiss();
+                            sendMessage(phoneNumber);
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -318,6 +321,13 @@ public class PacketCalendar {
                         }
                     });
         }
+    }
+
+    private void sendMessage(String phoneNumber) {
+        SmsManager.getDefault().sendTextMessage(phoneNumber, null,
+                "You've been scheduled on " + mCompleteDate + " at: " + mSelectedAppointmentHour + " . If something is wrong, please contact me",
+                null, null);
+        Log.d("MESSAGE_ON_CANCEL_app", "CANCELED");
     }
 
     private void setInformationInPopup(View inflatedView, String dayOfWeek, String dateFormat) {
@@ -534,9 +544,10 @@ public class PacketCalendar {
 //        return _details;
 //    }
 
-    public void setDateForTVs(int year, int month, int dayOfMonth, long milDate) {
+    public void setDateForTVs(int year, int month, int dayOfMonth, long milDate, String completeDate) {
         String _dayOfWeek, _dateFormat;
         mDate = milDate;
+        mCompleteDate = completeDate;
 
         if (year != 0) {
             DateTimeFormatter _DTF = DateTimeFormatter.ofPattern("EEEE", Locale.US);

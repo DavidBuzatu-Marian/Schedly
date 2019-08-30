@@ -14,24 +14,27 @@ public class Appointment{
     private String mName;
     private String mPhoneNumber;
     private String mCurrentDayID;
+    private String mDate;
     private String mUserDaysWithScheduleID;
 
 
-    public Appointment(String _hour, Gson _gson, String _json, String currentDayID, String userDaysWithScheduleID) {
+    public Appointment(String _hour, Gson _gson, String _json, String currentDayID, String userDaysWithScheduleID, String date) {
         mHour = _hour;
         Properties data = _gson.fromJson(_json, Properties.class);
         mName = data.getProperty("Name");
         mPhoneNumber = data.getProperty("PhoneNumber");
         mCurrentDayID = currentDayID;
         mUserDaysWithScheduleID = userDaysWithScheduleID;
+        mDate = date;
     }
 
-    public Appointment(String hour, String name, String phoneNumber, String currentDayID, String userDaysWithScheduleID) {
+    public Appointment(String hour, String name, String phoneNumber, String currentDayID, String userDaysWithScheduleID, String date) {
         mHour = hour;
         mName = name;
         mPhoneNumber = phoneNumber;
         mCurrentDayID = currentDayID;
         mUserDaysWithScheduleID = userDaysWithScheduleID;
+        mDate = date;
     }
 
 
@@ -65,5 +68,9 @@ public class Appointment{
 
     public String getmUserDaysWithScheduleID() {
         return mUserDaysWithScheduleID;
+    }
+
+    public String getmDate() {
+        return mDate;
     }
 }

@@ -40,6 +40,8 @@ import com.google.gson.Gson;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.format.DateTimeFormatter;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -71,6 +73,7 @@ public class CalendarActivity extends AppCompatActivity {
     private ArrayList<Appointment> mDataSet = new ArrayList<>();
     private HashMap<String, String> mWorkingHours = new HashMap<>();
     private PacketCalendar mPacketCalendar;
+    private String mCompleteDate;
 
 
     @Override
@@ -146,10 +149,12 @@ public class CalendarActivity extends AppCompatActivity {
         _calendar.set(Calendar.MILLISECOND, 0);
         _calendar.set(Calendar.SECOND, 0);
 
+        SimpleDateFormat _SDF = new SimpleDateFormat("yyyy-MM-dd");
+        mCompleteDate = _SDF.format(_calendar.getTime());
         mDate = _calendar.getTimeInMillis();
 
         mPacketCalendar = new PacketCalendar(this, mWorkingHours, mUserDaysWithScheduleID, mUserAppointmentDuration);
-        mPacketCalendar.setDateForTVs(year, month, dayOfMonth, mDate);
+        mPacketCalendar.setDateForTVs(year, month, dayOfMonth, mDate, mCompleteDate);
 
 
         Log.d("Date", mDate + "");
@@ -321,7 +326,7 @@ public class CalendarActivity extends AppCompatActivity {
                         String json = gson.toJson(_entry.getValue());
                         Log.d("APPP", json);
 
-                        mDataSet.add(mCounter++, new Appointment(_entry.getKey(), gson, json, currentDayID, mUserDaysWithScheduleID));
+                        mDataSet.add(mCounter++, new Appointment(_entry.getKey(), gson, json, currentDayID, mUserDaysWithScheduleID, mCompleteDate));
                     }
                 } else {
                     Log.d(ERR, "Error getting documents: ", task.getException());

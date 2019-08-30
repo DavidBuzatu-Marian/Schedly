@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Point;
 import android.net.Uri;
 import android.provider.ContactsContract;
+import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
@@ -25,6 +26,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.elconfidencial.bubbleshowcase.BubbleShowCaseBuilder;
 import com.example.schedly.CalendarActivity;
 import com.example.schedly.R;
 import com.example.schedly.model.Appointment;
@@ -112,6 +114,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         private String mUDWScheduleID;
         private String mCDayID;
         private PopupWindow mPopWindow;
+        private String mCompleteDate;
 
 
         public CalendarScheduleViewHolder(@NonNull View itemView, @NonNull final ViewGroup parent) {
@@ -122,8 +125,13 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
             mTextViewPhoneNumber = itemView.findViewById(R.id.appointment_item_TV_PhoneNumber);
             mImageViewEdit = itemView.findViewById(R.id.appointment_item_IV_AppointmentOptions);
 
-            PacketCalendarHelpers _PCH = new PacketCalendarHelpers(mActivity);
-            _PCH.displayHelpOnEdit();
+            new BubbleShowCaseBuilder(mActivity)
+                    .title("Edit appointment") //Any title for the bubble view
+                    .backgroundColor(R.color.colorPrimary)
+                    .description(mActivity.getString(R.string.helpEditExplained))
+                    .targetView(mImageViewEdit)//View to point out
+                    .showOnce("FirstTimerEdit")
+                    .show(); //Display the ShowCase
 
             mImageViewEdit.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -223,6 +231,9 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
                             .setIcon(R.drawable.ic_baseline_cancel_24px)
                             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton) {
+                                    String _phoneNumber = mTextViewPhoneNumber.getText().toString();
+                                    String _hour = mTextViewHour.getText().toString();
+
                                     Map<String, Object> _deleteAppointment = new HashMap<>();
                                     _deleteAppointment.put(mTextViewHour.getText().toString(), FieldValue.delete());
                                     FirebaseFirestore _firebaseFirestore = FirebaseFirestore.getInstance();
@@ -236,11 +247,20 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
                                     mDataSet.remove(getAdapterPosition());
                                     ((CalendarActivity) mActivity).setCounter(_counter);
                                     notifyDataSetChanged();
+
+                                    sendMessage(_phoneNumber, _hour);
                                 }
                             })
                             .setNegativeButton(android.R.string.no, null).show();
                 }
             });
+        }
+
+        private void sendMessage(String phoneNumber, String hour) {
+            SmsManager.getDefault().sendTextMessage(phoneNumber, null,
+                    "Your appointment on " + mCompleteDate + " at: " + hour + " has been canceled",
+                    null, null);
+            Log.d("MESSAGE_ON_CANCEL_app", "CANCELED");
         }
 
         private void setInformationInPopup(View inflatedView) {
@@ -266,6 +286,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
             mCDayID = appointment.getmCurrentDayID();
             String _name = appointment.getmName();
             mTextViewHour.setText(appointment.getmHour());
+            mCompleteDate = appointment.getmDate();
             Log.d("DETECT", _name + ": " + appointment.getmPhoneNumber());
             if (_name != null) {
                 mTextViewName.setText(_name);

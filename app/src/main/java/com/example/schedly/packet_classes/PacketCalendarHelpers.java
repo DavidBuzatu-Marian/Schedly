@@ -3,6 +3,7 @@ package com.example.schedly.packet_classes;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.view.View;
 import android.widget.CalendarView;
 
 import androidx.preference.PreferenceManager;
@@ -56,13 +57,4 @@ public class PacketCalendarHelpers {
         }
     }
 
-    public void displayHelpOnEdit() {
-        new BubbleShowCaseBuilder(mActivity)
-                .title("Edit appointment") //Any title for the bubble view
-                .backgroundColor(R.color.colorPrimary)
-                .description(mActivity.getString(R.string.helpEditExplained))
-                .targetView(mActivity.findViewById(R.id.act_Calendar_IV_AddIcon))//View to point out
-                .showOnce("FirstTimerEdit")
-                .show(); //Display the ShowCase
-    }
 }

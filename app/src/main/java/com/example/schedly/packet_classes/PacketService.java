@@ -232,7 +232,7 @@ public class PacketService {
         Calendar _calendar = Calendar.getInstance();
         mSMSBody = new StringBuilder("For this date, I can take you on:");
         while (gotTime(_hour, mDaySchedule[1])) {
-            if (!mCurrentDayAppointments.containsKey(_hour)) {
+            if (mCurrentDayAppointments != null && !mCurrentDayAppointments.containsKey(_hour)) {
                 mSMSBody.append("\n").append(_hour);
             }
             _date = _sDFormat.parse(_hour);

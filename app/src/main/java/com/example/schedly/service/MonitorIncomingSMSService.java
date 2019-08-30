@@ -83,7 +83,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
     private HashMap<String, String> mWorkingHours = new HashMap<>();
 
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if(intent.getAction().equals("ACTION.STOPFOREGROUND_ACTION")) {
+        if(intent != null && intent.getAction().equals("ACTION.STOPFOREGROUND_ACTION")) {
             Log.d("TEST", "STOPPED SERVICE");
             stopForeground(true);
             stopSelf();
@@ -183,6 +183,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
                     mUUID.put(_sender, UUID.randomUUID().toString());
                     getContact(mMessagePhoneNumber);
                 }
+                Log.d("MESSAGEReceiver", _sender);
                 Log.d("Succes", "Contact name: " + mContactName.get(mMessagePhoneNumber));
                 callToFirebaseFunction(_message, mUUID.get(_sender));
             }
