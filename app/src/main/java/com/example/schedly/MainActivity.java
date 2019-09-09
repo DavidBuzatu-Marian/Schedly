@@ -564,15 +564,16 @@ public class MainActivity extends AppCompatActivity {
         setUpSocialsLogin(_dialogLayout);
 
     }
-    private void responseToResult(int requestCode, int resultCode, Intent data ) {
-        Log.d("REQUEST", requestCode + "");
+    private void  responseToResult(int requestCode, int resultCode, Intent data ) {
+        Log.d("REQUEST", requestCode + ";" + resultCode);
         // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
             // The Task returned from this call is always completed, no need to attach
             // a listener.
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             handleSignInResult(task);
-        } else if (requestCode == SPN_CANCEL || requestCode == SP_CANCEL || requestCode == SWH_CANCEL || requestCode == SD_CANCEL) {
+        }
+        if (requestCode == SPN_CANCEL || requestCode == SP_CANCEL || requestCode == SWH_CANCEL || requestCode == SD_CANCEL) {
             mPacketMainLogin.showProgressBar(false);
             mGoogleSignInClient.signOut();
             LoginManager.getInstance().logOut();
@@ -581,7 +582,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             switch (resultCode) {
                 case SUWEmailSuccess:
-                    Toast.makeText(MainActivity.this, "Account created successfully!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Account created successfully!", Toast.LENGTH_LONG).show();
                     PacketMainLogin _packetMainLogin = new PacketMainLogin(this, false);
                     _packetMainLogin.getUserDetails(mAuth.getCurrentUser());
                     break;

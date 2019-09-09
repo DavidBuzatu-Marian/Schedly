@@ -29,7 +29,8 @@
         </activity>
 
         <activity android:name=".SettingsActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"/>
         <activity android:name=".ForgotPasswordActivity"
             android:screenOrientation="portrait" />
 
@@ -66,7 +67,8 @@
                 android:value=".MainActivity" />
         </activity>
         <activity android:name=".CalendarActivity"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.DIAL" />
 
@@ -79,7 +81,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"/>
         <activity
             android:name=".SignUpWithEmailActivity"
             android:parentActivityName=".MainActivity"

@@ -1,6 +1,5 @@
 package com.example.schedly;
 
-import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -38,6 +37,14 @@ public class StartSplashActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         AndroidThreeTen.init(this);
+
+        Bundle _extras = getIntent().getExtras();
+        Log.d("Extras", _extras != null ? _extras.getBoolean("LoggedOut") + "" : "Null");
+        if(_extras != null && _extras.getBoolean("LoggedOut")) {
+            mResultCode = LOG_OUT;
+            redirectWithScreenSize();
+            finish();
+        }
 
         mAuth = FirebaseAuth.getInstance();
         // Check if user is signed in (non-null) and update UI accordingly.
@@ -87,6 +94,7 @@ public class StartSplashActivity extends AppCompatActivity {
         Intent _intentMainActivity = new Intent(this, MainActivity.class);
         _intentMainActivity.putExtra("resultCode", mResultCode);
         _intentMainActivity.putExtra("requestCode", mRequestCode);
+        _intentMainActivity.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         if(_height < 1350) {
             _intentMainActivity.putExtra("SmallHeight", R.layout.activity_login_xsmall_devices);
         }

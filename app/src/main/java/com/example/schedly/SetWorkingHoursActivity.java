@@ -18,6 +18,9 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -94,8 +97,62 @@ public class SetWorkingHoursActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         DocumentSnapshot document = task.getResult();
-                        workingDaysID = document.get("workingDaysID").toString();
-                        Log.d("IDwork", workingDaysID);
+                        workingDaysID = document.get("workingDaysID") != null ? document.get("workingDaysID").toString() : null;
+                        if(workingDaysID == null ) {
+                            addUserWorkingDaysID(FirebaseAuth.getInstance().getCurrentUser());
+                        }
+                    }
+                });
+    }
+
+    private void addUserWorkingDaysID(final FirebaseUser currentUser) {
+        /* add days of the week to collection */
+        Map<String, Object> daysOfTheWeek = new HashMap<>();
+        daysOfTheWeek.put("MondayStart", null);
+        daysOfTheWeek.put("MondayEnd", null);
+        daysOfTheWeek.put("TuesdayStart", null);
+        daysOfTheWeek.put("TuesdayEnd", null);
+        daysOfTheWeek.put("WednesdayStart", null);
+        daysOfTheWeek.put("WednesdayEnd", null);
+        daysOfTheWeek.put("ThursdayStart", null);
+        daysOfTheWeek.put("ThursdayEnd", null);
+        daysOfTheWeek.put("FridayStart", null);
+        daysOfTheWeek.put("FridayEnd", null);
+        daysOfTheWeek.put("SaturdayStart", null);
+        daysOfTheWeek.put("SaturdayEnd", null);
+        daysOfTheWeek.put("SundayStart", null);
+        daysOfTheWeek.put("SundayEnd", null);
+        FirebaseFirestore.getInstance().collection("workingDays")
+                .add(daysOfTheWeek)
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        FirebaseFirestore mFireStore = FirebaseFirestore.getInstance();
+                        Map<String, Object> userToAdd = new HashMap<>();
+                        Log.d(TAG, "DocumentSnapshot written:" + documentReference.getId());
+                        workingDaysID = documentReference.getId();
+                        userToAdd.put("workingDaysID", workingDaysID);
+                        mFireStore.collection("users")
+                                .document(currentUser.getUid())
+                                .update(userToAdd)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Log.d(TAG, "DocumentSnapshot successfully written!");
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.w(TAG, "Error writing document", e);
+                                    }
+                                });
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error adding document", e);
                     }
                 });
     }

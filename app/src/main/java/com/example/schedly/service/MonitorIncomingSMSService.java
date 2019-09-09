@@ -134,7 +134,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
         assert manager != null;
         manager.createNotificationChannel(channel);
         Intent calendarIntent = new Intent(this, StartSplashActivity.class);
-
+        calendarIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         PendingIntent _intentDefault = PendingIntent.getActivity(this, 0,
                 calendarIntent, 0);
 
@@ -144,6 +144,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
         _startSettingsIntent.putExtra("userDaysWithScheduleID", mUserDaysWithScheduleID);
         _startSettingsIntent.putExtra("userAppointmentDuration", mUserAppointmentDuration);
         _startSettingsIntent.putExtra("userWorkingDaysID", mUserWorkingDaysID);
+        _startSettingsIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         PendingIntent _intentSettings = PendingIntent.getActivity(this, SETTINGS_RETURN, _startSettingsIntent, 0);
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);

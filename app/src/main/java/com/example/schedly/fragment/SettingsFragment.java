@@ -18,6 +18,7 @@ import androidx.preference.SwitchPreference;
 
 import com.example.schedly.R;
 import com.example.schedly.SettingsActivity;
+import com.example.schedly.StartSplashActivity;
 import com.example.schedly.service.MonitorIncomingSMSService;
 import com.example.schedly.setting.AppointmentDuration;
 import com.example.schedly.setting.DisplayName;
@@ -72,6 +73,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 stopServiceIntent.setAction("ACTION.STOPFOREGROUND_ACTION");
                 mActivity.startService(stopServiceIntent);
                 getActivity().setResult(LOG_OUT);
+                Intent loginIntent = new Intent(mActivity, StartSplashActivity.class);
+                loginIntent.putExtra("LoggedOut", true);
+                loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(loginIntent);
                 getActivity().finish();
                 return false;
             }

@@ -65,8 +65,8 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<Void> task) {
                         if(task.isSuccessful()) {
                             Log.d("PASSWORD", "Email sent!");
-                            ForgotPasswordActivity.this.finish();
                             setResult(PR_SUCCESS);
+                            ForgotPasswordActivity.this.finish();
                         }
                         else {
                             mTextInputLayoutEmail.setError("Email is not registered!");
