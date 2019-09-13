@@ -116,6 +116,7 @@ public class CalendarActivity extends AppCompatActivity {
 //                _psTest.setUserWorkingHours(mWorkingHours);
 //                _psTest.makeAppointmentForFixedParameters("2019-09-22", "13:45", "0734543831", "Princess");
                 _PCH.displayHelpOnDate(view);
+                Log.d("DATEEE", view.getId() + "; " + mCalendarView.getId());
                 getDateFromCalendarView(year, month, dayOfMonth, false);
                 Log.d("DATE", mDate + "");
             }

@@ -136,5 +136,12 @@
     <string name="helpAddExplained">You can still make appointments manually. You can find your phone numbers by simply typing the number in the fileds. The same goes for contact names. A message will be automatically sent to the client with the information</string>
     <string name="helpEditExplained">You can call directly your client, message him/ her, add to contacts and cancel appointment. By canceling appointment, a message will be sent to the client with the information.</string>
     <string name="settings_appointmentDuration">Duration in minutes</string>
+    <string name="calendar_view_MON">MON</string>
+    <string name="calendar_view_TUE">TUE</string>
+    <string name="calendar_view_WED">WED</string>
+    <string name="calendar_view_THU">THU</string>
+    <string name="calendar_view_FRI">FRI</string>
+    <string name="calendar_view_SAT">SAT</string>
+    <string name="calendar_view_SUN">SUN</string>
 
 </resources>
