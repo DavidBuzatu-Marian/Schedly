@@ -128,7 +128,7 @@ public class threadFindDaysForAppointment extends Thread {
         /* ********************************************************8
          *****************************************************
          */
-//        sendMessage();
+        sendMessage();
     }
 
     private void sendMessage() {
