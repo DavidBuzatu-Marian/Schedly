@@ -6,18 +6,25 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.example.schedly.model.Appointment;
 import com.example.schedly.thread.threadFindDaysForAppointment;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
+import com.google.gson.Gson;
 
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.format.DateTimeFormatter;
 
+import java.io.IOException;
 import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -32,10 +39,8 @@ import java.util.concurrent.TimeUnit;
 public class PacketService {
     private String mContactName;
     private Long mDateInMillis;
-    private String mUserDaysWithScheduleID;
     private String mUserID;
     private String mUserAppointmentDuration;
-    private String mCurrentDaySHoursID;
     private FirebaseFirestore mFireStore;
     private threadFindDaysForAppointment mWorkThread;
     // get the appointments for a given date
@@ -56,10 +61,9 @@ public class PacketService {
     private String mPhoneNumber;
     private volatile Map<String, String> mUserWorkingDays;
 
-    public PacketService(String userID, String userAppointmentDuration, String userDaysWithScheduleID, String userWorkingDaysID) {
+    public PacketService(String userID, String userAppointmentDuration, String userWorkingDaysID) {
         mUserID = userID;
         mUserAppointmentDuration = userAppointmentDuration;
-        mUserDaysWithScheduleID = userDaysWithScheduleID;
         mUserWorkingDaysID = userWorkingDaysID;
         mFireStore = FirebaseFirestore.getInstance();
     }
@@ -101,8 +105,7 @@ public class PacketService {
     public void setUserWorkingHours(HashMap<String, String> workingHours) {
         mUserWorkingDays = workingHours;
         Log.d("Firebase", "Succes setting working hours!");
-        mWorkThread = new threadFindDaysForAppointment(mUserDaysWithScheduleID,
-                mUserWorkingDays,
+        mWorkThread = new threadFindDaysForAppointment(mUserWorkingDays,
                 mFireStore,
                 mUserAppointmentDuration);
     }
@@ -112,89 +115,38 @@ public class PacketService {
      * message with DATE only. messageType = 'DATE'
      * message with DATE and TIME. messageType = 'FULL'
      */
-    public void getCurrentDateSHoursID(final String dateFromUser, String phoneNumber, final String messageType) {
+    public void getCurrentDate(final String dateFromUser, String phoneNumber, final String messageType) {
         mPhoneNumber = phoneNumber;
         getDateInMillis(dateFromUser);
-        Log.d("FirebaseTime", dateFromUser);
-        mFireStore.collection("daysWithSchedule")
-                .document(mUserDaysWithScheduleID)
+        Log.d("FirebaseTime-ServiceGET", dateFromUser);
+        mFireStore.collection("scheduledHours")
+                .document(mUserID)
                 .get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        mCurrentDaySHoursID = documentSnapshot.get(mDateInMillis.toString()) != null
-                                ? documentSnapshot.get(mDateInMillis.toString()).toString() : "";
-                        /* we dont have this day in scheduled hours */
-                        Log.d("Firebase", mCurrentDaySHoursID);
-                        if (mCurrentDaySHoursID.equals("")) {
-                            addScheduledHoursCollection(messageType, dateFromUser);
-                        } else {
-                            getCurrentDateAppointments(mCurrentDaySHoursID, mDateInMillis, messageType, dateFromUser);
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            Map<String, Object> _map = task.getResult().getData();
+                            assert _map != null;
+                            Object _values = _map.containsKey(mDateInMillis.toString()) ? _map.get(mDateInMillis.toString()) : null;
+                            if (_values != null) {
+                                Log.d("DayINSERVICE", _values.toString());
+                                Gson _gson = new Gson();
+                                String _json = _gson.toJson(_values);
+                                try {
+                                    mCurrentDayAppointments = new ObjectMapper().readValue(_json, Map.class);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                Log.d("Day", "Day json is: " + _json);
+                            } else {
+                                mCurrentDayAppointments = null;
+                            }
                         }
-                    }
-                });
-    }
-
-    // function to get all the appointments for a given date ID
-    private void getCurrentDateAppointments(String currentDaySHoursID, final Long dateInMillis, final String messageType, final String dateFromUser) {
-        mCurrentDayAppointments = new HashMap<>();
-        mFireStore.collection("daysWithSchedule")
-                .document(mUserDaysWithScheduleID)
-                .collection("scheduledHours")
-                .document(currentDaySHoursID)
-                .get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        mCurrentDayAppointments = documentSnapshot.getData();
-                        if (messageType.equals("DATE")) {
-                            sendScheduleOptionsWrapper(dateInMillis);
-                        } else if (messageType.equals("FULL")) {
-                            checkIfAppointmentCanBeMade(dateFromUser);
-                        }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d("FirebaseFailService", e.toString());
-                    }
-                });
-    }
-
-    /* if this user doesnt have appointments for this day */
-    private void addScheduledHoursCollection(final String messageType, final String dateFromUser) {
-        Map<String, Object> addDaysWithScheduleID = new HashMap<>();
-        addDaysWithScheduleID.put("5:00", null);
-        Log.d("Firebaseservice", "Added ID for this day");
-        mFireStore.collection("daysWithSchedule")
-                .document(mUserDaysWithScheduleID)
-                .collection("scheduledHours")
-                .add(addDaysWithScheduleID)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        addThisDateScheduledHoursID(documentReference.getId(), messageType, dateFromUser);
-                        Log.d("FirebaseworkingDays", "Succes with scheduled hours");
-                    }
-                });
-    }
-
-    private void addThisDateScheduledHoursID(final String id, final String messageType, final String dateFromUser) {
-        Map<String, Object> addToCurrentDateID = new HashMap<>();
-        addToCurrentDateID.put(mDateInMillis.toString(), id);
-        mFireStore.collection("daysWithSchedule")
-                .document(mUserDaysWithScheduleID)
-                .update(addToCurrentDateID)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        mCurrentDaySHoursID = id;
-                        Log.d("FirebaseworkingDays", "Succes with id");
                         if (messageType.equals("DATE")) {
                             sendScheduleOptionsWrapper(mDateInMillis);
                         } else if (messageType.equals("FULL")) {
-                            getCurrentDateAppointments(mCurrentDaySHoursID, mDateInMillis, messageType, dateFromUser);
+                            checkIfAppointmentCanBeMade(dateFromUser);
                         }
                     }
                 });
@@ -232,7 +184,7 @@ public class PacketService {
         Calendar _calendar = Calendar.getInstance();
         mSMSBody = new StringBuilder("For this date, I can take you on:");
         while (gotTime(_hour, mDaySchedule[1])) {
-            if (mCurrentDayAppointments != null && !mCurrentDayAppointments.containsKey(_hour)) {
+            if (mCurrentDayAppointments == null || !mCurrentDayAppointments.containsKey(_hour)) {
                 mSMSBody.append("\n").append(_hour);
             }
             _date = _sDFormat.parse(_hour);
@@ -269,17 +221,19 @@ public class PacketService {
      * with only a time
      * we start by getting all the days with schedule
      */
-    public void getAllDaysIDs(final String mTime, String mMessagePhoneNumber, final String messageType) {
+    public void getScheduledDays(final String mTime, String mMessagePhoneNumber, final String messageType) {
         mTimeToSchedule = mTime;
         mPhoneNumber = mMessagePhoneNumber;
-        mFireStore.collection("daysWithSchedule")
-                .document(mUserDaysWithScheduleID)
+        mFireStore.collection("scheduledHours")
+                .document(mUserID)
                 .get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        mUserDaysWithSchedule = documentSnapshot.getData();
-                        findDaysForAppointment(messageType);
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            mUserDaysWithSchedule = task.getResult().getData();
+                            findDaysForAppointment(messageType);
+                        }
                     }
                 });
     }
@@ -292,6 +246,7 @@ public class PacketService {
          * appointment
          */
         mWorkThread.setmPhoneNumber(mPhoneNumber);
+        mWorkThread.setmUserID(mUserID);
         mWorkThread.setmTimeToSchedule(mTimeToSchedule);
         mWorkThread.setmUserDaysWithSchedule(mUserDaysWithSchedule);
         mWorkThread.setmMessageType(messageType);
@@ -306,7 +261,7 @@ public class PacketService {
         mTimeToSchedule = time;
         mContactName = contactName;
 
-        getCurrentDateSHoursID(dateFromUser, messagePhoneNumber, "FULL");
+        getCurrentDate(dateFromUser, messagePhoneNumber, "FULL");
     }
 
 
@@ -326,22 +281,24 @@ public class PacketService {
             Log.d("FirebaseSEND", "Free");
             mSMSBody = new StringBuilder("I am sorry, but I don't work on " + dateFromUser + ". But please chose one convenient date from below:");
             mWorkThread.setmSMSBody(mSMSBody.toString());
-            getAllDaysIDs(mTimeToSchedule, mPhoneNumber, "FULL");
+            getScheduledDays(mTimeToSchedule, mPhoneNumber, "FULL");
         } else {
             /* not a free day */
             String _hour = mDaySchedule[0];
             mSMSBody = new StringBuilder();
-            if (mCurrentDayAppointments.containsKey(mTimeToSchedule)) {
+            if (mCurrentDayAppointments != null && mCurrentDayAppointments.containsKey(mTimeToSchedule)) {
                 mWorkThread.setmDateInMillisFromService(mDateInMillis);
                 mWorkThread.setmSMSBody("This date and hour are already scheduled. If you want a schedule for this day, send a message with this date or you can try one of these other days:");
                 Log.d("APP_ERROR", "This is scheduled.");
-                getAllDaysIDs(mTimeToSchedule, mPhoneNumber, "FULL");
+                getScheduledDays(mTimeToSchedule, mPhoneNumber, "FULL");
             } else {
                 getClosestHour(_hour, mTimeToSchedule, dateFromUser);
             }
         }
     }
 
+
+    /* *********************** make this one smoother!!!! *************************************** */
     private void getClosestHour(String currentTime, String scheduleTime, String dateFromUser) {
         /* we get appointment time in millis
          * appointment duration in millis
@@ -364,7 +321,7 @@ public class PacketService {
         Log.d("App", "Here: " + _curTimeMil);
         /* check if this exact time is available */
         String _fixHour = checkExactTime(_curTimeMil, _closeTimeMil, _scheduleTimeMil, _appointmentDuration);
-        if (_fixHour != null && !mCurrentDayAppointments.containsKey(_fixHour)) {
+        if (_fixHour != null && (mCurrentDayAppointments == null || !mCurrentDayAppointments.containsKey(_fixHour))) {
             Log.d("Appoint", "REturn fixed appointment successfully" + ": " + _fixHour);
             mSMSBody.append("Alright! You scheduled yourself on ").append(dateFromUser).append(", at:").append(_fixHour);
             sendMessage();
@@ -439,9 +396,10 @@ public class PacketService {
                 TimeUnit.MILLISECONDS.toMinutes(_curTime) -
                         TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(_curTime))
         );
-        if ((_curTime == scheduleTimeMil) && !mCurrentDayAppointments.containsKey(_hour)) {
+        if ((_curTime == scheduleTimeMil) && (mCurrentDayAppointments == null || !mCurrentDayAppointments.containsKey(_hour))) {
             return _hour;
         }
+
         return null;
     }
 
@@ -449,24 +407,23 @@ public class PacketService {
     /* ************************************************************************************* */
     /* save the appointment in the database */
     private void saveAppointmentToDatabase(String hour) {
-        Log.d("APPointment", mCurrentDaySHoursID + ": " + hour);
-        FirebaseFirestore _FireStore = FirebaseFirestore.getInstance();
-        final DocumentReference _documentReference = _FireStore.collection("daysWithSchedule")
-                .document(mUserDaysWithScheduleID)
-                .collection("scheduledHours")
-                .document(mCurrentDaySHoursID);
         Map<String, String> _detailsOfAppointment = new HashMap<>();
         _detailsOfAppointment.put("PhoneNumber", mPhoneNumber);
         _detailsOfAppointment.put("Name", mContactName.equals("") ? null : mContactName);
+        Map<String, Object> _hourAndInfo = new HashMap<>();
+        _hourAndInfo.put(hour, _detailsOfAppointment);
         Map<String, Object> _appointment = new HashMap<>();
-        _appointment.put(hour, _detailsOfAppointment);
+        _appointment.put(mDateInMillis.toString(), _hourAndInfo);
 
-        _documentReference.update(_appointment).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.d("AppErr", e.toString());
-            }
-        });
+        FirebaseFirestore.getInstance().collection("scheduledHours")
+                .document(mUserID)
+                .set(_appointment, SetOptions.merge())
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d("AppErr", e.toString());
+                    }
+                });
 
     }
 

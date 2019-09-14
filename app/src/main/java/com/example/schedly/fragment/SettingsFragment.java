@@ -230,12 +230,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                                 public void onClick(DialogInterface dialog, int which) {
                                     mDisableMonitorization.setChecked(true);
                                 }
-                            }).show();
+                            })
+                            .setCancelable(false)
+                            .show();
                 }
                 else {
                     Intent serviceIntent = new Intent(mActivity, MonitorIncomingSMSService.class);
                     serviceIntent.putExtra("userID", ((SettingsActivity) mActivity).getmUserID());
-                    serviceIntent.putExtra("userDaysWithScheduleID", ((SettingsActivity) mActivity).getmUserDaysWithScheduleID());
                     serviceIntent.putExtra("userAppointmentDuration", ((SettingsActivity) mActivity).getmUserAppointmentDuration());
                     serviceIntent.putExtra("userWorkingDaysID", ((SettingsActivity) mActivity).getmUserWorkingDaysID());
                     serviceIntent.setAction("ACTION.STARTSERVICE_ACTION");

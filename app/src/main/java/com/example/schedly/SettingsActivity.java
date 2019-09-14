@@ -10,7 +10,6 @@ import com.example.schedly.fragment.SettingsFragment;
 
 public class SettingsActivity extends AppCompatActivity {
     private Toolbar mToolBar;
-    private String mUserDaysWithScheduleID;
     private String mUserID;
     private String mUserAppointmentDuration;
     private String mUserWorkingDaysID;
@@ -41,7 +40,6 @@ public class SettingsActivity extends AppCompatActivity {
         if (extras != null) {
             mUserID = extras.getString("userID");
             mUserAppointmentDuration = extras.getString("userAppointmentDuration");
-            mUserDaysWithScheduleID = extras.getString("userDaysWithScheduleID");
             mUserWorkingDaysID = extras.getString("userWorkingDaysID");
         }
     }
@@ -49,10 +47,6 @@ public class SettingsActivity extends AppCompatActivity {
 
     public void setActionBarTitle(String _title) {
         mToolBar.setTitle(_title);
-    }
-
-    public String getmUserDaysWithScheduleID() {
-        return mUserDaysWithScheduleID;
     }
 
     public String getmUserID() {

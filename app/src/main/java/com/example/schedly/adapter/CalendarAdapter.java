@@ -1,6 +1,5 @@
 package com.example.schedly.adapter;
 
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Point;
@@ -11,12 +10,10 @@ import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -30,7 +27,6 @@ import com.elconfidencial.bubbleshowcase.BubbleShowCaseBuilder;
 import com.example.schedly.CalendarActivity;
 import com.example.schedly.R;
 import com.example.schedly.model.Appointment;
-import com.example.schedly.packet_classes.PacketCalendarHelpers;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -44,13 +40,16 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
     private static final int TOP_POSITION = 0;
     private static final int BOTTOM_POSITION = 1;
     private static final int REGULAR_POSITION = 2;
+    private final String mUserID;
 
     private ArrayList<Appointment> mDataSet;
     private AppCompatActivity mActivity;
+    private Long mDateInMillis;
 
-    public CalendarAdapter(AppCompatActivity activity, ArrayList<Appointment> dataset) {
+    public CalendarAdapter(AppCompatActivity activity, ArrayList<Appointment> dataset, String userID) {
         mActivity = activity;
         mDataSet = dataset;
+        mUserID = userID;
     }
 
     @Override
@@ -111,8 +110,6 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         private TextView mTextViewPhoneNumber;
         private ImageView mImageViewEdit;
         private final String mUnknownName = "Unknown";
-        private String mUDWScheduleID;
-        private String mCDayID;
         private PopupWindow mPopWindow;
         private String mCompleteDate;
 
@@ -235,20 +232,18 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
                                     String _hour = mTextViewHour.getText().toString();
 
                                     Map<String, Object> _deleteAppointment = new HashMap<>();
-                                    _deleteAppointment.put(mTextViewHour.getText().toString(), FieldValue.delete());
-                                    FirebaseFirestore _firebaseFirestore = FirebaseFirestore.getInstance();
-                                    _firebaseFirestore.collection("daysWithSchedule")
-                                            .document(mUDWScheduleID)
-                                            .collection("scheduledHours")
-                                            .document(mCDayID)
+                                    _deleteAppointment.put(mDateInMillis + "." + mTextViewHour.getText().toString(), FieldValue.delete());
+                                    FirebaseFirestore.getInstance().collection("scheduledHours")
+                                            .document(mUserID)
                                             .update(_deleteAppointment);
+
                                     mPopWindow.dismiss();
                                     int _counter = ((CalendarActivity) mActivity).getCounter() - 1;
                                     mDataSet.remove(getAdapterPosition());
                                     ((CalendarActivity) mActivity).setCounter(_counter);
                                     notifyDataSetChanged();
 
-                                    sendMessage(_phoneNumber, _hour);
+//                                    sendMessage(_phoneNumber, _hour);
                                 }
                             })
                             .setNegativeButton(android.R.string.no, null).show();
@@ -281,12 +276,11 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
             _textViewAppointmentInfo.setText(_textForInfoCard);
         }
 
-        public void updateDay(Appointment appointment) {
-            mUDWScheduleID = appointment.getmUserDaysWithScheduleID();
-            mCDayID = appointment.getmCurrentDayID();
+        private void updateDay(Appointment appointment) {
             String _name = appointment.getmName();
             mTextViewHour.setText(appointment.getmHour());
             mCompleteDate = appointment.getmDate();
+            mDateInMillis = appointment.getmDateInMillis();
             Log.d("DETECT", _name + ": " + appointment.getmPhoneNumber());
             if (_name != null) {
                 mTextViewName.setText(_name);

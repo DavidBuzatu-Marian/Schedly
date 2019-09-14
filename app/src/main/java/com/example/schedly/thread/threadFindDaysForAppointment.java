@@ -6,6 +6,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.example.schedly.packet_classes.PacketService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -14,8 +15,10 @@ import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.gson.Gson;
 import com.google.type.DayOfWeek;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -32,7 +35,6 @@ public class threadFindDaysForAppointment extends Thread {
 
     private final int HOUR_AND_HALF = 5400000, TWO_HOURS = 7200000;
     private AtomicBoolean mThreadStop = new AtomicBoolean(true);
-    private String mUserDaysWithScheduleID;
     private String mUserAppointmentDuration;
     private FirebaseFirestore mFireStore;
     private int mCounterNextDay, mCounterDaysForAppointment;
@@ -53,18 +55,16 @@ public class threadFindDaysForAppointment extends Thread {
     private String[] mDaySchedule;
     // building the sms body
     private StringBuilder mSMSBody;
-    private String mPhoneNumber;
+    private String mPhoneNumber, mUserID;
     // used to get the required working hours
     private final String[] mDaysOfTheWeek = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
     private Map<String, String> mUserWorkingDays;
     private String mMessageType;
     private Long mDateInMillisFromService = 0L;
 
-    public threadFindDaysForAppointment(String UserDaysWithScheduleID,
-                                        Map<String, String> userWorkingDays,
+    public threadFindDaysForAppointment(Map<String, String> userWorkingDays,
                                         FirebaseFirestore firebaseFirestore,
                                         String userAppointmentDuration) {
-        mUserDaysWithScheduleID = UserDaysWithScheduleID;
         mUserWorkingDays = userWorkingDays;
         mFireStore = firebaseFirestore;
         mUserAppointmentDuration = userAppointmentDuration;
@@ -90,17 +90,18 @@ public class threadFindDaysForAppointment extends Thread {
     public void setmSMSBody(String SMSBody) {
         mSMSBody.append(SMSBody);
     }
+
     public void setmDateInMillisFromService(Long dateInMillisFromService) {
         mDateInMillisFromService = dateInMillisFromService;
     }
 
     public void run() {
         Calendar _calendar = Calendar.getInstance();
-        if(mMessageType.equals("TIME")) {
+        if (mMessageType.equals("TIME")) {
             mSMSBody.append("These are the closest days I can take you in:");
         }
         /* we need current time */
-        if(mDateInMillisFromService == 0L) {
+        if (mDateInMillisFromService == 0L) {
             _calendar.setTimeInMillis(System.currentTimeMillis());
         } else {
             /* we have a date */
@@ -125,9 +126,9 @@ public class threadFindDaysForAppointment extends Thread {
         }
 // RESUME FROM HERE
         /* ********************************************************8
-        *****************************************************
+         *****************************************************
          */
-        sendMessage();
+//        sendMessage();
     }
 
     private void sendMessage() {
@@ -136,7 +137,7 @@ public class threadFindDaysForAppointment extends Thread {
         _messageParts.add(mSMSBody.toString().substring(0, _indexOfComma + 1));
         _messageParts.add(mSMSBody.toString().substring(_indexOfComma + 2));
 
-        for(String _message: _messageParts) {
+        for (String _message : _messageParts) {
             Log.d("MESSAGE", _message);
             SmsManager.getDefault().sendTextMessage(mPhoneNumber, null, _message, null, null);
         }
@@ -148,7 +149,6 @@ public class threadFindDaysForAppointment extends Thread {
 
         final Long _dateInMillisLong;
         final String _dateInMillis;
-        String _dateFromUserScheduledHoursID;
         mResult = false;
 
         _dateInMillisLong = (calendarTimeInMillis + (mCounterNextDay * DAY_LENGTH_MILLIS));
@@ -161,10 +161,8 @@ public class threadFindDaysForAppointment extends Thread {
          * already appointed
          */
         if (mUserDaysWithSchedule.containsKey(_dateInMillis)) {
-            _dateFromUserScheduledHoursID = mUserDaysWithSchedule.get(_dateInMillis).toString();
-            Log.d("FirebaseDate!", _dateFromUserScheduledHoursID);
             getDayOfTheWeek(_dateInMillisLong);
-            getCurrentDateAppointments(_dateFromUserScheduledHoursID, _dateInMillisLong).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            getCurrentDateAppointments(_dateInMillis).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                     try {
@@ -189,7 +187,7 @@ public class threadFindDaysForAppointment extends Thread {
                     }
                 }
             });
-            while(mThreadStop.get()) {
+            while (mThreadStop.get()) {
                 try {
                     this.wait();
                 } catch (InterruptedException e) {
@@ -247,7 +245,6 @@ public class threadFindDaysForAppointment extends Thread {
         Date _date = _sDFormat.parse(_hour);
 
         long _elapsedTime = _date.getTime() - _dateCurrentHour.getTime();
-        long res = (dateInMillis + _dateCurrentHour.getTime());
         Log.d("FirebaseTIme", _dateCurrentHour.getTime() + "");
         // hour is outside of starting hour of work
         if (_elapsedTime > 0) {
@@ -255,12 +252,13 @@ public class threadFindDaysForAppointment extends Thread {
         }
 
         while (gotTime(_hour, mDaySchedule[1])) {
-            if (dayHasAppointments && !mCurrentDayAppointments.containsKey(_hour)) {
+            if (dayHasAppointments && (mCurrentDayAppointments == null || !mCurrentDayAppointments.containsKey(_hour))) {
+
                 _elapsedTime = _date.getTime() - _dateCurrentHour.getTime();
                 /* hour is before our current one
                  * and is not more than 1 hour and a half
                  */
-                if (_elapsedTime < 0 && _elapsedTime > -HOUR_AND_HALF) {
+                if (_elapsedTime <= 0 && _elapsedTime > -HOUR_AND_HALF) {
                     _calendarToPrint.setTimeInMillis(dateInMillis + _date.getTime() + TWO_HOURS);
                     _dateBefore = _sDFormatDate.format(_calendarToPrint.getTime());
                 }
@@ -274,6 +272,7 @@ public class threadFindDaysForAppointment extends Thread {
                 }
             } else if (!dayHasAppointments) {
                 _elapsedTime = _date.getTime() - _dateCurrentHour.getTime();
+                Log.d("ElapsedTime", _elapsedTime + " = " + _date.getTime() + " - " + _dateCurrentHour.getTime());
                 /* hour is before our current one
                  * and is not more than 1 hour and a half
                  */
@@ -299,12 +298,11 @@ public class threadFindDaysForAppointment extends Thread {
         }
         // we found at least an hour in that day
         if (!_dateAfter.equals("") || !_dateBefore.equals("")) {
-            if(_dateAfter.equals("")) {
+            if (_dateAfter.equals("")) {
                 mSMSBody.append("\n").append(_dateBefore);
-            }
-            else if(_dateBefore.equals("")) {
+            } else if (_dateBefore.equals("")) {
                 mSMSBody.append("\n").append(_dateAfter);
-            }else {
+            } else {
                 mSMSBody.append("\n").append(_dateBefore).append("\n").append(_dateAfter);
             }
             return true;
@@ -316,17 +314,32 @@ public class threadFindDaysForAppointment extends Thread {
     }
 
     // function to get all the appointments for a given date ID
-    private Task<DocumentSnapshot> getCurrentDateAppointments(String currentDaySHoursID, final Long time) {
+    private Task<DocumentSnapshot> getCurrentDateAppointments(final String dateInMillis) {
         mCurrentDayAppointments = new HashMap<>();
-        return mFireStore.collection("daysWithSchedule")
-                .document(mUserDaysWithScheduleID)
-                .collection("scheduledHours")
-                .document(currentDaySHoursID)
+        return mFireStore.collection("scheduledHours")
+                .document(mUserID)
                 .get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        mCurrentDayAppointments = documentSnapshot.getData();
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            Map<String, Object> _map = task.getResult().getData();
+                            assert _map != null;
+                            Object _values = _map.containsKey(dateInMillis) ? _map.get(dateInMillis) : null;
+                            if (_values != null) {
+                                Log.d("DayINSERVICE", _values.toString());
+                                Gson _gson = new Gson();
+                                String _json = _gson.toJson(_values);
+                                try {
+                                    mCurrentDayAppointments = new ObjectMapper().readValue(_json, Map.class);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                Log.d("Day", "Day json is: " + _json);
+                            } else {
+                                mCurrentDayAppointments = null;
+                            }
+                        }
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -358,4 +371,7 @@ public class threadFindDaysForAppointment extends Thread {
         Log.d("FirebaseDay", mDayOfTheWeek + "; " + _calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()));
     }
 
+    public void setmUserID(String mUserID) {
+        this.mUserID = mUserID;
+    }
 }

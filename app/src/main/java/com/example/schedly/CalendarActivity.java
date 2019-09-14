@@ -20,27 +20,21 @@ import android.util.Log;
 import android.view.View;
 import android.widget.CalendarView;
 import android.widget.ImageView;
-import android.widget.Toast;
-
-import com.elconfidencial.bubbleshowcase.BubbleShowCaseBuilder;
 import com.example.schedly.adapter.CalendarAdapter;
 import com.example.schedly.model.Appointment;
 import com.example.schedly.packet_classes.PacketCalendar;
 import com.example.schedly.packet_classes.PacketCalendarHelpers;
+import com.example.schedly.packet_classes.PacketService;
 import com.example.schedly.service.MonitorIncomingSMSService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
 
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.ZoneId;
-import org.threeten.bp.format.DateTimeFormatter;
-
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -59,9 +53,7 @@ public class CalendarActivity extends AppCompatActivity {
     private final int CONTACTS_PERMISSION_CODE = 9001;
     public static final int LOG_OUT = 4001;
     public static final int SETTINGS_RETURN = 4000;
-    private String mUserDaysWithScheduleID;
     private String userID;
-    private String currentDayID;
     private String mUserWorkingHoursID;
     private CalendarView mCalendarView;
     private Long mDate = 0L;
@@ -96,25 +88,24 @@ public class CalendarActivity extends AppCompatActivity {
         if (extras != null) {
             userID = extras.getString("userID");
             mWorkingHours = (HashMap<String, String>) extras.getSerializable("userWorkingHours");
-            mUserDaysWithScheduleID = extras.getString("userDaysWithScheduleID");
             mUserWorkingHoursID = extras.getString("userWorkingHoursID");
             mUserAppointmentDuration = extras.getString("userAppointmentDuration");
         }
 
+
+//        testDB();
         /* dipslay Helpers */
         final PacketCalendarHelpers _PCH = new PacketCalendarHelpers(CalendarActivity.this);
         _PCH.displayHelpers();
 
-        /* init calendar and get ID for days
-         * with schedule
-         */
         mCalendarView = findViewById(R.id.act_Calendar_CalendarV);
         mCalendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
             public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
-//                PacketService _psTest = new PacketService(userID, mUserAppointmentDuration, mUserDaysWithScheduleID, mUserWorkingHoursID);
-//                _psTest.setUserWorkingHours(mWorkingHours);
-//                _psTest.makeAppointmentForFixedParameters("2019-09-22", "13:45", "0734543831", "Princess");
+                PacketService _psTest = new PacketService(userID, mUserAppointmentDuration, mUserWorkingHoursID);
+                _psTest.setUserWorkingHours(mWorkingHours);
+                _psTest.getScheduledDays("12:00", "0724154387", "TIME");
+
                 _PCH.displayHelpOnDate(view);
                 Log.d("DATEEE", view.getId() + "; " + mCalendarView.getId());
                 getDateFromCalendarView(year, month, dayOfMonth, false);
@@ -122,7 +113,11 @@ public class CalendarActivity extends AppCompatActivity {
             }
         });
 
-        setUserDaysWithScheduleIDWrapper();
+        if (mDate == 0L) {
+            getDateFromCalendarView(0, 0, 0, true);
+            Log.d("DATE", mDate + "");
+        }
+        startServiceSMSMonitoring();
         setRecyclerView();
 
     }
@@ -134,7 +129,7 @@ public class CalendarActivity extends AppCompatActivity {
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        mAdapter = new CalendarAdapter(CalendarActivity.this, mDataSet);
+        mAdapter = new CalendarAdapter(CalendarActivity.this, mDataSet, userID);
         mRecyclerView.setAdapter(mAdapter);
     }
 
@@ -154,27 +149,15 @@ public class CalendarActivity extends AppCompatActivity {
         mCompleteDate = _SDF.format(_calendar.getTime());
         mDate = _calendar.getTimeInMillis();
 
-        mPacketCalendar = new PacketCalendar(this, mWorkingHours, mUserDaysWithScheduleID, mUserAppointmentDuration);
+        mPacketCalendar = new PacketCalendar(this, mWorkingHours, mUserAppointmentDuration, userID);
         mPacketCalendar.setDateForTVs(year, month, dayOfMonth, mDate, mCompleteDate);
 
 
         Log.d("Date", mDate + "");
         mDataSet.clear();
         mCounter = 0;
-        getDayID();
-    }
-
-
-    private void setUserDaysWithScheduleIDWrapper() {
-        if (mUserDaysWithScheduleID == null) {
-            setUserDaysWithScheduleID();
-        } else {
-            if (mDate == 0L) {
-                getDateFromCalendarView(0, 0, 0, true);
-                Log.d("DATE", mDate + "");
-            }
-            startServiceSMSMonitoring();
-        }
+//        getDayID();
+        getEachAppointments();
     }
 
     public void startServiceSMSMonitoring() {
@@ -182,7 +165,6 @@ public class CalendarActivity extends AppCompatActivity {
         if (_userPreferences.getBoolean("serviceActive", true)) {
             Intent serviceIntent = new Intent(CalendarActivity.this, MonitorIncomingSMSService.class);
             serviceIntent.putExtra("userID", userID);
-            serviceIntent.putExtra("userDaysWithScheduleID", mUserDaysWithScheduleID);
             serviceIntent.putExtra("userAppointmentDuration", mUserAppointmentDuration);
             serviceIntent.putExtra("userWorkingDaysID", mUserWorkingHoursID);
             serviceIntent.putExtra("userWorkingHours", mWorkingHours);
@@ -196,7 +178,6 @@ public class CalendarActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent startSettingsActivity = new Intent(CalendarActivity.this, SettingsActivity.class);
                 startSettingsActivity.putExtra("userID", userID);
-                startSettingsActivity.putExtra("userDaysWithScheduleID", mUserDaysWithScheduleID);
                 startSettingsActivity.putExtra("userAppointmentDuration", mUserAppointmentDuration);
                 startSettingsActivity.putExtra("userWorkingDaysID", mUserWorkingHoursID);
                 startActivityForResult(startSettingsActivity, SETTINGS_RETURN);
@@ -206,137 +187,42 @@ public class CalendarActivity extends AppCompatActivity {
     }
 
 
-    private void setUserDaysWithScheduleID() {
-        final FirebaseFirestore mFireStore = FirebaseFirestore.getInstance();
-        Map<String, Object> addDaysWithScheduleID = new HashMap<>();
-        addDaysWithScheduleID.put("0", "0");
-        mFireStore.collection("daysWithSchedule")
-                .add(addDaysWithScheduleID)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        mUserDaysWithScheduleID = documentReference.getId();
-                        updateUserDaysID(mFireStore);
-                    }
-                });
-    }
-
-    private void addScheduledHoursCollection(final FirebaseFirestore mFireStore) {
-        getDateFromCalendarView(0, 0, 0, true);
-        Map<String, Object> addDaysWithScheduleID = new HashMap<>();
-        addDaysWithScheduleID.put("5:00", null);
-        Log.d("Firebasee", mDate.toString());
-        mFireStore.collection("daysWithSchedule")
-                .document(mUserDaysWithScheduleID)
-                .collection("scheduledHours")
-                .add(addDaysWithScheduleID)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        addThisDateScheduledHoursID(mFireStore, documentReference.getId());
-                        Log.d("Firebase-workingDays", "Succes with scheduled hours");
-                    }
-                });
-    }
-
-    private void addThisDateScheduledHoursID(FirebaseFirestore mFireStore, String id) {
-        Map<String, Object> addToCurrentDateID = new HashMap<>();
-        addToCurrentDateID.put(mDate.toString(), id);
-        mFireStore.collection("daysWithSchedule")
-                .document(mUserDaysWithScheduleID)
-                .update(addToCurrentDateID)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d("Firebase-workingDays", "Succes with id");
-                    }
-                });
-    }
-
-    private void updateUserDaysID(final FirebaseFirestore mFireStore) {
-        Map<String, Object> addUserDaysID = new HashMap<>();
-        addUserDaysID.put("daysWithScheduleID", mUserDaysWithScheduleID);
-        mFireStore.collection("users")
+    private void getEachAppointments() {
+        /* check if date has appointments */
+//        final AtomicBoolean _dateFoundTrue = new AtomicBoolean(false);
+        FirebaseFirestore.getInstance().collection("scheduledHours")
                 .document(userID)
-                .update(addUserDaysID)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
-                    public void onSuccess(Void aVoid) {
-                        if (mDate == 0L) {
-                            addScheduledHoursCollection(mFireStore);
-                            Log.d("DATE", mDate + "");
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if(task.isSuccessful()) {
+                            Map<String, Object> _map = task.getResult().getData();
+                            assert _map != null;
+                            Object _values = _map.containsKey(mDate.toString()) ? _map.get(mDate.toString()) : null;
+                            if (_values != null) {
+                                Log.d("Day", _values.toString());
+                                Gson _gson = new Gson();
+                                String _json = _gson.toJson(_values);
+                                try {
+                                    Map<String, Object> result = new ObjectMapper().readValue(_json, Map.class);
+                                    Map<String, Object> _treeMap = new TreeMap<>(result);
+                                    for (Map.Entry<String, Object> _schedule : _treeMap.entrySet()) {
+                                        Log.d("Day", "Hour is: " + _schedule.getKey());
+                                        String jjson = _gson.toJson(_schedule.getValue());
+                                        Log.d("Day", "Info are: " + jjson);
+                                        mDataSet.add(mCounter++, new Appointment(_schedule.getKey(), _gson, jjson, mCompleteDate, mDate));
+                                    }
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                Log.d("Day", "Day json is: " + _json);
+                            }
                         }
-                        startServiceSMSMonitoring();
-                        Log.d("Change", "DocumentSnapshot successfully written!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w("Change", "Error writing document", e);
+                        mAdapter.notifyDataSetChanged();
+                        setParamsForPacketClass();
                     }
                 });
-    }
-
-    private void getDayID() {
-        final FirebaseFirestore _FireStore = FirebaseFirestore.getInstance();
-
-        DocumentReference _documentReference = _FireStore.collection("daysWithSchedule")
-                .document(mUserDaysWithScheduleID);
-        _documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot _document = task.getResult();
-                    currentDayID = _document.get(mDate.toString()) != null ? _document.get(mDate.toString()).toString() : null;
-                    if (currentDayID != null) {
-                        getEachAppointment();
-                    } else {
-                        setParamsForPacketClass();
-                        mAdapter.notifyDataSetChanged();
-                    }
-                }
-            }
-        });
-    }
-
-    private void getEachAppointment() {
-        FirebaseFirestore _FireStore = FirebaseFirestore.getInstance();
-
-        final DocumentReference _documentReference = _FireStore.collection("daysWithSchedule")
-                .document(mUserDaysWithScheduleID)
-                .collection("scheduledHours")
-                .document(currentDayID);
-        _documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    Log.d("Appo", _documentReference.getPath());
-                    Map<String, Object> _map = task.getResult().getData();
-
-                    Map<String, Object> _treeMap = new TreeMap<>(_map);
-
-
-                    Log.d("Calendar", _map.toString());
-                    for (Map.Entry<String, Object> _entry : _treeMap.entrySet()) {
-                        Log.d("Appointment", _entry.getKey());
-                        if (_entry.getValue() == null) {
-                            break;
-                        }
-                        Gson gson = new Gson();
-                        String json = gson.toJson(_entry.getValue());
-                        Log.d("APPP", json);
-
-                        mDataSet.add(mCounter++, new Appointment(_entry.getKey(), gson, json, currentDayID, mUserDaysWithScheduleID, mCompleteDate));
-                    }
-                } else {
-                    Log.d(ERR, "Error getting documents: ", task.getException());
-                }
-                mAdapter.notifyDataSetChanged();
-                setParamsForPacketClass();
-            }
-        });
-
     }
     private void setParamsForPacketClass() {
         mPacketCalendar.setAdapter(mAdapter);
@@ -352,6 +238,7 @@ public class CalendarActivity extends AppCompatActivity {
         mCounter = counter;
     }
 
+    /* *************** PERMISSIONS ***************** */
 
     public void showRequestPermissionsInfoAlertDialog(String type) {
         if (type.equals("SMS")) {

@@ -71,7 +71,6 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
     private HashMap<String, Object> mResultFromDialogFlow;
     private String mTime, mDateFromUser;
     private Long mDateInMillis;
-    private String mUserDaysWithScheduleID;
     private String mUserID;
     private String mUserAppointmentDuration;
     private String mMessagePhoneNumber;
@@ -97,12 +96,11 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
         if (extras != null) {
             mUserID = extras.getString("userID");
             mUserAppointmentDuration = extras.getString("userAppointmentDuration");
-            mUserDaysWithScheduleID = extras.getString("userDaysWithScheduleID");
             mUserWorkingDaysID = extras.getString("userWorkingDaysID");
             mWorkingHours = (HashMap<String, String>) extras.getSerializable("userWorkingHours");
         }
         sServiceRunning = true;
-        Log.d("Service", mUserAppointmentDuration + mUserID + mUserDaysWithScheduleID);
+        Log.d("Service", mUserAppointmentDuration + "; " + mUserID);
         return START_STICKY;
     }
 
@@ -141,7 +139,6 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
         /* intent for stopping monitoring */
         Intent _startSettingsIntent = new Intent(this, SettingsActivity.class);
         _startSettingsIntent.putExtra("userID", mUserID);
-        _startSettingsIntent.putExtra("userDaysWithScheduleID", mUserDaysWithScheduleID);
         _startSettingsIntent.putExtra("userAppointmentDuration", mUserAppointmentDuration);
         _startSettingsIntent.putExtra("userWorkingDaysID", mUserWorkingDaysID);
         _startSettingsIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -163,7 +160,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
     @Override
     public void messageReceived(TSMSMessage newSMSMessage) {
         String _sender, _message;
-        mPacketService = new PacketService(mUserID, mUserAppointmentDuration, mUserDaysWithScheduleID, mUserWorkingDaysID);
+        mPacketService = new PacketService(mUserID, mUserAppointmentDuration, mUserWorkingDaysID);
         mPacketService.setUserWorkingHours(mWorkingHours);
         mSMSQueue.add(newSMSMessage);
         try {
@@ -294,7 +291,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
 
     private void sendMessageForTime() {
         // this function finishes by sending the message to the phoneNumber
-        mPacketService.getCurrentDateSHoursID(mDateFromUser, mMessagePhoneNumber, "DATE");
+        mPacketService.getCurrentDate(mDateFromUser, mMessagePhoneNumber, "DATE");
 //       threadPaused();
     }
 
@@ -304,7 +301,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
     }
 
     private void sendMessageForDate() {
-        mPacketService.getAllDaysIDs(mTime, mMessagePhoneNumber, "TIME");
+        mPacketService.getScheduledDays(mTime, mMessagePhoneNumber, "TIME");
 //        threadPaused();
     }
 

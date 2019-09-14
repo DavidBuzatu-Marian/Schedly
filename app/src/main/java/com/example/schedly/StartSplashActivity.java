@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,10 +22,13 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 
 import static com.example.schedly.CalendarActivity.LOG_OUT;
+import static com.example.schedly.MainActivity.EMAIL_CHANGED;
+import static com.example.schedly.MainActivity.PASSWORD_CHANGED;
 import static com.example.schedly.MainActivity.SD_CANCEL;
 import static com.example.schedly.MainActivity.SPN_CANCEL;
 import static com.example.schedly.MainActivity.SP_CANCEL;
 import static com.example.schedly.MainActivity.SWH_CANCEL;
+import static com.example.schedly.MainActivity.WORKING_HOURS_CHANGED;
 
 public class StartSplashActivity extends AppCompatActivity {
 
@@ -119,11 +123,15 @@ public class StartSplashActivity extends AppCompatActivity {
             redirectWithScreenSize();
             finish();
         }
-        if(resultCode == LOG_OUT) {
-            Log.d("Result", "Good");
-            mResultCode = resultCode;
-            redirectWithScreenSize();
-            finish();
+        switch (resultCode) {
+            case LOG_OUT:
+            case EMAIL_CHANGED:
+            case PASSWORD_CHANGED:
+            case WORKING_HOURS_CHANGED:
+                Log.d("Result", "Good");
+                mResultCode = resultCode;
+                redirectWithScreenSize();
+                finish();
         }
     }
 

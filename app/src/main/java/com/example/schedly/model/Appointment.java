@@ -13,29 +13,27 @@ public class Appointment{
     private String mHour;
     private String mName;
     private String mPhoneNumber;
-    private String mCurrentDayID;
     private String mDate;
-    private String mUserDaysWithScheduleID;
+    private Long mDateInMillis;
 
 
-    public Appointment(String _hour, Gson _gson, String _json, String currentDayID, String userDaysWithScheduleID, String date) {
-        mHour = _hour;
-        Properties data = _gson.fromJson(_json, Properties.class);
+    public Appointment(String hour, Gson gson, String json, String date, Long dateInMillis) {
+        mHour = hour;
+        Properties data = gson.fromJson(json, Properties.class);
         mName = data.getProperty("Name");
         mPhoneNumber = data.getProperty("PhoneNumber");
-        mCurrentDayID = currentDayID;
-        mUserDaysWithScheduleID = userDaysWithScheduleID;
         mDate = date;
+        mDateInMillis = dateInMillis;
     }
 
-    public Appointment(String hour, String name, String phoneNumber, String currentDayID, String userDaysWithScheduleID, String date) {
+    public Appointment(String hour, String name, String phoneNumber, String date, Long dateInMillis) {
         mHour = hour;
         mName = name;
         mPhoneNumber = phoneNumber;
-        mCurrentDayID = currentDayID;
-        mUserDaysWithScheduleID = userDaysWithScheduleID;
         mDate = date;
+        mDateInMillis = dateInMillis;
     }
+
 
 
     public String getmHour() {
@@ -62,15 +60,12 @@ public class Appointment{
         this.mPhoneNumber = mPhoneNumber;
     }
 
-    public String getmCurrentDayID() {
-        return mCurrentDayID;
-    }
-
-    public String getmUserDaysWithScheduleID() {
-        return mUserDaysWithScheduleID;
-    }
 
     public String getmDate() {
         return mDate;
+    }
+
+    public Long getmDateInMillis() {
+        return mDateInMillis;
     }
 }

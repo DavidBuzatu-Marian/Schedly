@@ -594,6 +594,7 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case WORKING_HOURS_CHANGED:
                     Toast.makeText(MainActivity.this, "Working hours changed. Please login again.", Toast.LENGTH_LONG).show();
+                    break;
                 case PR_SUCCESS:
                     Snackbar.make(findViewById(R.id.act_main_CL_Root), "An email with instructions for your password reset was sent", Snackbar.LENGTH_LONG).show();
                     break;
