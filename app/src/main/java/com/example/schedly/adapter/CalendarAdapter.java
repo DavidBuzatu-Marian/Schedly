@@ -238,10 +238,6 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
                                             .update(_deleteAppointment);
 
                                     mPopWindow.dismiss();
-                                    int _counter = ((CalendarActivity) mActivity).getCounter() - 1;
-                                    mDataSet.remove(getAdapterPosition());
-                                    ((CalendarActivity) mActivity).setCounter(_counter);
-                                    notifyDataSetChanged();
 
 //                                    sendMessage(_phoneNumber, _hour);
                                 }

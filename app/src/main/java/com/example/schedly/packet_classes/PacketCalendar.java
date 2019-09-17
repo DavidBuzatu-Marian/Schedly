@@ -63,9 +63,6 @@ public class PacketCalendar {
     private String mUserAppointmentDuration;
     private String mSelectedAppointmentHour;
     private PopupWindow mPopWindow;
-    private RecyclerView.Adapter mAdapter;
-    private ArrayList<Appointment> mDataSet = new ArrayList<>();
-    private int mCounter;
     private String mCompleteDate, mUserID;
 
     public PacketCalendar(Activity activity, HashMap<String, String> workingHours, String userAppointmentDuration, String userID) {
@@ -250,11 +247,6 @@ public class PacketCalendar {
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            mCounter = ((CalendarActivity) mActivity).getCounter();
-                            mDataSet.add(mCounter, new Appointment(mSelectedAppointmentHour, name.equals("") ? null : name, phoneNumber, mCompleteDate, mDate));
-                            mCounter++;
-                            mAdapter.notifyDataSetChanged();
-                            ((CalendarActivity) mActivity).setCounter(mCounter);
                             mPopWindow.dismiss();
 //                            sendMessage(phoneNumber);
                         }
@@ -544,17 +536,5 @@ public class PacketCalendar {
         } else {
             _imageView.setVisibility(View.GONE);
         }
-    }
-
-    public void setAdapter(RecyclerView.Adapter adapter) {
-        mAdapter = adapter;
-    }
-
-    public void setDataSet(ArrayList<Appointment> dataSet) {
-        mDataSet = dataSet;
-    }
-
-    public void setCounter(int counter) {
-        mCounter = counter;
     }
 }
