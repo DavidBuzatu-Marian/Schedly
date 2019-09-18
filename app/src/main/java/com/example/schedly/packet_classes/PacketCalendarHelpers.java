@@ -10,6 +10,7 @@ import androidx.preference.PreferenceManager;
 
 import com.elconfidencial.bubbleshowcase.BubbleShowCaseBuilder;
 import com.example.schedly.R;
+import com.example.schedly.model.CustomCalendarView;
 
 public class PacketCalendarHelpers {
 
@@ -21,7 +22,7 @@ public class PacketCalendarHelpers {
         mUserPreferences = PreferenceManager.getDefaultSharedPreferences(mActivity);
     }
 
-    public void displayHelpOnDate(CalendarView view) {
+    public void displayHelpOnDate(CustomCalendarView view) {
         new BubbleShowCaseBuilder(mActivity)
                 .title("Selected date") //Any title for the bubble view
                 .backgroundColor(R.color.colorPrimaryDark)

@@ -36,7 +36,7 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 app:layout_collapseMode="parallax">
 
                 <androidx.cardview.widget.CardView
@@ -49,17 +49,14 @@
                     app:cardCornerRadius="24dp"
                     app:cardUseCompatPadding="true"
 
-                    app:layout_collapseMode="parallax"
                     card_view:cardElevation="12dp">
 
-                    <CalendarView
+                    <com.example.schedly.model.CustomCalendarView
                         android:id="@+id/act_Calendar_CalendarV"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:theme="@style/Widget.CalendarView.Custom"
-                        app:layout_collapseMode="parallax">
+                        android:layout_width="wrap_content"
+                        android:layout_height="420dp">
 
-                    </CalendarView>
+                    </com.example.schedly.model.CustomCalendarView>
 
                 </androidx.cardview.widget.CardView>
 

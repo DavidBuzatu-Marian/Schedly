@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.example.schedly.model.CircularTextView
+    android:id="@+id/textView"
+    android:layout_width="48dp"
+    android:layout_height="48dp"
+    android:layout_gravity="center"
+    android:background="@drawable/round_textview"
+    android:fontFamily="@font/roboto_regular"
+    android:gravity="center"
+    android:padding="4dp"
+    android:textSize="14sp"
+    android:layout_centerHorizontal="true"
+    xmlns:android="http://schemas.android.com/apk/res/android" />

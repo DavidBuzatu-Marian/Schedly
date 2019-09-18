@@ -9,4 +9,7 @@
     <color name="mtrl_textinput_default_box_stroke_color" tools:override="true">#FFFFFF</color>
     <color name="colorSetUp">#000000</color>
     <color name="colorAppointmentInfo">#d3d3d3</color>
+    <color name="colorEventLessThanHalf">#11FD45</color>
+    <color name="colorEventMoreThanHalf">#057A1F</color>
+    <color name="colorEventFull">#DD3737</color>
 </resources>

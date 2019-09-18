@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -20,8 +21,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.CalendarView;
 import android.widget.ImageView;
+
 import com.example.schedly.adapter.CalendarAdapter;
 import com.example.schedly.model.Appointment;
+import com.example.schedly.model.CustomCalendarView;
+import com.example.schedly.model.CustomEvent;
 import com.example.schedly.packet_classes.PacketCalendar;
 import com.example.schedly.packet_classes.PacketCalendarHelpers;
 import com.example.schedly.packet_classes.PacketService;
@@ -38,11 +42,20 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.gson.Gson;
 
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.YearMonth;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.format.DateTimeFormatter;
+
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -59,7 +72,7 @@ public class CalendarActivity extends AppCompatActivity {
     public static final int SETTINGS_RETURN = 4000;
     private String userID;
     private String mUserWorkingHoursID;
-    private CalendarView mCalendarView;
+    private CustomCalendarView mCalendarView;
     private Long mDate = 0L;
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
@@ -71,6 +84,7 @@ public class CalendarActivity extends AppCompatActivity {
     private PacketCalendar mPacketCalendar;
     private String mCompleteDate;
     private Map<String, Object> mAppointmentsForThisMonth;
+    private ListenerRegistration mRegistration;
 
 
     @Override
@@ -104,23 +118,120 @@ public class CalendarActivity extends AppCompatActivity {
         _PCH.displayHelpers();
 
         mCalendarView = findViewById(R.id.act_Calendar_CalendarV);
-        mCalendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
+        mCalendarView.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
-//                PacketService _psTest = new PacketService(userID, mUserAppointmentDuration, mUserWorkingHoursID);
-//                _psTest.setUserWorkingHours(mWorkingHours);
-//                _psTest.getScheduledDays("12:00", "0724154387", "TIME");
-
-                _PCH.displayHelpOnDate(view);
-                Log.d("DATEEE", view.getId() + "; " + mCalendarView.getId());
-                getDateFromCalendarView(year, month, dayOfMonth, false);
+            public void onClick(View view) {
+                //PacketService _psTest = new PacketService(userID, mUserAppointmentDuration, mUserWorkingHoursID);
+                //_psTest.setUserWorkingHours(mWorkingHours);
+                //_psTest.getScheduledDays("12:00", "0724154387", "TIME");
+                Calendar _calendar = mCalendarView.getMarkedDay();
+                _PCH.displayHelpOnDate(mCalendarView);
+                getDateFromCalendarView(_calendar);
                 Log.d("DATE", mDate + "");
             }
         });
+//        mCalendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
+//            @Override
+//            public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
+//
+//                _PCH.displayHelpOnDate(view);
+//                Log.d("DATEEE", view.getId() + "; " + mCalendarView.getId());
+//                getDateFromCalendarView(year, month, dayOfMonth, false);
+//                Log.d("DATE", mDate + "");
+//            }
+//        });
 
         startServiceSMSMonitoring();
         setRecyclerView();
         monitorChanges();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mRegistration.remove();
+    }
+
+    private void setCalendarContent() {
+        long _startMonth = YearMonth.from(LocalDate.now()).atDay(1).atStartOfDay(ZoneOffset.systemDefault()).toInstant().toEpochMilli();
+        long _endMonth = YearMonth.from(LocalDate.now()).atEndOfMonth().atStartOfDay(ZoneOffset.systemDefault()).toInstant().toEpochMilli();
+        setEvents(_startMonth, _endMonth);
+
+        ImageView mBUTPrev = findViewById(R.id.calendar_prev_button);
+        ImageView mBUTNext = findViewById(R.id.calendar_next_button);
+
+        mBUTPrev.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                LocalDate mDateNow = mCalendarView.getDate();
+                mDateNow = mDateNow.minusMonths(1);
+                mCalendarView.setDate(mDateNow);
+                long _startMonth = YearMonth.from(mDateNow).atDay(1).atStartOfDay(ZoneOffset.systemDefault()).toInstant().toEpochMilli();
+                long _endMonth = YearMonth.from(mDateNow).atEndOfMonth().atStartOfDay(ZoneOffset.systemDefault()).toInstant().toEpochMilli();
+                setEvents(_startMonth, _endMonth);
+            }
+        });
+        mBUTNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                LocalDate mDateNow = mCalendarView.getDate();
+                mDateNow = mDateNow.plusMonths(1);
+                mCalendarView.setDate(mDateNow);
+                long _startMonth = YearMonth.from(mDateNow).atDay(1).atStartOfDay(ZoneOffset.systemDefault()).toInstant().toEpochMilli();
+                long _endMonth = YearMonth.from(mDateNow).atEndOfMonth().atStartOfDay(ZoneOffset.systemDefault()).toInstant().toEpochMilli();
+                setEvents(_startMonth, _endMonth);
+            }
+        });
+    }
+
+    private void setEvents(long startMonth, long endMonth) {
+        long _numberOfAppointments;
+        CustomEvent.setUserAppointmentDuration(Long.parseLong(mUserAppointmentDuration));
+        @SuppressLint("UseSparseArrays") final HashMap<Long, CustomEvent> _events = new HashMap<>();
+        for(Map.Entry<String, Object> _appointment : mAppointmentsForThisMonth.entrySet()) {
+            long _dateInMillis = Long.parseLong(_appointment.getKey());
+            if(_dateInMillis >= startMonth && _dateInMillis <= endMonth) {
+                DateTimeFormatter _DTF = DateTimeFormatter.ofPattern("EEEE", Locale.getDefault());
+                LocalDate _date = Instant.ofEpochMilli(_dateInMillis).atZone(ZoneId.systemDefault()).toLocalDate();
+                String _dayOfWeek = _date.format(_DTF);
+
+                CustomEvent _CEvent = new CustomEvent(_dateInMillis);
+                _numberOfAppointments = countAppointmentsForThisDay(_dateInMillis);
+                _CEvent.setUserNumberOfAppointments(_numberOfAppointments);
+                String[] _timeStart = mWorkingHours.get(_dayOfWeek + "Start").split(":");
+                String[] _timeEnd = mWorkingHours.get(_dayOfWeek + "End").split(":");
+                LocalDateTime _dateTimeStart = Instant.ofEpochMilli(0).atZone(ZoneId.systemDefault()).toLocalDate().atTime(Integer.parseInt(_timeStart[0]), Integer.parseInt(_timeStart[1]));
+                LocalDateTime _dateTimeEnd = Instant.ofEpochMilli(0).atZone(ZoneId.systemDefault()).toLocalDate().atTime(Integer.parseInt(_timeEnd[0]), Integer.parseInt(_timeEnd[1]));
+                Long _timeStartMillis = _dateTimeStart.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+                Long _timeEndMillis = _dateTimeEnd.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+                Log.d("DATES",  _timeStartMillis + "; " + _timeEndMillis);
+                _CEvent.setStartHour(_timeStartMillis);
+                _CEvent.setEndHour(_timeEndMillis);
+                _events.put(_dateInMillis, _CEvent);
+            }
+        }
+        mCalendarView.updateCalendar(_events);
+    }
+
+    private long countAppointmentsForThisDay(Long dateInMillis) {
+        long numberOfAppointments = 0;
+        assert mAppointmentsForThisMonth != null;
+        Object _values = mAppointmentsForThisMonth.containsKey(dateInMillis.toString()) ? mAppointmentsForThisMonth.get(dateInMillis.toString()) : null;
+        if (_values != null) {
+            Log.d("Day", _values.toString());
+            Gson _gson = new Gson();
+            String _json = _gson.toJson(_values);
+            try {
+                Map<String, Object> result = new ObjectMapper().readValue(_json, Map.class);
+                numberOfAppointments = result.size();
+                Log.d("Number is: ", numberOfAppointments + "");
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+
+            Log.d("Day", "Day json is: " + _json);
+        }
+        return numberOfAppointments;
     }
 
     private void setRecyclerView() {
@@ -134,24 +245,18 @@ public class CalendarActivity extends AppCompatActivity {
         mRecyclerView.setAdapter(mAdapter);
     }
 
-    private void getDateFromCalendarView(int year, int month, int dayOfMonth, boolean onStart) {
-        Calendar _calendar = Calendar.getInstance();
-        if (onStart) {
-            _calendar.setTimeInMillis(mCalendarView.getDate());
-        } else {
-            _calendar.set(year, month, dayOfMonth);
-        }
-        _calendar.set(Calendar.HOUR_OF_DAY, 0);
-        _calendar.set(Calendar.MINUTE, 0);
-        _calendar.set(Calendar.MILLISECOND, 0);
-        _calendar.set(Calendar.SECOND, 0);
+    private void getDateFromCalendarView(Calendar calendar) {
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        calendar.set(Calendar.SECOND, 0);
 
         SimpleDateFormat _SDF = new SimpleDateFormat("yyyy-MM-dd");
-        mCompleteDate = _SDF.format(_calendar.getTime());
-        mDate = _calendar.getTimeInMillis();
+        mCompleteDate = _SDF.format(calendar.getTime());
+        mDate = calendar.getTimeInMillis();
 
         mPacketCalendar = new PacketCalendar(this, mWorkingHours, mUserAppointmentDuration, userID);
-        mPacketCalendar.setDateForTVs(year, month, dayOfMonth, mDate, mCompleteDate);
+        mPacketCalendar.setDateForTVs(calendar, mDate, mCompleteDate);
 
 
         Log.d("Date", mDate + "");
@@ -188,7 +293,7 @@ public class CalendarActivity extends AppCompatActivity {
 
     private void monitorChanges() {
         final DocumentReference docRef = FirebaseFirestore.getInstance().collection("scheduledHours").document(userID);
-        ListenerRegistration registration = docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+        mRegistration = docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot snapshot,
                                 @Nullable FirebaseFirestoreException e) {
@@ -199,10 +304,16 @@ public class CalendarActivity extends AppCompatActivity {
                 if (snapshot != null && snapshot.exists()) {
                     mAppointmentsForThisMonth = snapshot.getData();
                     Log.d("TESTDB", "Current data: " + snapshot.getData());
+                    setCalendarContent();
                     if (mDate == 0L) {
-                        getDateFromCalendarView(0, 0, 0, true);
+                        Calendar _calendar = Calendar.getInstance();
+                        _calendar.setTimeInMillis(mCalendarView.getDate().atStartOfDay(ZoneOffset.systemDefault()).toInstant().toEpochMilli());
+                        getDateFromCalendarView(_calendar);
                         Log.d("DATE", mDate + "");
                     } else {
+                        Calendar _calendar = Calendar.getInstance();
+                        _calendar.setTimeInMillis(mCalendarView.getDate().atStartOfDay(ZoneOffset.systemDefault()).toInstant().toEpochMilli());
+                        getDateFromCalendarView(_calendar);
                         getEachAppointments();
                     }
                 } else {
@@ -357,7 +468,7 @@ public class CalendarActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         Log.d("Result", resultCode + ":");
-        switch(resultCode) {
+        switch (resultCode) {
             case LOG_OUT:
                 setResult(LOG_OUT);
                 finish();

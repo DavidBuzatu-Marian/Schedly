@@ -49,6 +49,7 @@ import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -128,7 +129,7 @@ public class PacketCalendar {
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if(task.isSuccessful()) {
+                        if (task.isSuccessful()) {
                             Map<String, Object> _map = task.getResult().getData();
                             assert _map != null;
                             Object _values = _map.containsKey(mDate.toString()) ? _map.get(mDate.toString()) : null;
@@ -220,11 +221,11 @@ public class PacketCalendar {
             @Override
             public void onClick(View view) {
                 /* we already have schedules on this day */
-                    if (mSelectedAppointmentHour != null) {
-                        saveAppointmentToDB(_txtName.getText().toString(), _txtNumber.getText().toString());
-                    } else {
-                        Toast.makeText(mActivity, "Hour for schedule is required!", Toast.LENGTH_LONG).show();
-                    }
+                if (mSelectedAppointmentHour != null) {
+                    saveAppointmentToDB(_txtName.getText().toString(), _txtNumber.getText().toString());
+                } else {
+                    Toast.makeText(mActivity, "Hour for schedule is required!", Toast.LENGTH_LONG).show();
+                }
             }
         });
     }
@@ -278,10 +279,10 @@ public class PacketCalendar {
         HashMap<String, String> _callLogDetails = getCallLog();
         final ArrayList<String> _callLogPNumbers = new ArrayList<>();
         final ArrayList<String> _callLogNames = new ArrayList<>();
-        for (HashMap.Entry<String, String> _entry: _callLogDetails.entrySet()) {
+        for (HashMap.Entry<String, String> _entry : _callLogDetails.entrySet()) {
             /* add each phone number */
             _callLogPNumbers.add(_entry.getKey());
-            if(_entry.getValue() == null ) {
+            if (_entry.getValue() == null) {
                 _callLogNames.add("");
             } else {
                 _callLogNames.add(_entry.getValue());
@@ -290,10 +291,10 @@ public class PacketCalendar {
 
         HashMap<String, String> _contactsDetails = getContactList(_callLogPNumbers);
 
-        for (HashMap.Entry<String, String> _entry: _contactsDetails.entrySet()) {
+        for (HashMap.Entry<String, String> _entry : _contactsDetails.entrySet()) {
             /* add each phone number */
             _callLogPNumbers.add(_entry.getKey());
-            if(_entry.getValue() == null ) {
+            if (_entry.getValue() == null) {
                 _callLogNames.add("");
             } else {
                 _callLogNames.add(_entry.getValue());
@@ -381,7 +382,7 @@ public class PacketCalendar {
             String[] _NumberAndName = new String[2];
             _NumberAndName[0] = _managedCursor.getString(1); // number
             _NumberAndName[1] = _managedCursor.getString(0); // name
-            if(_details.containsKey(_NumberAndName[0])) {
+            if (_details.containsKey(_NumberAndName[0])) {
                 _stateTrue = true;
             }
             if (!_stateTrue) {
@@ -421,7 +422,7 @@ public class PacketCalendar {
                         boolean _stateTrue = false;
                         String _contactPNumber = _phoneCursor.getString(_phoneCursor.getColumnIndex(
                                 ContactsContract.CommonDataKinds.Phone.NUMBER));
-                        if(_contactPNumber.contains(" ")) {
+                        if (_contactPNumber.contains(" ")) {
                             _contactPNumber = _contactPNumber.replaceAll(" ", "");
                         }
 
@@ -434,7 +435,7 @@ public class PacketCalendar {
                             }
                         }
 
-                        if(_details.containsKey(_NumberAndName[0])) {
+                        if (_details.containsKey(_NumberAndName[0])) {
                             _stateTrue = true;
                         }
                         if (!_stateTrue) {
@@ -483,33 +484,20 @@ public class PacketCalendar {
 //        return _details;
 //    }
 
-    public void setDateForTVs(int year, int month, int dayOfMonth, long milDate, String completeDate) {
+    public void setDateForTVs(Calendar calendar, long milDate, String completeDate) {
         String _dayOfWeek, _dateFormat;
         mDate = milDate;
         mCompleteDate = completeDate;
 
-        if (year != 0) {
-            DateTimeFormatter _DTF = DateTimeFormatter.ofPattern("EEEE", Locale.US);
-            DateTimeFormatter _DTFDate = DateTimeFormatter.ofPattern("dd-MM-yyyy", Locale.US);
-            LocalDate _date = LocalDate.of(year, month + 1, dayOfMonth);
-            TextView _tvDayInfo = mActivity.findViewById(R.id.act_Calendar_TV_DayOfWeek);
-            TextView _tvDayDate = mActivity.findViewById(R.id.act_Calendar_TV_Date);
-            _dayOfWeek = _date.format(_DTF);
-            _dateFormat = _date.format(_DTFDate);
-            _tvDayInfo.setText(_dayOfWeek);
-            _tvDayDate.setText(_dateFormat);
-        } else {
-            DateTimeFormatter _DTF = DateTimeFormatter.ofPattern("EEEE", Locale.US);
-            DateTimeFormatter _DTFDate = DateTimeFormatter.ofPattern("dd-MM-yyyy", Locale.US);
-            LocalDate _date = LocalDate.now();
-            Log.d("Date", month + ": " + dayOfMonth + ":y " + year);
-            TextView _tvDayInfo = mActivity.findViewById(R.id.act_Calendar_TV_DayOfWeek);
-            TextView _tvDayDate = mActivity.findViewById(R.id.act_Calendar_TV_Date);
-            _dayOfWeek = _date.format(_DTF);
-            _dateFormat = _date.format(_DTFDate);
-            _tvDayInfo.setText(_dayOfWeek);
-            _tvDayDate.setText(_dateFormat);
-        }
+        DateTimeFormatter _DTF = DateTimeFormatter.ofPattern("EEEE", Locale.getDefault());
+        DateTimeFormatter _DTFDate = DateTimeFormatter.ofPattern("dd-MM-yyyy", Locale.getDefault());
+        LocalDate _date = LocalDate.of(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH));
+        TextView _tvDayInfo = mActivity.findViewById(R.id.act_Calendar_TV_DayOfWeek);
+        TextView _tvDayDate = mActivity.findViewById(R.id.act_Calendar_TV_Date);
+        _dayOfWeek = _date.format(_DTF);
+        _dateFormat = _date.format(_DTFDate);
+        _tvDayInfo.setText(_dayOfWeek);
+        _tvDayDate.setText(_dateFormat);
         Log.d("Details", mWorkingHours.toString() + ": " + _dayOfWeek);
         if (mWorkingHours.get(_dayOfWeek + "Start").equals("Free")) {
             TextView _txtAdd = mActivity.findViewById(R.id.act_Calendar_TV_AddNew);
