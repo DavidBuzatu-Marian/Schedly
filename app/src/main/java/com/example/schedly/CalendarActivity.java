@@ -111,8 +111,11 @@ public class CalendarActivity extends AppCompatActivity {
             mUserAppointmentDuration = extras.getString("userAppointmentDuration");
         }
 
+    }
 
-//        testDB();
+    @Override
+    protected void onResume() {
+        super.onResume();
         /* dipslay Helpers */
         final PacketCalendarHelpers _PCH = new PacketCalendarHelpers(CalendarActivity.this);
         _PCH.displayHelpers();
@@ -130,16 +133,6 @@ public class CalendarActivity extends AppCompatActivity {
                 Log.d("DATE", mDate + "");
             }
         });
-//        mCalendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
-//            @Override
-//            public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
-//
-//                _PCH.displayHelpOnDate(view);
-//                Log.d("DATEEE", view.getId() + "; " + mCalendarView.getId());
-//                getDateFromCalendarView(year, month, dayOfMonth, false);
-//                Log.d("DATE", mDate + "");
-//            }
-//        });
 
         startServiceSMSMonitoring();
         setRecyclerView();
@@ -149,6 +142,9 @@ public class CalendarActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
+        /* remove registration on stop in order to
+         * moderate power and resources consumption
+         */
         mRegistration.remove();
     }
 
@@ -311,9 +307,6 @@ public class CalendarActivity extends AppCompatActivity {
                         getDateFromCalendarView(_calendar);
                         Log.d("DATE", mDate + "");
                     } else {
-                        Calendar _calendar = Calendar.getInstance();
-                        _calendar.setTimeInMillis(mCalendarView.getDate().atStartOfDay(ZoneOffset.systemDefault()).toInstant().toEpochMilli());
-                        getDateFromCalendarView(_calendar);
                         getEachAppointments();
                     }
                 } else {

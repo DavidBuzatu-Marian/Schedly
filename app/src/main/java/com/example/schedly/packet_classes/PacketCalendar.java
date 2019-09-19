@@ -65,12 +65,16 @@ public class PacketCalendar {
     private String mSelectedAppointmentHour;
     private PopupWindow mPopWindow;
     private String mCompleteDate, mUserID;
+    private HashMap<String, String> mCallLogDetails, mContactsDetails;
+    private ArrayList<String> mCallLogPNumbers;
+    private ArrayList<String> mCallLogNames;
 
     public PacketCalendar(Activity activity, HashMap<String, String> workingHours, String userAppointmentDuration, String userID) {
         mActivity = activity;
         mWorkingHours = workingHours;
         mUserID = userID;
         mUserAppointmentDuration = userAppointmentDuration;
+        getNamesAndPhoneNumbers();
     }
 
     private void setImageViewListener(final String dayOfWeek, final String dateFormat) {
@@ -104,7 +108,6 @@ public class PacketCalendar {
 
                 // show the popup at bottom of the screen and set some margin at bottom
                 mPopWindow.showAtLocation(view, Gravity.BOTTOM, 0, 0);
-
                 setSpinnerAdapter(_inflatedView, dayOfWeek);
                 setInformationInPopup(_inflatedView, dayOfWeek, dateFormat);
                 setPopUpButtonsListeners(_inflatedView);
@@ -276,35 +279,10 @@ public class PacketCalendar {
         _txtDate.setText(dateFormat);
         _txtDayOfWeek.setText(dayOfWeek);
 
-        HashMap<String, String> _callLogDetails = getCallLog();
-        final ArrayList<String> _callLogPNumbers = new ArrayList<>();
-        final ArrayList<String> _callLogNames = new ArrayList<>();
-        for (HashMap.Entry<String, String> _entry : _callLogDetails.entrySet()) {
-            /* add each phone number */
-            _callLogPNumbers.add(_entry.getKey());
-            if (_entry.getValue() == null) {
-                _callLogNames.add("");
-            } else {
-                _callLogNames.add(_entry.getValue());
-            }
-        }
-
-        HashMap<String, String> _contactsDetails = getContactList(_callLogPNumbers);
-
-        for (HashMap.Entry<String, String> _entry : _contactsDetails.entrySet()) {
-            /* add each phone number */
-            _callLogPNumbers.add(_entry.getKey());
-            if (_entry.getValue() == null) {
-                _callLogNames.add("");
-            } else {
-                _callLogNames.add(_entry.getValue());
-            }
-        }
-
         ArrayAdapter<String> _adapterNumber = new ArrayAdapter<>(mActivity,
-                android.R.layout.simple_dropdown_item_1line, _callLogPNumbers);
+                android.R.layout.simple_dropdown_item_1line, mCallLogPNumbers);
         ArrayAdapter<String> _adapterNames = new ArrayAdapter<>(mActivity,
-                android.R.layout.simple_dropdown_item_1line, _callLogNames);
+                android.R.layout.simple_dropdown_item_1line, mCallLogNames);
 
         /* auto set name if number exists
          * set number if name exists */
@@ -314,7 +292,34 @@ public class PacketCalendar {
         _txtNumber.setAdapter(_adapterNumber);
         _txtName.setAdapter(_adapterNames);
 
-        setListenersForATVs(_txtName, _txtNumber, _callLogNames, _callLogPNumbers);
+        setListenersForATVs(_txtName, _txtNumber, mCallLogNames, mCallLogPNumbers);
+    }
+
+    private void getNamesAndPhoneNumbers() {
+        mCallLogDetails = getCallLog();
+        mCallLogPNumbers = new ArrayList<>();
+        mCallLogNames = new ArrayList<>();
+        for (HashMap.Entry<String, String> _entry : mCallLogDetails.entrySet()) {
+            /* add each phone number */
+            mCallLogPNumbers.add(_entry.getKey());
+            if (_entry.getValue() == null) {
+                mCallLogNames.add("");
+            } else {
+                mCallLogNames.add(_entry.getValue());
+            }
+        }
+
+        HashMap<String, String> _contactsDetails = getContactList(mCallLogPNumbers);
+
+        for (HashMap.Entry<String, String> _entry : _contactsDetails.entrySet()) {
+            /* add each phone number */
+            mCallLogPNumbers.add(_entry.getKey());
+            if (_entry.getValue() == null) {
+                mCallLogNames.add("");
+            } else {
+                mCallLogNames.add(_entry.getValue());
+            }
+        }
     }
 
     private void setListenersForATVs(final AutoCompleteTextView txtName, final AutoCompleteTextView txtNumber,
@@ -453,36 +458,6 @@ public class PacketCalendar {
         return _details;
     }
 
-//    private ArrayList<String[]> getContacts(ArrayList<String> _callLogNumbers) {
-//        ArrayList<String[]> _details = new ArrayList<>();
-//
-//        String[] _projection = new String[]{
-//                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
-//                ContactsContract.CommonDataKinds.Phone.NUMBER
-//        };
-//
-//        Cursor _managedCursor = getApplicationContext().getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, _projection, null, null, null);
-//        while (_managedCursor.moveToNext()) {
-//
-//            boolean _stateTrue = false;
-//            String[] _NumberAndName = new String[2];
-//            if(_managedCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER) != -1) {
-//                _NumberAndName[0] = _managedCursor.getString(_managedCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)); // number
-//                _NumberAndName[1] = _managedCursor.getString(_managedCursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)); // name
-//                Log.d("Contact", _NumberAndName[1] + ": " + _NumberAndName[0]);
-//                for (String _phoneNumberUsed : _callLogNumbers) {
-//                    if (_phoneNumberUsed.equals(_NumberAndName[0])) {
-//                        _stateTrue = true;
-//                    }
-//                }
-//                if (!_stateTrue) {
-//                    _details.add(_NumberAndName);
-//                }
-//            }
-//        }
-//
-//        return _details;
-//    }
 
     public void setDateForTVs(Calendar calendar, long milDate, String completeDate) {
         String _dayOfWeek, _dateFormat;

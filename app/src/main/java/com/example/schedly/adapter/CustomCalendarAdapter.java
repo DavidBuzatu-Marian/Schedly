@@ -72,7 +72,7 @@ public class CustomCalendarAdapter extends ArrayAdapter<Date> {
                 mCircularTV = _fcircularTextView;
             }
         } else {
-            // check if day is weekend
+            // check if day is weekend or weekday
             if(!isToday(_fday, _fmonth, _fyear)) {
                 markDateByDay(calendar, _fcircularTextView);
             } else {
@@ -101,6 +101,11 @@ public class CustomCalendarAdapter extends ArrayAdapter<Date> {
             }
         });
 
+        /* mark it with the event */
+        if(eventDays != null && eventDays.containsKey(calendar.getTimeInMillis())) {
+            _fcircularTextView.setBackgroundResource(eventDays.get(calendar.getTimeInMillis()).getDayStatus());
+        }
+
         /* mark the day on back or next */
         if (mCustomCalendarView.isMarkedDate()) {
             Calendar _markedDate = mCustomCalendarView.getMarkedDay();
@@ -108,10 +113,6 @@ public class CustomCalendarAdapter extends ArrayAdapter<Date> {
                 markSelectedDate(_fcircularTextView);
                 mCircularTV = _fcircularTextView;
             }
-        }
-
-        if(eventDays != null && eventDays.containsKey(calendar.getTimeInMillis())) {
-            _fcircularTextView.setBackgroundResource(eventDays.get(calendar.getTimeInMillis()).getDayStatus());
         }
 
         return view;
