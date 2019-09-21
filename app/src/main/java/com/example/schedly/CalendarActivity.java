@@ -116,10 +116,12 @@ public class CalendarActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        Log.d("OnResume", "Resumed");
         /* dipslay Helpers */
         final PacketCalendarHelpers _PCH = new PacketCalendarHelpers(CalendarActivity.this);
         _PCH.displayHelpers();
 
+        mPacketCalendar = new PacketCalendar(this, mWorkingHours, mUserAppointmentDuration, userID);
         mCalendarView = findViewById(R.id.act_Calendar_CalendarV);
         mCalendarView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -186,7 +188,7 @@ public class CalendarActivity extends AppCompatActivity {
         @SuppressLint("UseSparseArrays") final HashMap<Long, CustomEvent> _events = new HashMap<>();
         for(Map.Entry<String, Object> _appointment : mAppointmentsForThisMonth.entrySet()) {
             long _dateInMillis = Long.parseLong(_appointment.getKey());
-            if(_dateInMillis >= startMonth && _dateInMillis <= endMonth) {
+            if(_dateInMillis >= startMonth && _dateInMillis <= endMonth && hasValue(_appointment.getValue())) {
                 DateTimeFormatter _DTF = DateTimeFormatter.ofPattern("EEEE", Locale.getDefault());
                 LocalDate _date = Instant.ofEpochMilli(_dateInMillis).atZone(ZoneId.systemDefault()).toLocalDate();
                 String _dayOfWeek = _date.format(_DTF);
@@ -207,6 +209,13 @@ public class CalendarActivity extends AppCompatActivity {
             }
         }
         mCalendarView.updateCalendar(_events);
+    }
+
+    private boolean hasValue(Object value) {
+        Gson _gson = new Gson();
+        String _json = _gson.toJson(value);
+        /* not empty. Empty means "{}" */
+        return _json.length() > 2;
     }
 
     private long countAppointmentsForThisDay(Long dateInMillis) {
@@ -251,7 +260,6 @@ public class CalendarActivity extends AppCompatActivity {
         mCompleteDate = _SDF.format(calendar.getTime());
         mDate = calendar.getTimeInMillis();
 
-        mPacketCalendar = new PacketCalendar(this, mWorkingHours, mUserAppointmentDuration, userID);
         mPacketCalendar.setDateForTVs(calendar, mDate, mCompleteDate);
 
 
