@@ -223,8 +223,8 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
                 @Override
                 public void onClick(View v) {
                     new AlertDialog.Builder(inflatedView.getContext())
-                            .setTitle("Cancel appointment")
-                            .setMessage("Do you really want to cancel this appointment? A message will be sent automatically to the client")
+                            .setTitle(mActivity.getString(R.string.edit_appointment_cancel))
+                            .setMessage(mActivity.getString(R.string.edit_appointment_cancel_dialog))
                             .setIcon(R.drawable.ic_baseline_cancel_24px)
                             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton) {
@@ -249,7 +249,11 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
 
         private void sendMessage(String phoneNumber, String hour) {
             SmsManager.getDefault().sendTextMessage(phoneNumber, null,
-                    "Your appointment on " + mCompleteDate + " at: " + hour + " has been canceled",
+                    mActivity.getString(R.string.edit_appointment_cancel_message_start)
+                            + mCompleteDate
+                            + mActivity.getString(R.string.add_appointment_manual_success_at)
+                            + hour 
+                            + mActivity.getString(R.string.edit_appointment_message_end),
                     null, null);
             Log.d("MESSAGE_ON_CANCEL_app", "CANCELED");
         }
@@ -258,7 +262,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
             TextView _textViewName = inflatedView.findViewById(R.id.popup_appointment_TV_Name);
             TextView _textViewPhoneNumber = inflatedView.findViewById(R.id.popup_appointment_TV_PhoneNumber);
             TextView _textViewAppointmentInfo = inflatedView.findViewById(R.id.popup_appointment_TV_AppointmentInfo);
-            String _textForInfoCard = "Appointment starts at: " + mTextViewHour.getText();
+            String _textForInfoCard = mActivity.getString(R.string.edit_appointment_info_app_start) + mTextViewHour.getText();
             //LinearLayout _linearLayoutAddToContacts = inflatedView.findViewById(R.id.popup_appointment_LL_AddToContacts);
 
             if (mTextViewName.getText().toString().equals("")) {

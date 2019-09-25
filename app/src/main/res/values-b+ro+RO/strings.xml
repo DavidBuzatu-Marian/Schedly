@@ -1,0 +1,183 @@
+<resources>
+    <string name="facebook_app_id">293320568283992</string>
+    <string name="fb_login_protocol_scheme">fb293320568283992</string>
+    <string name="server_client_id">125094146390-nvc0ro3tsg4ihkcon42j1v59lkfhn5ge.apps.googleusercontent.com</string>
+    <string name="default_web_client_ID">125094146390-m0fk6oqclr1edebu3gdaldiq3r52cika.apps.googleusercontent.com</string>
+
+    <string name="app_name">Schedly</string>
+    <string name="sign_up_button"><![CDATA[Înregistrare >]]></string>
+    <string name="sign_in_button"><![CDATA[Log In >]]></string>
+    <string name="hint_login_email">Email</string>
+    <string name="hint_login_password">Parolă</string>
+    <string name="Welcome">Bun venit!</string>
+    <string name="register_button_main"><![CDATA[< Înregistrare]]></string>
+    <string name="register_text">Doriți să vă înregistrați cu email?</string>
+    <string name="act_main_google">Logare cu Google</string>
+    <string name="act_SPNumber_Number">Număr de telefon</string>
+    <string name="select_profession">Selectați-vă profesia</string>
+    <string name="act_SProfession_BUT_Hairstylist">Hairstylist</string>
+    <string name="act_SProfession_BUT_Dentist">Dentist</string>
+    <string name="act_SProfession_BUT_Freelancer">Freelancer</string>
+    <string name="act_SProfession_BUT_HouseSitter">Baby sitter</string>
+    <string name="act_SProfession_BUT_PersonalTrainer">Antrenor personal</string>
+    <string name="act_SPNumber_NumberExtra">Vă rugăm introduceți-vă numărul de telefon</string>
+    <string name="act_SProfession_TV_Extra">Puteți schimba asta oricând</string>
+    <string name="act_SProfession_BUT_Other">Altceva</string>
+    <string name="act_SWHours_TV_Title">Orele dvs. de lucru</string>
+    <string name="act_SWHours_TV_TitleExtra">Vă rugăm introduceți-vă orele de lucru pentru zilele lucrătoare. Aveți posibilitatea să schimbați asta oricând!</string>
+    <string name="act_SWHours_CB_DiffHours">Orar diferit pentru fiecare zi</string>
+    <string name="act_SWHours_Spinner_TitleStart">Ora deschiderii</string>
+    <string name="act_SWHours_Spinner_TitleEnd">Ora închiderii</string>
+    <string name="act_SWHours_TV_AllDay">Toate zilele săptămânii</string>
+    <string name="act_SWHours_TV_Sunday">Duminică</string>
+    <string name="act_SWHours_TV_Saturday">Sâmbătă</string>
+    <string name="act_SWHours_CB_FreeDay">Liber</string>
+    <string name="act_SWHours_TV_Friday">Vineri</string>
+    <string name="act_SWHours_TV_Tuesday">Marți</string>
+    <string name="act_SWHours_TV_Wednesday">Miercuri</string>
+    <string name="act_SWHours_TV_Thursday">Joi</string>
+    <string name="act_SWHours_TV_Monday">Luni</string>
+    <string name="act_SUWEmail_TV_Register">Schedly</string>
+    <string name="act_main_TV_SignIn">Schedly</string>
+    <string name="act_main_TV_ForgotPassword">Uitată?</string>
+    <string name="act_SDuration_TV_Title">Un ultim pas</string>
+    <string name="act_SDuration_TV_TitleExtra">Vă rugăm introduceți cât timp durează, aproximativ, ca un serviciu al dumneavoastră să fie finalizat. Această valoare va fi folosită pentru a realiza programările automate. Setați-vă și numele cu care veți putea fi găsit în viitor!</string>
+    <string name="act_SDuration_Hint_TI">Durație în minute</string>
+    <string name="permission_alert_dialog_SMS">Permisiune SMS</string>
+    <string name="permission_alert_dialog_LOG">Permisiune istoric apeluri</string>
+    <string name="permission_dialog_SMS_body">Schedly vă va cere acum permisiunea de a trimite/ citi SMS-urile dvs., precum și de a citi numerele de telefon și contactele pentru a nota cu ușurință persoanele în agendă. Acest lucru este esențial pentru ca Schedly să funcționeze!</string>
+    <string name="permission_alert_dialog_OK">OK</string>
+    <string name="or">OR</string>
+    <string name="act_main_TV_SingUp">Nu aveți un cont?<u> Înregistrați-vă aici!</u></string>
+
+
+
+    <string name="txt_Monday">s</string>
+
+
+
+
+    <string-array name="hours_array">
+        <item>5:30</item>
+        <item>6:00</item>
+        <item>6:30</item>
+        <item>7:00</item>
+        <item>7:30</item>
+        <item>8:00</item>
+        <item>8:30</item>
+        <item>9:00</item>
+        <item>9:30</item>
+        <item>10:00</item>
+        <item>10:30</item>
+        <item>11:00</item>
+        <item>11:30</item>
+        <item>12:00</item>
+        <item>12:30</item>
+        <item>13:00</item>
+        <item>13:30</item>
+        <item>14:00</item>
+        <item>14:30</item>
+        <item>15:00</item>
+        <item>15:30</item>
+        <item>16:00</item>
+        <item>16:30</item>
+        <item>17:00</item>
+        <item>17:30</item>
+        <item>18:00</item>
+        <item>18:30</item>
+        <item>19:00</item>
+        <item>19:30</item>
+        <item>20:00</item>
+        <item>20:30</item>
+        <item>21:00</item>
+        <item>21:30</item>
+        <item>22:00</item>
+        <item>22:30</item>
+        <item>23:00</item>
+        <item>23:30</item>
+        <item>0:00</item>
+    </string-array>
+    <string name="title_activity_forgot_password">ForgotPasswordActivity</string>
+    <string name="act_FPassword_TV_Head">Parolă uitată</string>
+    <string name="act_FPassword_BUT_Send"><![CDATA[Trimite >]]></string>
+    <string name="act_SDuration_Hint_TI_DisplayName">Nume afișat</string>
+    <string name="act_FPassword_TV_Head_Extra">Vă rugăm introduceți-vă email-ul pentru a vă reseta parola</string>
+    <string name="popup_appointment_TV_Message">Trimite SMS</string>
+    <string name="popup_appointment_TV_Call">Sună clientul</string>
+    <string name="popup_appointment_TV_AddToContacts">Adaugă număr la contacte</string>
+    <string name="act_Calendar_IV_CD_Settings">Setări</string>
+    <string name="frag_Settings_TV_Settings">Setări</string>
+    <string name="action_settings">Setări</string>
+    <string name="frag_Settings_TV_LogOut">Log Out</string>
+    <string name="frag_Settings_Save">Salvează schimbările</string>
+    <string name="hint_change_password_current">Parolă curentă</string>
+    <string name="hint_change_password_new">Parolă nouă</string>
+    <string name="hint_change_password_confirm">Confirmare parolă</string>
+    <string name="permission_alert_dialog_CONTACTS">Permisiune contacte</string>
+    <string name="permission_dialog_CONTACTS_body">Schedly vă va cere acum să aibă acces la contactele dumneavoastră. Acest lucru este obligatoriu pentru ca Schedly să funcționeze!</string>
+    <string name="popup_appointment_TV_CancelAppointment">Anulare programare</string>
+    <string name="loginFail">Logarea a eșuat. Verificați-vă conexiunea la internet!</string>
+    <string name="loginFailPasswordIncorrect">Parolă incorectă</string>
+    <string name="loginFailEmailNotRegistered">Email neînregistrat. Vă rugăm înregistrați-vă mai jos!</string>
+    <string name="loginFailTooManyReq">Prea multe încercări de logare! Vă rugăm încercați din nou peste 5 secunde</string>
+    <string name="act_Calendar_TV_AddNew">Adaugă</string>
+    <string name="popup_add_Name">Nume</string>
+    <string name="popup_add_FreeHours">Selectați o oră liberă din listă</string>
+    <string name="popup_add_Done">Adaugă programare</string>
+    <string name="act_Calendar_TV_Free">Zi liberă</string>
+    <string name="sign_in_options_socials">Cu rețele sociale</string>
+    <string name="sign_in_button_options_email">Cu email</string>
+    <string name="act_main_TV_SignIn_Extra">Logare</string>
+    <string name="image">Background image</string>
+    <string name="act_SUWEmail_ET_PhoneNumber">Număr de telefon</string>
+    <string name="helpSMSExplained">Schedly va începe acum să vă monitorizeze mesajele și să facă programări automat. Asigurați-vă că aveți mesaje la dispoziție, fără costuri. Un format bun pentru o dată validă (ex: 3 Septembrie) este: 2019-09-03. Un exemplu de mesaj ar fi: Doresc o programare pe 2019-09-03 la ora 9:45AM</string>
+    <string name="notification_disable_monitoring">Opriți monitorizarea</string>
+    <string name="helpDateSelected">Când selectați o zi, programările vă vor fi afișate mai jos. Le puteți accesa de acolo.</string>
+    <string name="helpAddExplained">Puteți face și programări manual! Veți găsi numele și numărul de telefonul al contactelor dumneavoastră doar tastând începuturile acestora. Un mesaj va fi trimis automat clientului pentru a-l informa despre programare.</string>
+    <string name="helpEditExplained">Vă puteți suna clienții, trimite un mesaj, adăuga la contacte și să anulați programări. În caz de anulare a unei programări, clientul va primi un mesaj de informare</string>
+    <string name="settings_appointmentDuration">Durație în minute</string>
+    <string name="calendar_view_MON">LU</string>
+    <string name="calendar_view_TUE">MA</string>
+    <string name="calendar_view_WED">MI</string>
+    <string name="calendar_view_THU">JO</string>
+    <string name="calendar_view_FRI">VI</string>
+    <string name="calendar_view_SAT">SÂ</string>
+    <string name="calendar_view_SUN">DU</string>
+    <string name="sun">DU</string>
+    <string name="mon">LU</string>
+    <string name="tue">MA</string>
+    <string name="wed">MI</string>
+    <string name="fri">VI</string>
+    <string name="thu">JO</string>
+    <string name="sat">SÂ</string>
+    <string name="act_main_BUT_facebook">Conectați-vă cu Facebook</string>
+    <string name="preferences_email_change">Schimbă adresa de email</string>
+    <string name="preferences_password_change">Schimbă parola</string>
+    <string name="preferences_phone_number_change">Schimbă numărul de telefon</string>
+    <string name="preferences_working_days_change">Schimbă programul de lucru</string>
+    <string name="preferences_display_name_change">Schimbă numele afișat</string>
+    <string name="preferences_appointment_duration_change">Schimbă durata programărilor</string>
+    <string name="preferences_notifications">Notificări</string>
+    <string name="preferences_monitoring_disable">Dezactivează monitorizarea SMS</string>
+    <string name="preferences_monitoring_title">Activează/ Dezactivează monitorizarea</string>
+    <string name="preferences_account">Cont</string>
+    <string name="preferences_help">Ajutor</string>
+    <string name="preferences_feedback">Raportați probleme tehnice sau trimiteți sugestii</string>
+    <string name="preferences_feedback_title">Trimite feedback</string>
+    <string name="settings_bar_title">Setări</string>
+    <string name="settings_email_bar_title">Schimbă email</string>
+    <string name="settings_password_bar_title">Schimbă parolă</string>
+    <string name="settings_working_days_bar_title">Schimbă program de lucru</string>
+    <string name="toast_add_appointment_phone_number">Numărul de telefon este obligatoriu!</string>
+    <string name="snackbar_add_appointment_failed">Programare eșuată. Vă rugăm verificați conexiunea la internet sau trimiteți-ne eroarea</string>
+    <string name="add_appointment_manual_success_beg">Ai fost programat pe data de</string>
+    <string name="add_appointment_manual_success_at"> la: </string>
+    <string name="add_appointment_manual_success_end">. Dacă ceva e în neregulă, te rog contactează-mă</string>
+    <string name="toast_add_appointment_hours">Vă rugăm selectați ora programării!</string>
+    <string name="edit_appointment_cancel">Anulare programare</string>
+    <string name="edit_appointment_cancel_dialog">Doriți să anulați programarea? Clientul va primi automat un mesaj</string>
+    <string name="edit_appointment_cancel_message_start">Programarea dvs. pe data de</string>
+    <string name="edit_appointment_message_end"> a fost anulată</string>
+    <string name="edit_appointment_info_app_start">Programarea începe la: </string>
+
+</resources>

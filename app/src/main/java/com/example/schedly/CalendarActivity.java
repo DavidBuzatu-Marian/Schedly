@@ -153,7 +153,11 @@ public class CalendarActivity extends AppCompatActivity {
     private void setCalendarContent() {
         long _startMonth = YearMonth.from(LocalDate.now()).atDay(1).atStartOfDay(ZoneOffset.systemDefault()).toInstant().toEpochMilli();
         long _endMonth = YearMonth.from(LocalDate.now()).atEndOfMonth().atStartOfDay(ZoneOffset.systemDefault()).toInstant().toEpochMilli();
-        setEvents(_startMonth, _endMonth);
+        if(mAppointmentsForThisMonth != null) {
+            setEvents(_startMonth, _endMonth);
+        } else {
+            mCalendarView.updateCalendar(null);
+        }
 
         ImageView mBUTPrev = findViewById(R.id.calendar_prev_button);
         ImageView mBUTNext = findViewById(R.id.calendar_next_button);
@@ -161,27 +165,32 @@ public class CalendarActivity extends AppCompatActivity {
         mBUTPrev.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                LocalDate mDateNow = mCalendarView.getDate();
-                mDateNow = mDateNow.minusMonths(1);
-                mCalendarView.setDate(mDateNow);
-                long _startMonth = YearMonth.from(mDateNow).atDay(1).atStartOfDay(ZoneOffset.systemDefault()).toInstant().toEpochMilli();
-                long _endMonth = YearMonth.from(mDateNow).atEndOfMonth().atStartOfDay(ZoneOffset.systemDefault()).toInstant().toEpochMilli();
-                setEvents(_startMonth, _endMonth);
+                LocalDate _dateNow = mCalendarView.getDate();
+                _dateNow = _dateNow.minusMonths(1);
+                onButtonsClick(_dateNow);
             }
         });
         mBUTNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                LocalDate mDateNow = mCalendarView.getDate();
-                mDateNow = mDateNow.plusMonths(1);
-                mCalendarView.setDate(mDateNow);
-                long _startMonth = YearMonth.from(mDateNow).atDay(1).atStartOfDay(ZoneOffset.systemDefault()).toInstant().toEpochMilli();
-                long _endMonth = YearMonth.from(mDateNow).atEndOfMonth().atStartOfDay(ZoneOffset.systemDefault()).toInstant().toEpochMilli();
-                setEvents(_startMonth, _endMonth);
+                LocalDate _dateNow = mCalendarView.getDate();
+                _dateNow = _dateNow.plusMonths(1);
+                onButtonsClick(_dateNow);
             }
         });
     }
 
+    
+    private void onButtonsClick(LocalDate dateNow) {
+        mCalendarView.setDate(dateNow);
+        long _startMonth = YearMonth.from(dateNow).atDay(1).atStartOfDay(ZoneOffset.systemDefault()).toInstant().toEpochMilli();
+        long _endMonth = YearMonth.from(dateNow).atEndOfMonth().atStartOfDay(ZoneOffset.systemDefault()).toInstant().toEpochMilli();
+        if(mAppointmentsForThisMonth != null) {
+            setEvents(_startMonth, _endMonth);
+        } else {
+            mCalendarView.updateCalendar(null );
+        }
+    }
     private void setEvents(long startMonth, long endMonth) {
         long _numberOfAppointments;
         CustomEvent.setUserAppointmentDuration(Long.parseLong(mUserAppointmentDuration));
@@ -189,7 +198,7 @@ public class CalendarActivity extends AppCompatActivity {
         for(Map.Entry<String, Object> _appointment : mAppointmentsForThisMonth.entrySet()) {
             long _dateInMillis = Long.parseLong(_appointment.getKey());
             if(_dateInMillis >= startMonth && _dateInMillis <= endMonth && hasValue(_appointment.getValue())) {
-                DateTimeFormatter _DTF = DateTimeFormatter.ofPattern("EEEE", Locale.getDefault());
+                DateTimeFormatter _DTF = DateTimeFormatter.ofPattern("EEEE", Locale.US);
                 LocalDate _date = Instant.ofEpochMilli(_dateInMillis).atZone(ZoneId.systemDefault()).toLocalDate();
                 String _dayOfWeek = _date.format(_DTF);
 
@@ -265,7 +274,9 @@ public class CalendarActivity extends AppCompatActivity {
 
         Log.d("Date", mDate + "");
 //        getDayID();
-        getEachAppointments();
+        if(mAppointmentsForThisMonth != null) {
+            getEachAppointments();
+        }
     }
 
     public void startServiceSMSMonitoring() {
@@ -308,7 +319,6 @@ public class CalendarActivity extends AppCompatActivity {
                 if (snapshot != null && snapshot.exists()) {
                     mAppointmentsForThisMonth = snapshot.getData();
                     Log.d("TESTDB", "Current data: " + snapshot.getData());
-                    setCalendarContent();
                     if (mDate == 0L) {
                         Calendar _calendar = Calendar.getInstance();
                         _calendar.setTimeInMillis(mCalendarView.getDate().atStartOfDay(ZoneOffset.systemDefault()).toInstant().toEpochMilli());
@@ -319,6 +329,10 @@ public class CalendarActivity extends AppCompatActivity {
                     }
                 } else {
                     Log.d("TESTDB", "Current data: null");
+                    Calendar _calendar = Calendar.getInstance();
+                    _calendar.setTimeInMillis(mCalendarView.getDate().atStartOfDay(ZoneOffset.systemDefault()).toInstant().toEpochMilli());
+                    getDateFromCalendarView(_calendar);
+                    setCalendarContent();
                 }
             }
         });
@@ -329,7 +343,6 @@ public class CalendarActivity extends AppCompatActivity {
 //        final AtomicBoolean _dateFoundTrue = new AtomicBoolean(false);
         mDataSet.clear();
         mCounter = 0;
-        assert mAppointmentsForThisMonth != null;
         Object _values = mAppointmentsForThisMonth.containsKey(mDate.toString()) ? mAppointmentsForThisMonth.get(mDate.toString()) : null;
         if (_values != null) {
             Log.d("Day", _values.toString());

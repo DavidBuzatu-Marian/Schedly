@@ -70,7 +70,6 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
     private HashMap<String, String> mUUID;
     private HashMap<String, Object> mResultFromDialogFlow;
     private String mTime, mDateFromUser;
-    private Long mDateInMillis;
     private String mUserID;
     private String mUserAppointmentDuration;
     private String mMessagePhoneNumber;
@@ -83,7 +82,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
 
     public int onStartCommand(Intent intent, int flags, int startId) {
         if(intent != null && intent.getAction().equals("ACTION.STOPFOREGROUND_ACTION")) {
-            Log.d("TEST", "STOPPED SERVICE");
+            Log.d("Service", "STOPPED SERVICE");
             stopForeground(true);
             stopSelf();
         }
@@ -338,7 +337,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
 
     }
 
-    // A helper function that converts the Date instance 'dateObj' into a string that represents this time in English.
+    // a helper function to get the time from the dialogflow format
     private String getLocaleTimeString(String time){
         if(time != null && !time.equals("")) {
             String[] splitTTime = time.split("T");
@@ -350,7 +349,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
         }
     }
 
-    // A helper function that converts the Date instance 'dateObj' into a string that represents this date in English.
+    // a helper function to get the date from the dialogflow format
     private String getLocaleDateString(String date){
         if(date != null && !date.equals("")) {
             String[] splitTDate = date.split("T");

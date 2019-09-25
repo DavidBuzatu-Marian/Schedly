@@ -29,6 +29,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:text="February 2019"
+            android:textAllCaps="true"
             android:textAppearance="@android:style/TextAppearance.Large"
             android:textColor="#222222"
             android:textSize="24sp"
@@ -63,7 +64,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center_horizontal"
-            android:text="SUN"
+            android:text="@string/sun"
             android:textColor="#222222" />
 
         <TextView
@@ -71,7 +72,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center_horizontal"
-            android:text="MON"
+            android:text="@string/mon"
             android:textColor="#222222" />
 
         <TextView
@@ -79,7 +80,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center_horizontal"
-            android:text="TUE"
+            android:text="@string/tue"
             android:textColor="#222222" />
 
         <TextView
@@ -87,7 +88,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center_horizontal"
-            android:text="WED"
+            android:text="@string/wed"
             android:textColor="#222222" />
 
         <TextView
@@ -95,7 +96,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center_horizontal"
-            android:text="THU"
+            android:text="@string/thu"
             android:textColor="#222222" />
 
         <TextView
@@ -103,7 +104,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center_horizontal"
-            android:text="FRI"
+            android:text="@string/fri"
             android:textColor="#222222" />
 
         <TextView
@@ -111,7 +112,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center_horizontal"
-            android:text="SAT"
+            android:text="@string/sat"
             android:textColor="#222222" />
     </LinearLayout>
 

@@ -299,7 +299,7 @@
         <item name="android:layout_marginStart">18dp</item>
         <item name="android:layout_marginEnd">18dp</item>
         <item name="android:layout_marginBottom">24dp</item>
-        <item name="android:fontFamily">sans-serif-condensed-light</item>
+        <item name="android:fontFamily">@font/roboto_light</item>
     </style>
 
     <!-- calendar recycler view -->
@@ -308,7 +308,7 @@
         <item name="android:textColor">@color/colorSetUp</item>
         <item name="android:layout_marginStart">16dp</item>
         <item name="android:layout_marginEnd">16dp</item>
-        <item name="android:fontFamily">sans-serif-condensed-medium</item>
+        <item name="android:fontFamily">@font/roboto_medium</item>
         <item name="android:layout_gravity">center_vertical</item>
     </style>
 
@@ -317,7 +317,7 @@
         <item name="android:textColor">@color/colorExtra</item>
         <item name="android:layout_marginStart">16dp</item>
         <item name="android:layout_marginEnd">16dp</item>
-        <item name="android:fontFamily">sans-serif-condensed-medium</item>
+        <item name="android:fontFamily">@font/roboto_medium</item>
         <item name="android:layout_gravity">center_vertical</item>
     </style>
 

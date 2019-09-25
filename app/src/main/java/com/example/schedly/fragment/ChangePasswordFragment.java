@@ -59,7 +59,7 @@ public class ChangePasswordFragment extends Fragment implements View.OnClickList
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mActivity = getActivity();
-        ((SettingsActivity) mActivity).setActionBarTitle("Change password");
+        ((SettingsActivity) mActivity).setActionBarTitle(mActivity.getString(R.string.settings_password_bar_title));
     }
 
     @Override

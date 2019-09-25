@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:fitsSystemWindows="true"
             app:contentScrim="?attr/colorPrimary"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed">
+            app:layout_scrollFlags="scroll|enterAlwaysCollapsed|snap|exitUntilCollapsed">
 
             <ImageView
                 android:id="@+id/act_Calendar_IV_Settings"
@@ -73,7 +73,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/roboto_regular"
-                        android:textSize="18sp" />
+                        android:textSize="18sp"
+                        />
 
                     <TextView
                         android:id="@+id/act_Calendar_TV_Date"

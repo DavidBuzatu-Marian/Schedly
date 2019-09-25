@@ -77,7 +77,7 @@ public class PacketCalendar {
         getNamesAndPhoneNumbers();
     }
 
-    private void setImageViewListener(final String dayOfWeek, final String dateFormat) {
+    private void setImageViewListener(final String dayOfWeek, final String dateFormat, final String dayOfWeekDisplay) {
         TextView _txtAdd = mActivity.findViewById(R.id.act_Calendar_TV_AddNew);
         ImageView _imageAdd = mActivity.findViewById(R.id.act_Calendar_IV_AddIcon);
         _imageAdd.setVisibility(View.VISIBLE);
@@ -109,7 +109,7 @@ public class PacketCalendar {
                 // show the popup at bottom of the screen and set some margin at bottom
                 mPopWindow.showAtLocation(view, Gravity.BOTTOM, 0, 0);
                 setSpinnerAdapter(_inflatedView, dayOfWeek);
-                setInformationInPopup(_inflatedView, dayOfWeek, dateFormat);
+                setInformationInPopup(_inflatedView, dateFormat, dayOfWeekDisplay);
                 setPopUpButtonsListeners(_inflatedView);
 
                 ImageView _closeImg = _inflatedView.findViewById(R.id.popup_add_IV_Close);
@@ -132,7 +132,10 @@ public class PacketCalendar {
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
+                        DocumentSnapshot _document = task.getResult();
+                        assert _document != null;
+                        if (task.isSuccessful() && _document.exists()) {
+                            Log.d("Task", task.toString());
                             Map<String, Object> _map = task.getResult().getData();
                             assert _map != null;
                             Object _values = _map.containsKey(mDate.toString()) ? _map.get(mDate.toString()) : null;
@@ -227,7 +230,7 @@ public class PacketCalendar {
                 if (mSelectedAppointmentHour != null) {
                     saveAppointmentToDB(_txtName.getText().toString(), _txtNumber.getText().toString());
                 } else {
-                    Toast.makeText(mActivity, "Hour for schedule is required!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(mActivity, mActivity.getString(R.string.toast_add_appointment_hours), Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -236,7 +239,7 @@ public class PacketCalendar {
     private void saveAppointmentToDB(final String name, final String phoneNumber) {
         Log.d("Details", name);
         if (phoneNumber.equals("")) {
-            Toast.makeText(mActivity, "Phone number is required!", Toast.LENGTH_LONG).show();
+            Toast.makeText(mActivity, mActivity.getString(R.string.toast_add_appointment_phone_number), Toast.LENGTH_LONG).show();
         } else {
             Map<String, String> _detailsOfAppointment = new HashMap<>();
             _detailsOfAppointment.put("PhoneNumber", phoneNumber);
@@ -259,7 +262,7 @@ public class PacketCalendar {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             Snackbar.make(mActivity.findViewById(R.id.act_Calendar_CL_root),
-                                    "Appointment failed. Please check your connection or submit the error",
+                                    mActivity.getString(R.string.snackbar_add_appointment_failed),
                                     Snackbar.LENGTH_LONG).show();
                         }
                     });
@@ -268,16 +271,20 @@ public class PacketCalendar {
 
     private void sendMessage(String phoneNumber) {
         SmsManager.getDefault().sendTextMessage(phoneNumber, null,
-                "You've been scheduled on " + mCompleteDate + " at: " + mSelectedAppointmentHour + " . If something is wrong, please contact me",
+                mActivity.getString(R.string.add_appointment_manual_success_beg)
+                        + mCompleteDate
+                        + mActivity.getString(R.string.add_appointment_manual_success_at)
+                        + mSelectedAppointmentHour
+                        + mActivity.getString(R.string.add_appointment_manual_success_end),
                 null, null);
         Log.d("MESSAGE_ON_CANCEL_app", "CANCELED");
     }
 
-    private void setInformationInPopup(View inflatedView, String dayOfWeek, String dateFormat) {
+    private void setInformationInPopup(View inflatedView, String dateFormat, String dayOfWeekDisplay) {
         TextView _txtDayOfWeek = inflatedView.findViewById(R.id.popup_add_TV_DayOfWeek);
         TextView _txtDate = inflatedView.findViewById(R.id.popup_add_TV_Date);
         _txtDate.setText(dateFormat);
-        _txtDayOfWeek.setText(dayOfWeek);
+        _txtDayOfWeek.setText(dayOfWeekDisplay);
 
         ArrayAdapter<String> _adapterNumber = new ArrayAdapter<>(mActivity,
                 android.R.layout.simple_dropdown_item_1line, mCallLogPNumbers);
@@ -460,18 +467,19 @@ public class PacketCalendar {
 
 
     public void setDateForTVs(Calendar calendar, long milDate, String completeDate) {
-        String _dayOfWeek, _dateFormat;
+        String _dayOfWeek, _dayOfWeekDisplay, _dateFormat;
         mDate = milDate;
         mCompleteDate = completeDate;
 
-        DateTimeFormatter _DTF = DateTimeFormatter.ofPattern("EEEE", Locale.getDefault());
-        DateTimeFormatter _DTFDate = DateTimeFormatter.ofPattern("dd-MM-yyyy", Locale.getDefault());
+        DateTimeFormatter _DTF = DateTimeFormatter.ofPattern("EEEE", Locale.US);
+        DateTimeFormatter _DTFDate = DateTimeFormatter.ofPattern("dd-MM-yyyy", Locale.US);
         LocalDate _date = LocalDate.of(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH));
         TextView _tvDayInfo = mActivity.findViewById(R.id.act_Calendar_TV_DayOfWeek);
         TextView _tvDayDate = mActivity.findViewById(R.id.act_Calendar_TV_Date);
         _dayOfWeek = _date.format(_DTF);
+        _dayOfWeekDisplay = _date.format(DateTimeFormatter.ofPattern("EEEE", Locale.getDefault()));
         _dateFormat = _date.format(_DTFDate);
-        _tvDayInfo.setText(_dayOfWeek);
+        _tvDayInfo.setText(capitalize(_dayOfWeekDisplay));
         _tvDayDate.setText(_dateFormat);
         Log.d("Details", mWorkingHours.toString() + ": " + _dayOfWeek);
         if (mWorkingHours.get(_dayOfWeek + "Start").equals("Free")) {
@@ -486,8 +494,14 @@ public class PacketCalendar {
             PacketCalendarHelpers _PCH = new PacketCalendarHelpers(mActivity);
             addFreeDayImage(false);
             _PCH.displayHelpOnAdd();
-            setImageViewListener(_dayOfWeek, _dateFormat);
+            setImageViewListener(_dayOfWeek, _dateFormat, capitalize(_dayOfWeekDisplay));
         }
+    }
+
+    private String capitalize(String dayOfWeekDisplay) {
+        StringBuilder _builder = new StringBuilder(dayOfWeekDisplay);
+        _builder.setCharAt(0, Character.toUpperCase(_builder.charAt(0)));
+        return _builder.toString();
     }
 
 

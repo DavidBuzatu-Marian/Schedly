@@ -46,7 +46,7 @@ public class ChangeEmailFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mActivity = getActivity();
-        ((SettingsActivity) mActivity).setActionBarTitle("Change email");
+        ((SettingsActivity) mActivity).setActionBarTitle(mActivity.getString(R.string.settings_email_bar_title));
     }
 
     @Override

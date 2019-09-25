@@ -114,7 +114,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         super.onResume();
 
         mActivity = getActivity();
-        ((SettingsActivity) mActivity).setActionBarTitle("Settings");
+        ((SettingsActivity) mActivity).setActionBarTitle(mActivity.getString(R.string.settings_bar_title));
         getDataFromDataBase();
     }
 

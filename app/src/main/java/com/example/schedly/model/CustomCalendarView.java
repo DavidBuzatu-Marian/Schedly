@@ -2,6 +2,7 @@ package com.example.schedly.model;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -12,13 +13,19 @@ import com.example.schedly.R;
 import com.example.schedly.adapter.CustomCalendarAdapter;
 
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
 import org.threeten.bp.YearMonth;
+import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.format.FormatStyle;
+import org.threeten.bp.format.TextStyle;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 
 public class CustomCalendarView extends LinearLayout {
     // calendar components
@@ -100,8 +107,10 @@ public class CustomCalendarView extends LinearLayout {
                 mBUTPrev.performClick();
             }
         });
+        LocalDate _localeDate = LocalDate.of(mDateNow.getYear(), mDateNow.getMonthValue(), mDateNow.getDayOfMonth());
+        Month _month = _localeDate.getMonth();
         mFirstInstance = false;
-        String _date = mDateNow.getMonth().toString() + " " + mDateNow.getYear();
+        String _date = _month.getDisplayName(TextStyle.FULL, Locale.getDefault()) + " " + mDateNow.getYear();
         mTXTDisplayDate.setText(_date);
     }
 

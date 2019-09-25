@@ -57,7 +57,7 @@ public class ChangeWorkingDaysFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mActivity = getActivity();
-        ((SettingsActivity) mActivity).setActionBarTitle("Change working days");
+        ((SettingsActivity) mActivity).setActionBarTitle(mActivity.getString(R.string.settings_working_days_bar_title));
     }
 
     @Override

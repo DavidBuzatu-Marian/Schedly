@@ -4,49 +4,49 @@
 
     <PreferenceCategory
         app:key="account_category"
-        app:title="Account">
+        app:title="@string/preferences_account">
 
         <Preference
             app:key="email_change"
-            app:title="Change your email address"/>
+            app:title="@string/preferences_email_change"/>
         <Preference
             app:key="password_change"
             android:summary="********"
-            app:title="Change your password"/>
+            app:title="@string/preferences_password_change"/>
         <Preference
             app:key="phoneNumber_change"
-            android:title="Change your phone number"/>
+            android:title="@string/preferences_phone_number_change"/>
         <Preference
             app:key="workingHours_change"
-            android:title="Change your working days"/>
+            android:title="@string/preferences_working_days_change"/>
         <Preference
             app:key="displayName_change"
-            android:title="Change your display name"/>
+            android:title="@string/preferences_display_name_change"/>
         <Preference
             app:key="appointmentDuration_change"
-            android:title="Change your appointment duration"/>
+            android:title="@string/preferences_appointment_duration_change"/>
 
     </PreferenceCategory>
 
     <PreferenceCategory
         app:key="notification_category"
-        app:title="Notifications">
+        app:title="@string/preferences_notifications">
 
         <SwitchPreference
             app:key="stopNotificationSMSMonitoring"
-            app:summary="Disable SMS monitoring"
-            app:title="Enable/ Disable monitoring"/>
+            app:summary="@string/preferences_monitoring_disable"
+            app:title="@string/preferences_monitoring_title"/>
 
     </PreferenceCategory>
 
     <PreferenceCategory
         app:key="help_category"
-        app:title="Help">
+        app:title="@string/preferences_help">
 
         <Preference
             app:key="help_feedback"
-            app:summary="Report technical issues or suggest new features"
-            app:title="Send feedback"/>
+            app:summary="@string/preferences_feedback"
+            app:title="@string/preferences_feedback_title"/>
 
     </PreferenceCategory>
 

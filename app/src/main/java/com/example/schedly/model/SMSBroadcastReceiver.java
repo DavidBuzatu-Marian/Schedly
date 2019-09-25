@@ -42,7 +42,7 @@ public class SMSBroadcastReceiver extends BroadcastReceiver {
             TSMSMessage _newSMSMessage;
             String _smsSender = "";
             StringBuilder _smsBody = new StringBuilder();
-            Long _timeReceived = 0L;
+            long _timeReceived = 0L;
             for (SmsMessage _smsMessage : Telephony.Sms.Intents.getMessagesFromIntent(intent)) {
                 _smsSender = _smsMessage.getDisplayOriginatingAddress();
                 _smsBody.append(_smsMessage.getMessageBody());
