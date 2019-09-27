@@ -43,8 +43,8 @@ public class DisplayName {
         LayoutInflater inflater = mActivity.getLayoutInflater();
         final View _dialogLayout = inflater.inflate(R.layout.dialog_settings_display_name, null);
         builder.setView(_dialogLayout);
-        builder.setTitle("Change display name");
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        builder.setTitle(mActivity.getString(R.string.dialog_display_name_title));
+        builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 String _name = mDisplayNameEditText.getText().toString();
@@ -53,7 +53,7 @@ public class DisplayName {
                 }
             }
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 dialogInterface.dismiss();
@@ -67,7 +67,7 @@ public class DisplayName {
 
     private boolean validName(String name) {
         if(name.length() > 28 || name.length() < 1) {
-            mDisplayNameEditText.setError("Display name must have at least 1 character and at max 28");
+            mDisplayNameEditText.setError(mActivity.getString(R.string.dialog_display_name_validity));
             return false;
         }
         return true;
@@ -84,7 +84,7 @@ public class DisplayName {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Toast.makeText(mActivity, "Display name changed successfully", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mActivity, mActivity.getString(R.string.dialog_display_name_success), Toast.LENGTH_SHORT).show();
                         mPreference.setSummary(newDisplayName);
                         mSettingsFragment.setmUserDisplayName(newDisplayName);
                         Log.d("Change", "DocumentSnapshot successfully written!");

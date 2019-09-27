@@ -36,19 +36,23 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 
+import java.util.Map;
+
 import static com.example.schedly.CalendarActivity.LOG_OUT;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
     private Preference mChangeEmailPreference;
     private Preference mChangePasswordPreference, mChangeWorkingHours;
     private Preference mChangePhoneNumber, mChangeDisplayName, mChangeAppointmentsDuration;
-    public String mUserID, mUserPhoneNumber, mUserDisplayName, mUserWorkingHoursID;
-    public String mUserAppointmentsDuration;
+    private String mUserID, mUserPhoneNumber, mUserDisplayName, mUserWorkingHoursID;
+    private String mUserAppointmentsDuration;
     private Preference mFeedback;
     private SwitchPreference mDisableMonitorization;
     private GoogleSignInClient mGoogleSignInClient;
     private FragmentActivity mActivity = getActivity();
     private boolean mPreferencesCreated = false;
+    private Map<String, Object> mBlockedNumbers;
+    private Preference mBlockList;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -203,6 +207,20 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             }
         });
 
+        mBlockList = findPreference("block_list_access");
+        mBlockList.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                Fragment _newFragment = new BlockListFragment(mUserID);
+                FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                transaction.replace(R.id.frag_Settings_FL_Holder, _newFragment);
+                transaction.addToBackStack(null);
+                transaction.commit();
+
+                return false;
+            }
+        });
+
         mDisableMonitorization = findPreference("stopNotificationSMSMonitoring");
         mDisableMonitorization.setChecked(MonitorIncomingSMSService.sServiceRunning);
         mDisableMonitorization.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
@@ -251,7 +269,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 return true;
             }
         });
-
     }
 
     private void getDataFromDataBase() {
@@ -269,6 +286,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                         mUserWorkingHoursID = document.get("workingDaysID").toString();
                         mUserDisplayName = document.get("displayName").toString();
                         mUserAppointmentsDuration = document.get("appointmentsDuration").toString();
+                        getUserBlockedList();
                         if(mPreferencesCreated) {
                             setPreferencesForCurrentUser();
                         }
@@ -276,6 +294,20 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 }
             }
         });
+    }
+
+    private void getUserBlockedList() {
+        FirebaseFirestore.getInstance().collection("blockLists")
+                .document(mUserID)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if(task.getResult() != null && task.getResult().exists()) {
+                            mBlockedNumbers = task.getResult().getData();
+                        }
+                    }
+                });
     }
 
     public void setmUserDisplayName(String name) {

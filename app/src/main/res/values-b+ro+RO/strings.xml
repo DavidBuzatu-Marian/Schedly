@@ -180,4 +180,11 @@
     <string name="edit_appointment_message_end"> a fost anulată</string>
     <string name="edit_appointment_info_app_start">Programarea începe la: </string>
 
+    <string name="preferences_block_list_access">Lista nr. blocate</string>
+    <string name="frag_BlockList_TV_Info">O dată ce blocați un număr, utilizatorul acestuia nu va mai putea face programări prin SMS. Schedly va ignora toate mesajele din partea acestuia</string>
+    <string name="frag_blocklist_tv_add">Adaugă la lista</string>
+    <string name="frag_BlockList_DialogTitle">Elimină număr din listă</string>
+    <string name="frag_BlockList_DialogMessage">Chiar doriți să deblocați acest număr? Numărul va putea din nou să se programeze prin SMS</string>
+    <string name="frag_BlockList_TV_Unblock">Deblochează</string>
+
 </resources>

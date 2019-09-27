@@ -5,7 +5,6 @@
     <PreferenceCategory
         app:key="account_category"
         app:title="@string/preferences_account">
-
         <Preference
             app:key="email_change"
             app:title="@string/preferences_email_change"/>
@@ -25,6 +24,10 @@
         <Preference
             app:key="appointmentDuration_change"
             android:title="@string/preferences_appointment_duration_change"/>
+        <Preference
+            app:key="block_list_access"
+            android:title="@string/preferences_block_list_access"
+            android:icon="@drawable/ic_block_24px"/>
 
     </PreferenceCategory>
 

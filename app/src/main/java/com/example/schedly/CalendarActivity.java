@@ -32,6 +32,7 @@ import com.example.schedly.packet_classes.PacketService;
 import com.example.schedly.service.MonitorIncomingSMSService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -40,6 +41,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.SetOptions;
 import com.google.gson.Gson;
 
 import org.threeten.bp.Instant;
@@ -140,6 +142,7 @@ public class CalendarActivity extends AppCompatActivity {
         setRecyclerView();
         monitorChanges();
     }
+
 
     @Override
     protected void onStop() {
@@ -327,6 +330,7 @@ public class CalendarActivity extends AppCompatActivity {
                     } else {
                         getEachAppointments();
                     }
+                    setCalendarContent();
                 } else {
                     Log.d("TESTDB", "Current data: null");
                     Calendar _calendar = Calendar.getInstance();

@@ -41,8 +41,8 @@ public class AppointmentDuration {
         LayoutInflater inflater = mActivity.getLayoutInflater();
         final View _dialogLayout = inflater.inflate(R.layout.dialog_settings_appointment_duration, null);
         builder.setView(_dialogLayout);
-        builder.setTitle("Change appointment duration");
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        builder.setTitle(mActivity.getString(R.string.dialog_app_duration_title));
+        builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 EditText _editText = _dialogLayout.findViewById(R.id.dialog_settings_appointment_duration);
@@ -50,11 +50,11 @@ public class AppointmentDuration {
                 if(!_duration.equals("")) {
                     saveAppointmentDuration(_duration);
                 } else {
-                    Toast.makeText(mActivity, "Empty field", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mActivity, mActivity.getString(R.string.dialog_app_change_empty), Toast.LENGTH_SHORT).show();
                 }
             }
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 dialogInterface.dismiss();
@@ -77,7 +77,7 @@ public class AppointmentDuration {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Toast.makeText(mActivity, "Duration changed successfully", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mActivity, mActivity.getString(R.string.dialog_app_change_success), Toast.LENGTH_SHORT).show();
                         mPreference.setSummary(duration);
                         mSettingsFragment.setmUserAppointmentDuration(duration);
                         Log.d("ChangeAP", "DocumentSnapshot successfully written!");

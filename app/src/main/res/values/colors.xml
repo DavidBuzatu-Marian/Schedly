@@ -12,4 +12,5 @@
     <color name="colorEventLessThanHalf">#11FD45</color>
     <color name="colorEventMoreThanHalf">#057A1F</color>
     <color name="colorEventFull">#DD3737</color>
+    <color name="colorUnlock">#7C7C7C</color>
 </resources>

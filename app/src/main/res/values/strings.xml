@@ -178,5 +178,22 @@
     <string name="edit_appointment_cancel_message_start">Your appointment on</string>
     <string name="edit_appointment_message_end"> has been canceled</string>
     <string name="edit_appointment_info_app_start">Appointment starts at: </string>
+    <string name="preferences_block_list_access">Block List</string>
+    <string name="frag_BlockList_TV_Info">Once you block a number, the person which owns it won\'t be able to make schedules anymore through SMS. Schedly will simply ignore the messages</string>
+    <string name="frag_blocklist_tv_add">Add to blocked list</string>
+    <string name="frag_BlockList_DialogTitle">Remove number from block list</string>
+    <string name="frag_BlockList_DialogMessage">Do you really want to unblock this number? It will be able to schedule through SMS again</string>
+    <string name="frag_BlockList_TV_Unblock">Unblock</string>
+    <string name="frag_BlockList_AddTitle">Block number</string>
+    <string name="frag_BlockList_AddMessage">Once you add this number to the block list, it won\'t be able to schedule thourgh SMS anymore</string>
+    <string name="dialog_display_name_title">Change display name</string>
+    <string name="dialog_phone_number_title">Change phone number</string>
+    <string name="dialog_phone_number_error">Phone number is invalid!</string>
+    <string name="dialog_display_name_validity">Display name must have at least 1 character and at max 28</string>
+    <string name="dialog_display_name_success">Display name changed successfully</string>
+    <string name="dialog_app_duration_title">Change appointment duration</string>
+    <string name="dialog_app_change_success">Duration changed successfully</string>
+    <string name="dialog_app_change_empty">Empty field</string>
+    <string name="frag_BlockList_DialogBlock_Title">Block this number</string>
 
 </resources>

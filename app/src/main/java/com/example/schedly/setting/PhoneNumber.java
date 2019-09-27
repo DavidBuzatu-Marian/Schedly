@@ -48,18 +48,18 @@ public class PhoneNumber {
         LayoutInflater inflater = mActivity.getLayoutInflater();
         final View _dialogLayout = inflater.inflate(R.layout.dialog_settings_phone_number, null);
         builder.setView(_dialogLayout);
-        builder.setTitle("Change phone number");
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        builder.setTitle(mActivity.getString(R.string.dialog_phone_number_title));
+        builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 if (mValidNumber) {
                     savePhoneNumber(mCCP.getFullNumberWithPlus());
                 } else {
-                    Toast.makeText(mActivity, "Phone number is invalid!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mActivity, mActivity.getString(R.string.dialog_phone_number_error), Toast.LENGTH_SHORT).show();
                 }
             }
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 dialogInterface.dismiss();

@@ -60,6 +60,7 @@ public class PacketService {
     private StringBuilder mSMSBody;
     private String mPhoneNumber;
     private volatile Map<String, String> mUserWorkingDays;
+    private Integer mNrOfAppointmentsForDate;
 
     public PacketService(String userID, String userAppointmentDuration, String userWorkingDaysID) {
         mUserID = userID;
@@ -72,26 +73,6 @@ public class PacketService {
     private void sendMessage() {
         SmsManager.getDefault().sendTextMessage(mPhoneNumber, null, mSMSBody.toString(), null, null);
         Log.d("MESSAGE", mSMSBody.toString());
-    }
-
-    private void getDateInMillis(String dateFromUser) {
-        Calendar _calendar = Calendar.getInstance();
-        SimpleDateFormat _simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        Date _date;
-        try {
-            _date = _simpleDateFormat.parse(dateFromUser);
-            Log.d("Firebase", _date.toString());
-            _calendar.setTimeInMillis(_simpleDateFormat.parse(dateFromUser).getTime());
-        } catch (ParseException e) {
-            Log.d("FirebaseExc", "Exception");
-            e.printStackTrace();
-        }
-        _calendar.set(Calendar.HOUR_OF_DAY, 0);
-        _calendar.set(Calendar.MINUTE, 0);
-        _calendar.set(Calendar.MILLISECOND, 0);
-        _calendar.set(Calendar.SECOND, 0);
-        Log.d("FirebaseTime", _calendar.getTimeInMillis() + "");
-        mDateInMillis = _calendar.getTimeInMillis();
     }
 
 
@@ -115,10 +96,10 @@ public class PacketService {
      * message with DATE only. messageType = 'DATE'
      * message with DATE and TIME. messageType = 'FULL'
      */
-    public void getCurrentDate(final String dateFromUser, String phoneNumber, final String messageType) {
+    public void getCurrentDate(final String dateFromUser, Long dateInMillis, String phoneNumber, final String messageType) {
         mPhoneNumber = phoneNumber;
-        getDateInMillis(dateFromUser);
-        Log.d("FirebaseTime-ServiceGET", dateFromUser);
+        mDateInMillis = dateInMillis;
+        Log.d("FirebaseTime-ServiceGET", mDateInMillis + "");
         mFireStore.collection("scheduledHours")
                 .document(mUserID)
                 .get()
@@ -257,11 +238,13 @@ public class PacketService {
 
 
     /* this part is called for a time and date message */
-    public void makeAppointmentForFixedParameters(String dateFromUser, String time, String messagePhoneNumber, String contactName) {
+    public void makeAppointmentForFixedParameters(String dateFromUser, Long dateInMillis,
+                                                  String time, String messagePhoneNumber,
+                                                  String contactName) {
         mTimeToSchedule = time;
         mContactName = contactName;
 
-        getCurrentDate(dateFromUser, messagePhoneNumber, "FULL");
+        getCurrentDate(dateFromUser, dateInMillis, messagePhoneNumber, "FULL");
     }
 
 
@@ -418,16 +401,43 @@ public class PacketService {
         FirebaseFirestore.getInstance().collection("scheduledHours")
                 .document(mUserID)
                 .set(_appointment, SetOptions.merge())
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        increaseNrOfAppointments(mDateInMillis.toString(), mUserID);
+                    }
+                })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.d("AppErr", e.toString());
+                        Log.d("AppErrSavePS", e.toString());
                     }
                 });
 
     }
 
+    private void increaseNrOfAppointments(String date, String userID) {
+        mNrOfAppointmentsForDate++;
+        Map<String, String> _date = new HashMap<>();
+        _date.put(date, mNrOfAppointmentsForDate.toString());
+        Map<String, Object> _infoForThisUser = new HashMap<>();
+        _infoForThisUser.put(userID, _date);
+        FirebaseFirestore.getInstance().collection("phoneNumbersFromClients")
+                .document(mPhoneNumber)
+                .set(_infoForThisUser, SetOptions.merge())
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d("AppErrNROfAppPS", e.toString());
+                    }
+                });
+    }
+
 //    public boolean isThreadWorkFinished() {
 //        return mResultForService.get();
 //    }
+
+    public void setNrOfAppointmentsForNumber(int nrOfAppointmentsForDate) {
+        mNrOfAppointmentsForDate = nrOfAppointmentsForDate;
+    }
 }

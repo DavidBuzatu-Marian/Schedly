@@ -33,13 +33,17 @@ import com.example.schedly.model.MessageListener;
 import com.example.schedly.model.SMSBroadcastReceiver;
 import com.example.schedly.model.TSMSMessage;
 import com.example.schedly.packet_classes.PacketService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.HttpsCallableResult;
 import com.google.gson.Gson;
@@ -47,8 +51,10 @@ import com.google.gson.Gson;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.format.DateTimeFormatter;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayDeque;
@@ -61,6 +67,7 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.example.schedly.CalendarActivity.SETTINGS_RETURN;
 
@@ -69,7 +76,8 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
     private ArrayDeque<TSMSMessage> mSMSQueue;
     private HashMap<String, String> mUUID;
     private HashMap<String, Object> mResultFromDialogFlow;
-    private String mTime, mDateFromUser;
+    private String mTime, mDateFromUser, mAppointmentType;
+    private Long mDateFromUserInMillis;
     private String mUserID;
     private String mUserAppointmentDuration;
     private String mMessagePhoneNumber;
@@ -178,7 +186,9 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
                  */
                 if(!mUUID.containsKey(_sender)) {
                     mUUID.put(_sender, UUID.randomUUID().toString());
-                    getContact(mMessagePhoneNumber);
+                    if(!mContactName.containsKey(mMessagePhoneNumber)) {
+                        getContact(mMessagePhoneNumber);
+                    }
                 }
                 Log.d("MESSAGEReceiver", _sender);
                 Log.d("Succes", "Contact name: " + mContactName.get(mMessagePhoneNumber));
@@ -206,6 +216,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
         Uri lookupUriContacts = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(mMessagePhoneNumber));
         Cursor cursor = this.getContentResolver().query(lookupUriContacts, new String[]{ContactsContract.Data.DISPLAY_NAME},null,null,null);
         if(cursor != null) {
+
             if(cursor.moveToFirst()) {
                 mContactName.put(mMessagePhoneNumber, cursor.getString(0));
                 Log.d("Firebase", mContactName.get(mMessagePhoneNumber));
@@ -231,6 +242,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
         return null;
     }
 
+
     private void callToFirebaseFunction(String message, String sessionID) {
         FirebaseFunctions mFunctions;
         mFunctions = FirebaseFunctions.getInstance();
@@ -244,9 +256,11 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
                     Properties data = _gson.fromJson(mResultFromDialogFlow.get("parameters").toString(), Properties.class);
                     mTime = getLocaleTimeString(data.getProperty("time"));
                     mDateFromUser = getLocaleDateString(data.getProperty("date"));
-                    if(!dateFromUserIsNotPast(mDateFromUser)) {
-                        sendMessageForDatePast();
-                    } else {
+                    mAppointmentType = data.getProperty("Appointment-type");
+//                    if(!dateFromUserIsNotPast(mDateFromUser)) {
+//                        sendMessageForDatePast();
+//                    } else {
+                    if(!phoneBlocked(mMessagePhoneNumber) && !checkPhoneNumberNrAppointments(mMessagePhoneNumber, mDateFromUser) && dateFromUserIsNotPast(mDateFromUser)) {
                         if (mTime == null && mDateFromUser != null) {
                             sendMessageForTime();
                         } else if (mDateFromUser == null && mTime != null) {
@@ -255,7 +269,8 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
                             sendMessageForAppointment(mResultFromDialogFlow.get("response").toString());
                         } else {
                             Log.d("Succes", mDateFromUser + ": " + mTime);
-                            mPacketService.makeAppointmentForFixedParameters(mDateFromUser, mTime, mMessagePhoneNumber, mContactName.get(mMessagePhoneNumber));
+                            mPacketService.makeAppointmentForFixedParameters(mDateFromUser, mDateFromUserInMillis, mTime, mMessagePhoneNumber, mContactName.get(mMessagePhoneNumber));
+                            mUUID.remove(mMessagePhoneNumber);
                         }
                     }
                 }
@@ -268,7 +283,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
     }
 
     private void sendMessageForDatePast() {
-        String _message = "Sorry, but your date: " + mDateFromUser + " has passed already. Try a valid one!";
+        String _message = "Sorry, but your date: " + mDateFromUser + " has passed already. Try a valid one.";
         SmsManager.getDefault().sendTextMessage(mMessagePhoneNumber, null, _message, null, null);
     }
 
@@ -290,7 +305,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
 
     private void sendMessageForTime() {
         // this function finishes by sending the message to the phoneNumber
-        mPacketService.getCurrentDate(mDateFromUser, mMessagePhoneNumber, "DATE");
+        mPacketService.getCurrentDate(mDateFromUser, mDateFromUserInMillis, mMessagePhoneNumber, "DATE");
 //       threadPaused();
     }
 
@@ -358,5 +373,71 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
         else {
             return null;
         }
+    }
+
+    private boolean checkPhoneNumberNrAppointments(String phoneNumber, String dateFromUser) {
+        /* get date in millis */
+        LocalDate _localDate = LocalDate.parse(dateFromUser);
+        mDateFromUserInMillis  = _localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        final AtomicBoolean _phoneNumberBlocked = new AtomicBoolean(false);
+        FirebaseFirestore.getInstance()
+                .collection("phoneNumbersFromClients")
+                .document(phoneNumber)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if(task.getResult() != null && task.getResult().exists()) {
+                            /* we get a map which has objects with the values needed.
+                             */
+                            Map<String, Object> _maps = task.getResult().getData();
+                            Gson _gson = new Gson();
+                            String _json = _gson.toJson(_maps);
+                            try {
+                                Map<String, Object> _result = new ObjectMapper().readValue(_json, Map.class);
+                                Object _values = _result.values();
+                                _json = _gson.toJson(_values);
+                                /* remove [] from the collection type of values
+                                 * in order to get a working json for mapping
+                                 */
+                                Map<String, Object> _data = new ObjectMapper().readValue(_json.substring(1, _json.length() - 1), Map.class);
+                                Log.d("Logged", _data.keySet().toString());
+                                if(_data.containsKey(mDateFromUserInMillis.toString())) {
+                                    int _nrOfAppointmentsForThisDay = Integer.parseInt(_data.get("1569445200000").toString());
+                                    mPacketService.setNrOfAppointmentsForNumber(_nrOfAppointmentsForThisDay);
+                                    Log.d("Logged", _nrOfAppointmentsForThisDay + "; ");
+                                    _phoneNumberBlocked.set(_nrOfAppointmentsForThisDay > 3);
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                });
+        return _phoneNumberBlocked.get();
+    }
+
+
+    private boolean phoneBlocked(final String mMessagePhoneNumber) {
+        final AtomicBoolean _phoneNumberBlocked = new AtomicBoolean(false);
+        FirebaseFirestore.getInstance()
+                .collection("blockLists")
+                .document(mUserID)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if(task.getResult() != null && task.getResult().exists()) {
+                            /* we get a map which has objects with the values needed.
+                             */
+                            Map<String, Object> _maps = task.getResult().getData();
+                            assert _maps != null;
+                            if(_maps.containsKey(mMessagePhoneNumber)) {
+                                _phoneNumberBlocked.set(true);
+                            }
+                        }
+                    }
+                });
+        return _phoneNumberBlocked.get();
     }
 }
