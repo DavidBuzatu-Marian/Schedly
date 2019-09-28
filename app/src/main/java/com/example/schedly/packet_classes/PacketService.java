@@ -37,10 +37,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class PacketService {
-    private String mContactName;
     private Long mDateInMillis;
-    private String mUserID;
-    private String mUserAppointmentDuration;
+    private String mUserID, mUserAppointmentDuration, mContactName;
     private FirebaseFirestore mFireStore;
     private threadFindDaysForAppointment mWorkThread;
     // get the appointments for a given date
@@ -48,17 +46,15 @@ public class PacketService {
     /* variable used to know the hour
      * to make the schedule for this client
      */
-    private String mTimeToSchedule;
+    private String mTimeToSchedule, mAppointmentType;
     /* get all of users working days which
     have a schedule */
     private Map<String, Object> mUserDaysWithSchedule;
-    private String mUserWorkingDaysID;
-    private String mDayOfTheWeek;
+    private String mUserWorkingDaysID, mDayOfTheWeek, mPhoneNumber;
     // used for geting start and end hours
     private String[] mDaySchedule;
     // building the sms body
     private StringBuilder mSMSBody;
-    private String mPhoneNumber;
     private volatile Map<String, String> mUserWorkingDays;
     private Integer mNrOfAppointmentsForDate;
 
@@ -393,6 +389,7 @@ public class PacketService {
         Map<String, String> _detailsOfAppointment = new HashMap<>();
         _detailsOfAppointment.put("PhoneNumber", mPhoneNumber);
         _detailsOfAppointment.put("Name", mContactName.equals("") ? null : mContactName);
+        _detailsOfAppointment.put("AppointmentType", mAppointmentType);
         Map<String, Object> _hourAndInfo = new HashMap<>();
         _hourAndInfo.put(hour, _detailsOfAppointment);
         Map<String, Object> _appointment = new HashMap<>();
@@ -439,5 +436,13 @@ public class PacketService {
 
     public void setNrOfAppointmentsForNumber(int nrOfAppointmentsForDate) {
         mNrOfAppointmentsForDate = nrOfAppointmentsForDate;
+    }
+
+    public String getAppointmentType() {
+        return mAppointmentType;
+    }
+
+    public void setAppointmentType(String mAppointmentType) {
+        this.mAppointmentType = mAppointmentType;
     }
 }

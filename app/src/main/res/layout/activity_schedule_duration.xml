@@ -36,6 +36,20 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"/>
+
+            <ProgressBar
+                android:id="@+id/act_SDuration_ProgressBar"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginStart="24dp"
+                android:layout_marginEnd="24dp"
+                android:max="100"
+                android:progress="75"
+                app:layout_constraintTop_toBottomOf="@id/act_SDuration_IV"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
             <TextView
                 android:id="@+id/act_SDuration_TV_Title"
                 style="@style/RequestScheduleDurationTextViewHead"
@@ -44,7 +58,7 @@
                 android:layout_centerHorizontal="true"
                 android:gravity="center"
                 android:text="@string/act_SDuration_TV_Title"
-                app:layout_constraintTop_toBottomOf="@+id/act_SDuration_IV"/>
+                app:layout_constraintTop_toBottomOf="@+id/act_SDuration_ProgressBar"/>
 
             <TextView
                 android:id="@+id/act_SDuration_TV_Title_Extra"

@@ -14,6 +14,7 @@ public class Appointment{
     private String mName;
     private String mPhoneNumber;
     private String mDate;
+    private String mAppointmentType;
     private Long mDateInMillis;
 
 
@@ -22,6 +23,7 @@ public class Appointment{
         Properties data = gson.fromJson(json, Properties.class);
         mName = data.getProperty("Name");
         mPhoneNumber = data.getProperty("PhoneNumber");
+        mAppointmentType = data.getProperty("AppointmentType");
         mDate = date;
         mDateInMillis = dateInMillis;
     }
@@ -67,5 +69,9 @@ public class Appointment{
 
     public Long getmDateInMillis() {
         return mDateInMillis;
+    }
+
+    public String getmAppointmentType() {
+        return mAppointmentType;
     }
 }

@@ -65,7 +65,7 @@ public class CustomCalendarAdapter extends ArrayAdapter<Date> {
         if (_fmonth != _curMonth.get(Calendar.MONTH) || _fyear != _curMonth.get(Calendar.YEAR)) {
             // if this day is outside current month, hide it
             view.setVisibility(View.GONE);
-        } else if (_fday == mCalendarToday.get(Calendar.DATE) && _fmonth == mCalendarToday.get(Calendar.MONTH) && _fyear == mCalendarToday.get(Calendar.YEAR) && !mCustomCalendarView.isMarkedDate()) {
+        } else if (isToday(_fday, _fmonth, _fyear) && !mCustomCalendarView.isMarkedDate()) {
             // it is today, mark it with a different text color on init.
             if (mCircularTV == null || mCircularTV.getCalendar() == mCalendarToday) {
                 markSelectedDate(_fcircularTextView);
@@ -102,7 +102,7 @@ public class CustomCalendarAdapter extends ArrayAdapter<Date> {
         });
 
         /* mark it with the event */
-        if(eventDays != null && eventDays.containsKey(calendar.getTimeInMillis())) {
+        if(eventDays != null && eventDays.containsKey(calendar.getTimeInMillis()) && mCircularTV != null && mCircularTV.getCalendar() != calendar) {
             _fcircularTextView.setBackgroundResource(eventDays.get(calendar.getTimeInMillis()).getDayStatus());
         }
 

@@ -30,14 +30,24 @@
                 android:src="@drawable/ic_working_hours"
                 android:layout_centerHorizontal="true"
                 android:layout_alignParentTop="true"/>
-
+            <ProgressBar
+                android:id="@+id/act_SWHours_ProgressBar"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginStart="24dp"
+                android:layout_marginEnd="24dp"
+                android:max="100"
+                android:progress="50"
+                android:layout_below="@id/act_SWHours_IV" />
             <TextView
                 android:id="@+id/act_SWHours_TV_Title"
                 style="@style/RequestWorkingHoursTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
-                android:layout_below="@id/act_SWHours_IV"
+                android:layout_below="@id/act_SWHours_ProgressBar"
                 android:gravity="center"
                 android:text="@string/act_SWHours_TV_Title" />
 

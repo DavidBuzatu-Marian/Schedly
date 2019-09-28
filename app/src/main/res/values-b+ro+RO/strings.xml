@@ -186,5 +186,16 @@
     <string name="frag_BlockList_DialogTitle">Elimină număr din listă</string>
     <string name="frag_BlockList_DialogMessage">Chiar doriți să deblocați acest număr? Numărul va putea din nou să se programeze prin SMS</string>
     <string name="frag_BlockList_TV_Unblock">Deblochează</string>
+    <string name="frag_BlockList_AddTitle">Blochează număr</string>
+    <string name="frag_BlockList_AddMessage">O dată ce adăugați acest număr la lista de blocări, persoana nu va mai putea să se programeze prin SMS</string>
+    <string name="dialog_display_name_title">Schimbă numele afișat</string>
+    <string name="dialog_phone_number_title">Schimbă nr. telefon</string>
+    <string name="dialog_phone_number_error">Nr. telefon invalid!</string>
+    <string name="dialog_display_name_validity">Numele trebuie să aiba minim un caracter și maxim 28!</string>
+    <string name="dialog_display_name_success">Numele afișat a fost schimbat cu succes!</string>
+    <string name="dialog_app_duration_title">Schimbă durația programărilor</string>
+    <string name="dialog_app_change_success">Durație schimbată cu succes!</string>
+    <string name="dialog_app_change_empty">Câmp gol</string>
+    <string name="frag_BlockList_DialogBlock_Title">Blochează acest număr</string>
 
 </resources>

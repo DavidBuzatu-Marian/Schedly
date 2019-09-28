@@ -38,6 +38,20 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
+            <ProgressBar
+                android:id="@+id/act_SProfession_ProgressBar"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginStart="24dp"
+                android:layout_marginEnd="24dp"
+                android:max="100"
+                android:progress="25"
+                app:layout_constraintTop_toBottomOf="@id/act_SProfession_IV"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
             <TextView
                 android:id="@+id/act_SProfession_TV_Select"
                 style="@style/RequestProfessionTextViewHead"
@@ -46,7 +60,7 @@
                 android:gravity="center"
                 android:text="@string/select_profession"
 
-                app:layout_constraintTop_toBottomOf="@+id/act_SProfession_IV" />
+                app:layout_constraintTop_toBottomOf="@+id/act_SProfession_ProgressBar" />
 
             <TextView
                 android:id="@+id/act_SProfession_TV_Select_Extra"

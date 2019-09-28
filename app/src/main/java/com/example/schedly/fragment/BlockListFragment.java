@@ -121,7 +121,7 @@ public class BlockListFragment extends Fragment {
         builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                if(mValidNumber) {
+                if(mValidNumber && !mDataSet.contains(mCCP.getFullNumberWithPlus())) {
                     saveBlockedPhoneNumber(mCCP.getFullNumberWithPlus());
                 } else {
                     Toast.makeText(mActivity, mActivity.getString(R.string.dialog_phone_number_error), Toast.LENGTH_SHORT).show();

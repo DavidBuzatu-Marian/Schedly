@@ -78,10 +78,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
     private HashMap<String, Object> mResultFromDialogFlow;
     private String mTime, mDateFromUser, mAppointmentType;
     private Long mDateFromUserInMillis;
-    private String mUserID;
-    private String mUserAppointmentDuration;
-    private String mMessagePhoneNumber;
-    private String mUserWorkingDaysID;
+    private String mUserID, mUserAppointmentDuration, mMessagePhoneNumber, mUserWorkingDaysID;
     private HashMap<String, String> mContactName;
     private PacketService mPacketService;
     public static final int SERVICE_ID = 4000;
@@ -243,7 +240,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
     }
 
 
-    private void callToFirebaseFunction(String message, String sessionID) {
+    private void callToFirebaseFunction(final String message, String sessionID) {
         FirebaseFunctions mFunctions;
         mFunctions = FirebaseFunctions.getInstance();
         addMessage(message, mFunctions, sessionID).addOnCompleteListener(new OnCompleteListener<String>() {
@@ -257,20 +254,29 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
                     mTime = getLocaleTimeString(data.getProperty("time"));
                     mDateFromUser = getLocaleDateString(data.getProperty("date"));
                     mAppointmentType = data.getProperty("Appointment-type");
+                    String _keyWord = data.getProperty("Key-word");
 //                    if(!dateFromUserIsNotPast(mDateFromUser)) {
 //                        sendMessageForDatePast();
 //                    } else {
-                    if(!phoneBlocked(mMessagePhoneNumber) && !checkPhoneNumberNrAppointments(mMessagePhoneNumber, mDateFromUser) && dateFromUserIsNotPast(mDateFromUser)) {
-                        if (mTime == null && mDateFromUser != null) {
-                            sendMessageForTime();
-                        } else if (mDateFromUser == null && mTime != null) {
-                            sendMessageForDate();
-                        } else if (mDateFromUser == null && mTime == null) {
-                            sendMessageForAppointment(mResultFromDialogFlow.get("response").toString());
-                        } else {
-                            Log.d("Succes", mDateFromUser + ": " + mTime);
-                            mPacketService.makeAppointmentForFixedParameters(mDateFromUser, mDateFromUserInMillis, mTime, mMessagePhoneNumber, mContactName.get(mMessagePhoneNumber));
-                            mUUID.remove(mMessagePhoneNumber);
+                    if(_keyWord == null && mAppointmentType == null && (mTime == null || mDateFromUser == null)) {
+                        /* ignore message */
+                        Log.d("Monitor", "Ignored message from user: " + message);
+                    } else {
+                        if (!phoneBlocked(mMessagePhoneNumber) && !checkPhoneNumberNrAppointments(mMessagePhoneNumber, mDateFromUser) && dateFromUserIsNotPast(mDateFromUser)) {
+                            if (mTime == null && mDateFromUser != null) {
+                                sendMessageForTime();
+                            } else if (mDateFromUser == null && mTime != null) {
+                                sendMessageForDate();
+                            } else if (mDateFromUser == null && mTime == null) {
+                                sendMessageForAppointment(mResultFromDialogFlow.get("response").toString());
+                            } else {
+                                Log.d("Succes", mDateFromUser + ": " + mTime);
+                                if(mAppointmentType != null) {
+                                    mPacketService.setAppointmentType(mAppointmentType);
+                                }
+                                mPacketService.makeAppointmentForFixedParameters(mDateFromUser, mDateFromUserInMillis, mTime, mMessagePhoneNumber, mContactName.get(mMessagePhoneNumber));
+                                mUUID.remove(mMessagePhoneNumber);
+                            }
                         }
                     }
                 }
@@ -305,6 +311,9 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
 
     private void sendMessageForTime() {
         // this function finishes by sending the message to the phoneNumber
+        if(mAppointmentType != null) {
+            mPacketService.setAppointmentType(mAppointmentType);
+        }
         mPacketService.getCurrentDate(mDateFromUser, mDateFromUserInMillis, mMessagePhoneNumber, "DATE");
 //       threadPaused();
     }
@@ -315,6 +324,9 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
     }
 
     private void sendMessageForDate() {
+        if(mAppointmentType != null) {
+            mPacketService.setAppointmentType(mAppointmentType);
+        }
         mPacketService.getScheduledDays(mTime, mMessagePhoneNumber, "TIME");
 //        threadPaused();
     }
@@ -392,18 +404,16 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
                              */
                             Map<String, Object> _maps = task.getResult().getData();
                             Gson _gson = new Gson();
-                            String _json = _gson.toJson(_maps);
                             try {
-                                Map<String, Object> _result = new ObjectMapper().readValue(_json, Map.class);
-                                Object _values = _result.values();
-                                _json = _gson.toJson(_values);
+                                Object _values = _maps.values();
+                                String _json = _gson.toJson(_values);
                                 /* remove [] from the collection type of values
                                  * in order to get a working json for mapping
                                  */
                                 Map<String, Object> _data = new ObjectMapper().readValue(_json.substring(1, _json.length() - 1), Map.class);
                                 Log.d("Logged", _data.keySet().toString());
                                 if(_data.containsKey(mDateFromUserInMillis.toString())) {
-                                    int _nrOfAppointmentsForThisDay = Integer.parseInt(_data.get("1569445200000").toString());
+                                    int _nrOfAppointmentsForThisDay = Integer.parseInt(_data.get(mDateFromUserInMillis.toString()).toString());
                                     mPacketService.setNrOfAppointmentsForNumber(_nrOfAppointmentsForThisDay);
                                     Log.d("Logged", _nrOfAppointmentsForThisDay + "; ");
                                     _phoneNumberBlocked.set(_nrOfAppointmentsForThisDay > 3);

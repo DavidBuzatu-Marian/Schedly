@@ -112,6 +112,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         private final String mUnknownName = "Unknown";
         private PopupWindow mPopWindow;
         private String mCompleteDate;
+        private String mAppointmentType;
 
 
         public CalendarScheduleViewHolder(@NonNull View itemView, @NonNull final ViewGroup parent) {
@@ -232,7 +233,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
                                     String _hour = mTextViewHour.getText().toString();
 
                                     Map<String, Object> _deleteAppointment = new HashMap<>();
-                                    _deleteAppointment.put(mDateInMillis + "." + mTextViewHour.getText().toString(), FieldValue.delete());
+                                    _deleteAppointment.put(mDateInMillis + "." + _hour, FieldValue.delete());
                                     FirebaseFirestore.getInstance().collection("scheduledHours")
                                             .document(mUserID)
                                             .update(_deleteAppointment);
@@ -262,7 +263,12 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
             TextView _textViewName = inflatedView.findViewById(R.id.popup_appointment_TV_Name);
             TextView _textViewPhoneNumber = inflatedView.findViewById(R.id.popup_appointment_TV_PhoneNumber);
             TextView _textViewAppointmentInfo = inflatedView.findViewById(R.id.popup_appointment_TV_AppointmentInfo);
-            String _textForInfoCard = mActivity.getString(R.string.edit_appointment_info_app_start) + mTextViewHour.getText();
+            String _textForInfoCard;
+            if(mAppointmentType != null) {
+                 _textForInfoCard = mActivity.getString(R.string.edit_appointment_info_app_start) + mTextViewHour.getText() + "\nIt is of type: " + mAppointmentType.toUpperCase();
+            } else {
+                _textForInfoCard = mActivity.getString(R.string.edit_appointment_info_app_start) + mTextViewHour.getText();
+            }
             //LinearLayout _linearLayoutAddToContacts = inflatedView.findViewById(R.id.popup_appointment_LL_AddToContacts);
 
             if (mTextViewName.getText().toString().equals("")) {
@@ -281,6 +287,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
             mTextViewHour.setText(appointment.getmHour());
             mCompleteDate = appointment.getmDate();
             mDateInMillis = appointment.getmDateInMillis();
+            mAppointmentType = appointment.getmAppointmentType();
             Log.d("DETECT", _name + ": " + appointment.getmPhoneNumber());
             if (_name != null) {
                 mTextViewName.setText(_name);
