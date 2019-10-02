@@ -195,5 +195,20 @@
     <string name="dialog_app_change_success">Duration changed successfully</string>
     <string name="dialog_app_change_empty">Empty field</string>
     <string name="frag_BlockList_DialogBlock_Title">Block this number</string>
+    <string name="responses_day_full">I am sorry, but this day if already full! Please try another date</string>
+    <string name="responses_beginning_options">For this date, I can take you on:</string>
+    <string name="responses_fixed_scheduled">This date and hour are already scheduled. If you want a schedule for this day, send a message with this date or you can try one of these other days:</string>
+    <string name="responses_not_working_with_thread_start">I am sorry, but I don\'t work on</string>
+    <string name="responses_not_working_with_thread_end">. But please chose one convenient date from below:</string>
+    <string name="responses_hour_out">This hour is out of my working hours. I work on</string>
+    <string name="responses_from">from</string>
+    <string name="responses_to">to</string>
+    <string name="resources_scheduled_final">Alright! You scheduled yourself on</string>
+    <string name="resources_at">, at:</string>
+    <string name="resources_take">Alright! I can take you in at:</string>
+    <string name="resources_send_conf">. Please send a confirmation message with the date and time</string>
+    <string name="resources_not_working">I am sorry, but I don\'t work on this day. Please try another date, time or call me</string>
+    <string name="responses_closest_days">These are the closest days I can take you in:</string>
+    <string name="fragment_SMS_monitoring">Do you really want to disable SMS monitoring? Schedly will NOT be able to make appointments through SMS if disabled</string>
 
 </resources>

@@ -3,6 +3,7 @@ package com.example.schedly.fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -229,7 +230,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 if(!(Boolean) newValue) {
                     new AlertDialog.Builder(mActivity)
                             .setTitle("Disable SMS monitoring")
-                            .setMessage("Do you really want to disable SMS monitoring? Schedly will NOT be able to make appointments through SMS if disabled")
+                            .setMessage(mActivity.getString(R.string.fragment_SMS_monitoring))
                             .setIcon(R.drawable.ic_baseline_cancel_24px)
                             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton) {
@@ -257,8 +258,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                     serviceIntent.putExtra("userID", ((SettingsActivity) mActivity).getmUserID());
                     serviceIntent.putExtra("userAppointmentDuration", ((SettingsActivity) mActivity).getmUserAppointmentDuration());
                     serviceIntent.putExtra("userWorkingDaysID", ((SettingsActivity) mActivity).getmUserWorkingDaysID());
+                    serviceIntent.putExtra("userWorkingHours", ((SettingsActivity) mActivity).getmWorkingHours());
                     serviceIntent.setAction("ACTION.STARTSERVICE_ACTION");
-                    mActivity.startService(serviceIntent);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        mActivity.startForegroundService(serviceIntent);
+                    } else {
+                        mActivity.startService(serviceIntent);
+                    }
                     mDisableMonitorization.setSummary("Disable SMS monitoring");
 
                     SharedPreferences _userPreferences = PreferenceManager.getDefaultSharedPreferences(mActivity);

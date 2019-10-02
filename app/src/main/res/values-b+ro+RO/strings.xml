@@ -198,4 +198,21 @@
     <string name="dialog_app_change_empty">Câmp gol</string>
     <string name="frag_BlockList_DialogBlock_Title">Blochează acest număr</string>
 
+    <string name="responses_day_full">Imi pare rau, dar ziua aceasta este deja plina. Va rog incercati o alta zi.</string>
+    <string name="responses_beginning_options">Pentru ziua aceasta te pot primi la:</string>
+    <string name="responses_fixed_scheduled">Aceasta zi si ora sunt deja ocupate. Daca doriti o programare pentru aceasta zi, trimiteti mesaj cu aceasta sau incercati pe:</string>
+    <string name="responses_not_working_with_thread_start">Imi pare rau, dar nu lucrez pe: </string>
+    <string name="responses_not_working_with_thread_end">. Dar va rog alegeti o data convenabila de mai jos:</string>
+    <string name="responses_hour_out">Aceasta ora e in afara programului. Eu lucrez pe</string>
+    <string name="responses_from">de la</string>
+    <string name="responses_to">pana la</string>
+    <string name="resources_scheduled_final">In regula! V-ati programat pe: </string>
+    <string name="resources_at">, la:</string>
+    <string name="resources_take">In regula! Va pot primi la:</string>
+    <string name="resources_send_conf">. Va rog trimiteti un mesaj de confirmare cu data si ora</string>
+    <string name="resources_not_working">Imi pare rau, dar nu lucrez in aceasta zi. Incercati o alta zi/ ora sau sunati-ma</string>
+    <string name="responses_closest_days">Acestea sunt cele mai apropiate zile cand va pot primi:</string>
+
+    <string name="fragment_SMS_monitoring">Chiar doriți să opriți monitorizarea SMS? Schedly NU va mai putea face programări prin SMS până la reactivare</string>
+
 </resources>

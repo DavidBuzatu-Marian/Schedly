@@ -1,20 +1,18 @@
 package com.example.schedly.packet_classes;
 
 import android.annotation.SuppressLint;
+import android.content.res.Resources;
 import android.telephony.SmsManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.example.schedly.model.Appointment;
+import com.example.schedly.R;
+import com.example.schedly.model.ContextForStrings;
 import com.example.schedly.thread.threadFindDaysForAppointment;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.google.gson.Gson;
@@ -25,10 +23,8 @@ import org.threeten.bp.ZoneId;
 import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.IOException;
-import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -43,6 +39,7 @@ public class PacketService {
     private threadFindDaysForAppointment mWorkThread;
     // get the appointments for a given date
     private Map<String, Object> mCurrentDayAppointments;
+    private Map<String, Object> mUserAppointments;
     /* variable used to know the hour
      * to make the schedule for this client
      */
@@ -57,6 +54,7 @@ public class PacketService {
     private StringBuilder mSMSBody;
     private volatile Map<String, String> mUserWorkingDays;
     private Integer mNrOfAppointmentsForDate;
+    private Resources mResources = ContextForStrings.getContext().getResources();
 
     public PacketService(String userID, String userAppointmentDuration, String userWorkingDaysID) {
         mUserID = userID;
@@ -96,37 +94,26 @@ public class PacketService {
         mPhoneNumber = phoneNumber;
         mDateInMillis = dateInMillis;
         Log.d("FirebaseTime-ServiceGET", mDateInMillis + "");
-        mFireStore.collection("scheduledHours")
-                .document(mUserID)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            Map<String, Object> _map = task.getResult().getData();
-                            assert _map != null;
-                            Object _values = _map.containsKey(mDateInMillis.toString()) ? _map.get(mDateInMillis.toString()) : null;
-                            if (_values != null) {
-                                Log.d("DayINSERVICE", _values.toString());
-                                Gson _gson = new Gson();
-                                String _json = _gson.toJson(_values);
-                                try {
-                                    mCurrentDayAppointments = new ObjectMapper().readValue(_json, Map.class);
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                                Log.d("Day", "Day json is: " + _json);
-                            } else {
-                                mCurrentDayAppointments = null;
-                            }
-                        }
-                        if (messageType.equals("DATE")) {
-                            sendScheduleOptionsWrapper(mDateInMillis);
-                        } else if (messageType.equals("FULL")) {
-                            checkIfAppointmentCanBeMade(dateFromUser);
-                        }
-                    }
-                });
+        Log.d("TestDate", mUserAppointments.toString());
+        Object _values = mUserAppointments.containsKey(mDateInMillis.toString()) ? mUserAppointments.get(mDateInMillis.toString()) : null;
+        if (_values != null) {
+            Log.d("DayINSERVICE", _values.toString());
+            Gson _gson = new Gson();
+            String _json = _gson.toJson(_values);
+            try {
+                mCurrentDayAppointments = new ObjectMapper().readValue(_json, Map.class);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Log.d("Day", "Day json is: " + _json);
+        } else {
+            mCurrentDayAppointments = null;
+        }
+        if (messageType.equals("DATE")) {
+            sendScheduleOptionsWrapper(mDateInMillis);
+        } else if (messageType.equals("FULL")) {
+            checkIfAppointmentCanBeMade(dateFromUser);
+        }
     }
 
 
@@ -134,6 +121,7 @@ public class PacketService {
     private void sendScheduleOptionsWrapper(Long dateInMillis) {
         getDayOfTheWeek(dateInMillis);
         mDaySchedule = new String[2];
+        Log.d("Logged", mUserWorkingDays.toString());
         mDaySchedule[0] = mUserWorkingDays.get(mDayOfTheWeek + "Start");
         mDaySchedule[1] = mUserWorkingDays.get(mDayOfTheWeek + "End");
 
@@ -141,7 +129,7 @@ public class PacketService {
 
         if (mDaySchedule[0].equals("Free")) {
             Log.d("FirebaseSEND", "Free");
-            mSMSBody = new StringBuilder("I am sorry, but I don't work on this day. Please try another date, time or call me");
+            mSMSBody = new StringBuilder(mResources.getString(R.string.resources_not_working));
             SmsManager.getDefault().sendTextMessage(mPhoneNumber, null, mSMSBody.toString(), null, null);
         } else {
             try {
@@ -159,7 +147,7 @@ public class PacketService {
         SimpleDateFormat _sDFormat = new SimpleDateFormat("HH:mm");
         Date _date;
         Calendar _calendar = Calendar.getInstance();
-        mSMSBody = new StringBuilder("For this date, I can take you on:");
+        mSMSBody = new StringBuilder(mResources.getString(R.string.responses_beginning_options));
         while (gotTime(_hour, mDaySchedule[1])) {
             if (mCurrentDayAppointments == null || !mCurrentDayAppointments.containsKey(_hour)) {
                 mSMSBody.append("\n").append(_hour);
@@ -173,7 +161,7 @@ public class PacketService {
             sendMessage();
         } else {
             mSMSBody.delete(0, mSMSBody.length() - 1);
-            mSMSBody.append("I am sorry, but this day if already full! Please try another date");
+            mSMSBody.append(mResources.getString(R.string.responses_day_full));
             sendMessage();
         }
     }
@@ -201,18 +189,8 @@ public class PacketService {
     public void getScheduledDays(final String mTime, String mMessagePhoneNumber, final String messageType) {
         mTimeToSchedule = mTime;
         mPhoneNumber = mMessagePhoneNumber;
-        mFireStore.collection("scheduledHours")
-                .document(mUserID)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            mUserDaysWithSchedule = task.getResult().getData();
-                            findDaysForAppointment(messageType);
-                        }
-                    }
-                });
+        mUserDaysWithSchedule = mUserAppointments;
+        findDaysForAppointment(messageType);
     }
 
     /* start the thread with the necessary operations */
@@ -222,6 +200,7 @@ public class PacketService {
          *  the 3 closest days for the
          * appointment
          */
+        mWorkThread.setUserAppointments(mUserAppointments);
         mWorkThread.setmPhoneNumber(mPhoneNumber);
         mWorkThread.setmUserID(mUserID);
         mWorkThread.setmTimeToSchedule(mTimeToSchedule);
@@ -254,26 +233,66 @@ public class PacketService {
         mDaySchedule[0] = mUserWorkingDays.get(mDayOfTheWeek + "Start");
         mDaySchedule[1] = mUserWorkingDays.get(mDayOfTheWeek + "End");
 
-        Log.d("Firebase", "Getting the values for: " + mDayOfTheWeek + ": " + mDaySchedule[0] + "; " + mDaySchedule[1]);
+//        Log.d("Firebase", "Getting the values for: " + mDayOfTheWeek + ": " + mDaySchedule[0] + "; " + mDaySchedule[1]);
 
         if (mDaySchedule[0].equals("Free")) {
-            Log.d("FirebaseSEND", "Free");
-            mSMSBody = new StringBuilder("I am sorry, but I don't work on " + dateFromUser + ". But please chose one convenient date from below:");
-            mWorkThread.setmSMSBody(mSMSBody.toString());
-            getScheduledDays(mTimeToSchedule, mPhoneNumber, "FULL");
+            setUpForFreeDay(dateFromUser);
         } else {
             /* not a free day */
-            String _hour = mDaySchedule[0];
+            setUpForWorkDay(dateFromUser);
+        }
+
+    }
+
+    private void setUpForWorkDay(String dateFromUser) {
+        String _hour = mDaySchedule[0];
+        if(!checkIfNotPassedWHours(mTimeToSchedule)) {
             mSMSBody = new StringBuilder();
             if (mCurrentDayAppointments != null && mCurrentDayAppointments.containsKey(mTimeToSchedule)) {
                 mWorkThread.setmDateInMillisFromService(mDateInMillis);
-                mWorkThread.setmSMSBody("This date and hour are already scheduled. If you want a schedule for this day, send a message with this date or you can try one of these other days:");
+                mWorkThread.setmSMSBody(mResources.getString(R.string.responses_fixed_scheduled));
                 Log.d("APP_ERROR", "This is scheduled.");
                 getScheduledDays(mTimeToSchedule, mPhoneNumber, "FULL");
             } else {
                 getClosestHour(_hour, mTimeToSchedule, dateFromUser);
             }
+        } else {
+            sendSmsForTimePassed(mDayOfTheWeek);
         }
+    }
+
+    private void setUpForFreeDay(String dateFromUser) {
+        Log.d("FirebaseSEND", "Free");
+        mSMSBody = new StringBuilder(mResources.getString(R.string.responses_not_working_with_thread_start)
+                + dateFromUser
+                + mResources.getString(R.string.responses_not_working_with_thread_end));
+        mWorkThread.setmSMSBody(mSMSBody.toString());
+        getScheduledDays(mTimeToSchedule, mPhoneNumber, "FULL");
+    }
+
+    private void sendSmsForTimePassed(String dayOfWeek) {
+        mSMSBody = new StringBuilder(mResources.getString(R.string.responses_hour_out) +
+                dayOfWeek +
+                mResources.getString(R.string.responses_from)
+                + mDaySchedule[0] +
+                mResources.getString(R.string.responses_to) +
+                mDaySchedule[1]);
+    }
+
+
+    private boolean checkIfNotPassedWHours(String scheduleTime) {
+        String[] _scheduleTimeHm = scheduleTime.split(":");
+        String[] _closeTimeHm = mDaySchedule[1].split(":");
+
+        long _closeTimeMil = TimeUnit.HOURS.toMillis(Integer.parseInt(_closeTimeHm[0])) + TimeUnit.MINUTES.toMillis(Integer.parseInt(_closeTimeHm[1]));
+        long _scheduleTimeMil = TimeUnit.HOURS.toMillis(Integer.parseInt(_scheduleTimeHm[0])) + TimeUnit.MINUTES.toMillis(Integer.parseInt(_scheduleTimeHm[1]));
+
+
+        if (_scheduleTimeMil > _closeTimeMil) {
+            Log.d("ErrSchedule", "Out of schedule");
+            return true;
+        }
+        return false;
     }
 
 
@@ -297,12 +316,18 @@ public class PacketService {
         long _closeTimeMil = TimeUnit.HOURS.toMillis(Integer.parseInt(_closeTimeHm[0])) + TimeUnit.MINUTES.toMillis(Integer.parseInt(_closeTimeHm[1]));
         long _scheduleTimeMil = TimeUnit.HOURS.toMillis(Integer.parseInt(_scheduleTimeHm[0])) + TimeUnit.MINUTES.toMillis(Integer.parseInt(_scheduleTimeHm[1]));
 
+
+        if (_scheduleTimeMil > _closeTimeMil) {
+            Log.d("ErrSchedule", "Out of schedule");
+            return;
+        }
         Log.d("App", "Here: " + _curTimeMil);
         /* check if this exact time is available */
         String _fixHour = checkExactTime(_curTimeMil, _closeTimeMil, _scheduleTimeMil, _appointmentDuration);
         if (_fixHour != null && (mCurrentDayAppointments == null || !mCurrentDayAppointments.containsKey(_fixHour))) {
             Log.d("Appoint", "REturn fixed appointment successfully" + ": " + _fixHour);
-            mSMSBody.append("Alright! You scheduled yourself on ").append(dateFromUser).append(", at:").append(_fixHour);
+            mSMSBody.append(mResources.getString(R.string.resources_scheduled_final)).append(dateFromUser)
+                    .append(mResources.getString(R.string.resources_at)).append(_fixHour);
             sendMessage();
             saveAppointmentToDatabase(_fixHour);
         } else if (_fixHour == null) {
@@ -344,10 +369,10 @@ public class PacketService {
 
                     if (_freeBefore || _freeAfter) {
                         Log.d("Appointment", "MESSAGE SENT: " + _hourBefore + " ... AFTER: " + _hourAfter);
-                        mSMSBody.append("Alright! I can take you in at: ")
+                        mSMSBody.append(mResources.getString(R.string.resources_take))
                                 .append(_freeBefore ? ("" + _hourBefore) : "")
                                 .append(_freeAfter ? (" " + _hourAfter) : "")
-                                .append(". Please send a confirmation message with the date and time");
+                                .append(mResources.getString(R.string.resources_send_conf));
                         sendMessage();
                         Log.d("Appoint", "REturn message send with confirmation");
                     } else {
@@ -444,5 +469,9 @@ public class PacketService {
 
     public void setAppointmentType(String mAppointmentType) {
         this.mAppointmentType = mAppointmentType;
+    }
+
+    public void setmUserAppointments(Map<String, Object> mUserAppointments) {
+        this.mUserAppointments = mUserAppointments;
     }
 }

@@ -8,11 +8,14 @@ import android.view.View;
 
 import com.example.schedly.fragment.SettingsFragment;
 
+import java.util.HashMap;
+
 public class SettingsActivity extends AppCompatActivity {
     private Toolbar mToolBar;
     private String mUserID;
     private String mUserAppointmentDuration;
     private String mUserWorkingDaysID;
+    private HashMap<String, String> mWorkingHours;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +44,7 @@ public class SettingsActivity extends AppCompatActivity {
             mUserID = extras.getString("userID");
             mUserAppointmentDuration = extras.getString("userAppointmentDuration");
             mUserWorkingDaysID = extras.getString("userWorkingDaysID");
+            mWorkingHours = (HashMap<String, String>) extras.getSerializable("userWorkingHours");
         }
     }
 
@@ -59,5 +63,9 @@ public class SettingsActivity extends AppCompatActivity {
 
     public String getmUserWorkingDaysID() {
         return mUserWorkingDaysID;
+    }
+
+    public HashMap<String, String> getmWorkingHours() {
+        return mWorkingHours;
     }
 }

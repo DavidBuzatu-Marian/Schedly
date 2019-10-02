@@ -16,10 +16,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.CalendarView;
 import android.widget.ImageView;
 
 import com.example.schedly.adapter.CalendarAdapter;
@@ -28,20 +28,14 @@ import com.example.schedly.model.CustomCalendarView;
 import com.example.schedly.model.CustomEvent;
 import com.example.schedly.packet_classes.PacketCalendar;
 import com.example.schedly.packet_classes.PacketCalendarHelpers;
-import com.example.schedly.packet_classes.PacketService;
 import com.example.schedly.service.MonitorIncomingSMSService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.firestore.SetOptions;
 import com.google.gson.Gson;
 
 import org.threeten.bp.Instant;
@@ -60,7 +54,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.example.schedly.MainActivity.EMAIL_CHANGED;
 import static com.example.schedly.MainActivity.PASSWORD_CHANGED;
@@ -292,7 +285,11 @@ public class CalendarActivity extends AppCompatActivity {
             serviceIntent.putExtra("userWorkingDaysID", mUserWorkingHoursID);
             serviceIntent.putExtra("userWorkingHours", mWorkingHours);
             serviceIntent.setAction("ACTION.STARTSERVICE_ACTION");
-            startService(serviceIntent);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(serviceIntent);
+            } else {
+                startService(serviceIntent);
+            }
         }
 
         ImageView imageViewSettings = findViewById(R.id.act_Calendar_IV_Settings);
@@ -303,6 +300,7 @@ public class CalendarActivity extends AppCompatActivity {
                 startSettingsActivity.putExtra("userID", userID);
                 startSettingsActivity.putExtra("userAppointmentDuration", mUserAppointmentDuration);
                 startSettingsActivity.putExtra("userWorkingDaysID", mUserWorkingHoursID);
+                startSettingsActivity.putExtra("userWorkingHours", mWorkingHours);
                 startActivityForResult(startSettingsActivity, SETTINGS_RETURN);
             }
         });
@@ -470,6 +468,7 @@ public class CalendarActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case SMS_PERMISSION_CODE: {
                 closeUponPermissionDenied(grantResults);
@@ -512,6 +511,5 @@ public class CalendarActivity extends AppCompatActivity {
         super.onBackPressed();
 
         finishAffinity();
-        finish();
     }
 }
