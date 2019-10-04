@@ -86,16 +86,17 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
     public static boolean sServiceRunning = false;
     private HashMap<String, String> mWorkingHours = new HashMap<>();
     private ListenerRegistration mRegistration;
+    private int mNROfAppointmentsForThisDay;
     private Map<String, Object> mUserAppointments;
 
     public int onStartCommand(Intent intent, int flags, int startId) {
         Bundle _extras = null;
-        if (intent != null && intent.getAction().equals("ACTION.STOPFOREGROUND_ACTION")) {
-            Log.d("Service", "STOPPED SERVICE");
-            stopForeground(true);
-            stopSelf();
-        }
-        if(intent != null) {
+//        if (intent != null && intent.getAction().equals("ACTION.STOPFOREGROUND_ACTION")) {
+//            Log.d("Service", "STOPPED SERVICE");
+//            stopForeground(true);
+//            stopSelf();
+//        }
+        if (intent != null) {
             _extras = intent.getExtras();
         }
         mSMSQueue = new ArrayDeque<>();
@@ -182,7 +183,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
                 }
                 if (snapshot != null && snapshot.exists()) {
                     mUserAppointments = snapshot.getData();
-                    if(mPacketService != null) {
+                    if (mPacketService != null) {
                         mPacketService.setmUserAppointments(mUserAppointments);
                     }
                     Log.d("TESTDB", "Current data: " + snapshot.getData());
@@ -195,20 +196,31 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
 
     @Override
     public void messageReceived(TSMSMessage newSMSMessage) {
-        String _sender, _message;
+        mNROfAppointmentsForThisDay = 0;
         mPacketService = new PacketService(mUserID, mUserAppointmentDuration, mUserWorkingDaysID);
         mPacketService.setUserWorkingHours(mWorkingHours);
         mPacketService.setmUserAppointments(mUserAppointments);
-        mSMSQueue.add(newSMSMessage);
+        if(!phoneBlocked(mMessagePhoneNumber)) {
+//            if(newSMSMessage.getmNROfAppointments() != mNROfAppointmentsForThisDay) {
+//                newSMSMessage.setmNROfAppointments(mNROfAppointmentsForThisDay);
+//            }
+            mSMSQueue.add(newSMSMessage);
+            setUpBeforeFirebase();
+        }
+
+    }
+
+    private void setUpBeforeFirebase() {
+        String _sender, _message;
         try {
             while (!mSMSQueue.isEmpty()) {
                 /* get the next phone number */
                 TSMSMessage _currentMessage = mSMSQueue.pop();
                 _sender = _currentMessage.getmSMSSender();
                 _message = _currentMessage.getmSMSBody();
-                /* if we already have this phone number
-                 * in the hashmap, we just add to
-                 * the smsBody
+                /* if we already have this phone number or it is a second appointment
+                 * we just call firebase
+                 * else, we generate another session ID
                  */
                 mMessagePhoneNumber = _sender;
                 /* phone number sent a message  already
@@ -227,19 +239,6 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
         } catch (Exception e) {
             e.printStackTrace();
         }
-//        Map<String, String> messageToAdd = new HashMap<>();
-//        messageToAdd.put("message", message);
-//        messageToAdd.put("sender", sender);
-//        mFireStore = FirebaseFirestore.getInstance();
-//        mFireStore.collection("TestMessages")
-//                .add(messageToAdd)
-//                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-//                    @Override
-//                    public void onSuccess(DocumentReference documentReference) {
-//                        Log.d("SUCCESSTEST", "YEs");
-//                    }
-//                });
-
     }
 
     private void getContact(String mMessagePhoneNumber) {
@@ -261,6 +260,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
     @Override
     public void onDestroy() {
         sServiceRunning = false;
+        mRegistration.remove();
         super.onDestroy();
 //        unregisterReceiver(mSMSBroadcastReceiver);
     }
@@ -287,68 +287,75 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
                     mDateFromUser = getLocaleDateString(data.getProperty("date"));
                     mAppointmentType = data.getProperty("Appointment-type");
                     String _keyWord = data.getProperty("Key-word");
-//                    if(!dateFromUserIsNotPast(mDateFromUser)) {
-//                        sendMessageForDatePast();
-//                    } else {
-                    if (_keyWord == null && mAppointmentType == null && (mTime == null || mDateFromUser == null)) {
-                        /* ignore message */
-                        Log.d("Monitor", "Ignored message from user: " + message);
-                    } else {
-                        if (!phoneBlocked(mMessagePhoneNumber) && !checkPhoneNumberNrAppointments(mMessagePhoneNumber, mDateFromUser) && dateFromUserIsNotPast(mDateFromUser)) {
-                            markMessageRead(MonitorIncomingSMSService.this, mMessagePhoneNumber, message);
-                            if (mTime == null && mDateFromUser != null) {
-                                Log.d("Service", "Sent Time");
-                                sendMessageForTime();
-                            } else if (mDateFromUser == null && mTime != null) {
-                                sendMessageForDate();
-                                Log.d("Service", "Sent Date");
-                            } else if (mDateFromUser == null && mTime == null) {
-                                sendMessageForAppointment(mResultFromDialogFlow.get("response").toString());
-                            } else {
-                                Log.d("Succes", mDateFromUser + ": " + mTime);
-                                Log.d("Service", "Sent Time and Date");
-                                if (mAppointmentType != null) {
-                                    mPacketService.setAppointmentType(mAppointmentType);
-                                }
-                                mPacketService.makeAppointmentForFixedParameters(mDateFromUser, mDateFromUserInMillis, mTime, mMessagePhoneNumber, mContactName.get(mMessagePhoneNumber));
-                                mUUID.remove(mMessagePhoneNumber);
-                            }
-                        }
+                    if(mDateFromUser != null && !checkPhoneNumberNrAppointments(mMessagePhoneNumber, mDateFromUser)) {
+                        responseOptions(_keyWord, message);
+                    } else if(mDateFromUser == null) {
+                        responseOptions(_keyWord, message);
                     }
                 } else {
                     Log.d("Succes", task.getException().toString());
-                    this.notifyAll();
+                    /* SE NOTIFICATION TO ANNOUNCE NO INTERNET */
                 }
             }
         });
     }
 
-    private void markMessageRead(Context context, String number, String body) {
-        /* mark the message as read */
-        Uri _uri = Uri.parse("content://sms/inbox");
-        Cursor _cursor = context.getContentResolver().query(_uri, null, null, null, null);
-        try {
-            while (_cursor.moveToNext()) {
-                /* find in cursor the message with the same phone number
-                 * get the one which is unread
-                 * get its id and mark it as read
-                 */
-                Log.d("Cursor", _cursor.getString(_cursor.getColumnIndex("adress")));
-                if ((_cursor.getString(_cursor.getColumnIndex("address")).equals(number)) && (_cursor.getInt(_cursor.getColumnIndex("read")) == 0)) {
-                    if (_cursor.getString(_cursor.getColumnIndex("body")).startsWith(body)) {
-                        String _SMSMessageId = _cursor.getString(_cursor.getColumnIndex("_id"));
-                        ContentValues _values = new ContentValues();
-                        _values.put("read", true);
-                        context.getContentResolver().update(Uri.parse("content://sms/inbox"), _values, "_id=" + _SMSMessageId, null);
-                        return;
+    private void responseOptions(String keyWord, String message) {
+        if (keyWord == null && mAppointmentType == null && (mTime == null || mDateFromUser == null)) {
+            /* ignore message */
+            Log.d("Monitor", "Ignored message from user: " + message);
+        } else {
+            if (dateFromUserIsNotPast(mDateFromUser)) {
+//                markMessageRead(MonitorIncomingSMSService.this, mMessagePhoneNumber, message);
+                if (mTime == null && mDateFromUser != null) {
+                    Log.d("Service", "Sent Time");
+                    sendMessageForTime();
+                } else if (mDateFromUser == null && mTime != null) {
+                    sendMessageForDate();
+                    Log.d("Service", "Sent Date");
+                } else if (mDateFromUser == null && mTime == null) {
+                    sendMessageForAppointment(mResultFromDialogFlow.get("response").toString());
+                } else {
+                    Log.d("Succes", mDateFromUser + ": " + mTime);
+                    Log.d("Service", "Sent Time and Date");
+                    if (mAppointmentType != null) {
+                        mPacketService.setAppointmentType(mAppointmentType);
                     }
+                    mPacketService.makeAppointmentForFixedParameters(mDateFromUser, mDateFromUserInMillis, mTime, mMessagePhoneNumber, mContactName.get(mMessagePhoneNumber));
+                    mUUID.remove(mMessagePhoneNumber);
                 }
+                mDateFromUser = null;
+                mTime = null;
             }
-        } catch (Exception e) {
-            Log.e("Mark Read", "Error in Read: " + e.toString());
         }
-        _cursor.close();
     }
+
+//    private void markMessageRead(Context context, String number, String body) {
+//        /* mark the message as read */
+//        Uri _uri = Uri.parse("content://sms/inbox");
+//        Cursor _cursor = context.getContentResolver().query(_uri, null, null, null, null);
+//        try {
+//            while (_cursor.moveToNext()) {
+//                /* find in cursor the message with the same phone number
+//                 * get the one which is unread
+//                 * get its id and mark it as read
+//                 */
+//                Log.d("Cursor", _cursor.getString(_cursor.getColumnIndex("adress")));
+//                if ((_cursor.getString(_cursor.getColumnIndex("address")).equals(number)) && (_cursor.getInt(_cursor.getColumnIndex("read")) == 0)) {
+//                    if (_cursor.getString(_cursor.getColumnIndex("body")).startsWith(body)) {
+//                        String _SMSMessageId = _cursor.getString(_cursor.getColumnIndex("_id"));
+//                        ContentValues _values = new ContentValues();
+//                        _values.put("read", true);
+//                        context.getContentResolver().update(Uri.parse("content://sms/inbox"), _values, "_id=" + _SMSMessageId, null);
+//                        return;
+//                    }
+//                }
+//            }
+//        } catch (Exception e) {
+//            Log.e("Mark Read", "Error in Read: " + e.toString());
+//        }
+//        _cursor.close();
+//    }
 
     private void sendMessageForDatePast() {
         String _message = "Sorry, but your date: " + mDateFromUser + " has passed already. Try a valid one.";
@@ -382,7 +389,6 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
 
     private void sendMessageForAppointment(String response) {
         SmsManager.getDefault().sendTextMessage(mMessagePhoneNumber, null, response, null, null);
-        this.notifyAll();
     }
 
     private void sendMessageForDate() {
@@ -459,7 +465,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        int _nrOfAppointmentsForThisDay = 0;
+                        mNROfAppointmentsForThisDay = 0;
                         if (task.getResult() != null && task.getResult().exists()) {
                             /* we get a map which has objects with the values needed.
                              */
@@ -474,16 +480,16 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
                                 Map<String, Object> _data = new ObjectMapper().readValue(_json.substring(1, _json.length() - 1), Map.class);
                                 Log.d("Logged", _data.keySet().toString());
                                 if (_data.containsKey(mDateFromUserInMillis.toString())) {
-                                    _nrOfAppointmentsForThisDay = Integer.parseInt(_data.get(mDateFromUserInMillis.toString()).toString());
-                                    Log.d("Logged", _nrOfAppointmentsForThisDay + "; ");
-                                    _phoneNumberBlocked.set(_nrOfAppointmentsForThisDay > 3);
+                                    mNROfAppointmentsForThisDay = Integer.parseInt(_data.get(mDateFromUserInMillis.toString()).toString());
+                                    Log.d("Logged", mNROfAppointmentsForThisDay + "; ");
+                                    _phoneNumberBlocked.set(mNROfAppointmentsForThisDay > 3);
                                 }
                             } catch (IOException e) {
 
                                 e.printStackTrace();
                             }
                         }
-                        mPacketService.setNrOfAppointmentsForNumber(_nrOfAppointmentsForThisDay);
+                        mPacketService.setNrOfAppointmentsForNumber(mNROfAppointmentsForThisDay);
                     }
                 });
         return _phoneNumberBlocked.get();

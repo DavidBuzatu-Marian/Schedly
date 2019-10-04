@@ -203,7 +203,7 @@
     <string name="responses_hour_out">This hour is out of my working hours. I work on</string>
     <string name="responses_from">from</string>
     <string name="responses_to">to</string>
-    <string name="resources_scheduled_final">Alright! You scheduled yourself on</string>
+    <string name="resources_scheduled_final">Alright! You scheduled yourself on </string>
     <string name="resources_at">, at:</string>
     <string name="resources_take">Alright! I can take you in at:</string>
     <string name="resources_send_conf">. Please send a confirmation message with the date and time</string>

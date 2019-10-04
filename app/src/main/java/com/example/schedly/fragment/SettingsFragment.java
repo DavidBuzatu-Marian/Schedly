@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -34,7 +35,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.UserInfo;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 
 
 import java.util.Map;
@@ -54,6 +58,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private boolean mPreferencesCreated = false;
     private Map<String, Object> mBlockedNumbers;
     private Preference mBlockList;
+    private ListenerRegistration mRegistration;
+    private ListenerRegistration mRegistrationBlock;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -75,8 +81,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 LoginManager.getInstance().logOut();
                 FirebaseAuth.getInstance().signOut();
                 Intent stopServiceIntent = new Intent(mActivity, MonitorIncomingSMSService.class);
-                stopServiceIntent.setAction("ACTION.STOPFOREGROUND_ACTION");
-                mActivity.startService(stopServiceIntent);
+                mActivity.stopService(stopServiceIntent);
                 getActivity().setResult(LOG_OUT);
                 Intent loginIntent = new Intent(mActivity, StartSplashActivity.class);
                 loginIntent.putExtra("LoggedOut", true);
@@ -123,105 +128,32 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         getDataFromDataBase();
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        mRegistration.remove();
+        mRegistrationBlock.remove();
+    }
+
     private void setPreferencesForCurrentUser() {
-        mChangePhoneNumber = findPreference("phoneNumber_change");
-        mChangePhoneNumber.setSummary(mUserPhoneNumber);
-        mChangePhoneNumber.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                new PhoneNumber(mActivity, mUserPhoneNumber, mChangePhoneNumber, SettingsFragment.this);
-                return true;
-            }
-        });
+        setPhoneNumberPreference();
 
-        mChangeEmailPreference.setFragment("com.example.schedly.ChangeEmailFragment");
-        mChangeEmailPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                Fragment _newFragment = new ChangeEmailFragment();
-                FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                transaction.replace(R.id.frag_Settings_FL_Holder, _newFragment);
-                transaction.addToBackStack(null);
-                transaction.commit();
-                return true;
-            }
-        });
+        setEmailPreference();
 
-        mChangePasswordPreference.setFragment("com.example.schedly.ChangePasswordFragment");
-        mChangePasswordPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                Fragment _newFragment = new ChangePasswordFragment();
-                FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                transaction.replace(R.id.frag_Settings_FL_Holder, _newFragment);
-                transaction.addToBackStack(null);
-                transaction.commit();
-                return true;
-            }
-        });
+        setPasswordPreference();
 
-        mChangeDisplayName = findPreference("displayName_change");
-        mChangeDisplayName.setSummary(mUserDisplayName);
-        mChangeDisplayName.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                new DisplayName(mActivity, mUserDisplayName, mChangeDisplayName, SettingsFragment.this);
-                return true;
-            }
-        });
+        setDisplayNamePreference();
 
-        mChangeWorkingHours = findPreference("workingHours_change");
-        mChangeWorkingHours.setFragment("com.example.schedly.ChangeWorkingDaysFragment");
-        mChangeWorkingHours.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                Fragment _newFragment = new ChangeWorkingDaysFragment(mUserWorkingHoursID);
-                FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                transaction.replace(R.id.frag_Settings_FL_Holder, _newFragment);
-                transaction.addToBackStack(null);
-                transaction.commit();
-                return true;
-            }
-        });
-        mChangeAppointmentsDuration = findPreference("appointmentDuration_change");
-        mChangeAppointmentsDuration.setSummary(mUserAppointmentsDuration);
-        mChangeAppointmentsDuration.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                new AppointmentDuration(mActivity, mChangeAppointmentsDuration, SettingsFragment.this);
-                return true;
-            }
-        });
+        setWorkingHoursPreference();
+        setDurationPreference();
+        setFeedbackPreference();
 
+        setBlockListPreference();
+        setMonitorization();
+    }
 
-        mFeedback = findPreference("help_feedback");
-        mFeedback.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                Intent _sendFeedback = new Intent(Intent.ACTION_SEND);
-                String[] recipients={"TeamSchedly@gmail.com"};
-                _sendFeedback.putExtra(Intent.EXTRA_EMAIL, recipients);
-                _sendFeedback.setType("text/plain");
-                _sendFeedback.setPackage("com.google.android.gm");
-                mActivity.startActivity(_sendFeedback);
-                return true;
-            }
-        });
-
-        mBlockList = findPreference("block_list_access");
-        mBlockList.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                Fragment _newFragment = new BlockListFragment(mUserID);
-                FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                transaction.replace(R.id.frag_Settings_FL_Holder, _newFragment);
-                transaction.addToBackStack(null);
-                transaction.commit();
-
-                return false;
-            }
-        });
-
+    private void setMonitorization() {
         mDisableMonitorization = findPreference("stopNotificationSMSMonitoring");
         mDisableMonitorization.setChecked(MonitorIncomingSMSService.sServiceRunning);
         mDisableMonitorization.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
@@ -235,8 +167,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton) {
                                     Intent stopServiceIntent = new Intent(mActivity, MonitorIncomingSMSService.class);
-                                    stopServiceIntent.setAction("ACTION.STOPFOREGROUND_ACTION");
-                                    mActivity.startService(stopServiceIntent);
+                                    mActivity.stopService(stopServiceIntent);
                                     mDisableMonitorization.setSummary("Enable SMS monitoring");
 
                                     SharedPreferences _userPreferences = PreferenceManager.getDefaultSharedPreferences(mActivity);
@@ -277,25 +208,138 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         });
     }
 
-    private void getDataFromDataBase() {
-        Log.d("CurrentUserSettings", mUserID);
-        FirebaseFirestore _firebaseFirestore = FirebaseFirestore.getInstance();
-        DocumentReference documentReference = _firebaseFirestore.collection("users").document(mUserID);
-        documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+    private void setBlockListPreference() {
+        mBlockList = findPreference("block_list_access");
+        mBlockList.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        mUserPhoneNumber = document.get("phoneNumber").toString();
-//                        mUserProfessio = document.get("profession") != null ? document.get("profession").toString() : null;
-                        mUserWorkingHoursID = document.get("workingDaysID").toString();
-                        mUserDisplayName = document.get("displayName").toString();
-                        mUserAppointmentsDuration = document.get("appointmentsDuration").toString();
-                        getUserBlockedList();
-                        if(mPreferencesCreated) {
-                            setPreferencesForCurrentUser();
-                        }
+            public boolean onPreferenceClick(Preference preference) {
+                Fragment _newFragment = new BlockListFragment(mUserID);
+                FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                transaction.replace(R.id.frag_Settings_FL_Holder, _newFragment);
+                transaction.addToBackStack(null);
+                transaction.commit();
+
+                return false;
+            }
+        });
+    }
+
+    private void setFeedbackPreference() {
+        mFeedback = findPreference("help_feedback");
+        mFeedback.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                Intent _sendFeedback = new Intent(Intent.ACTION_SEND);
+                String[] recipients={"TeamSchedly@gmail.com"};
+                _sendFeedback.putExtra(Intent.EXTRA_EMAIL, recipients);
+                _sendFeedback.setType("text/plain");
+                _sendFeedback.setPackage("com.google.android.gm");
+                mActivity.startActivity(_sendFeedback);
+                return true;
+            }
+        });
+    }
+
+    private void setDurationPreference() {
+        mChangeAppointmentsDuration = findPreference("appointmentDuration_change");
+        mChangeAppointmentsDuration.setSummary(mUserAppointmentsDuration);
+        mChangeAppointmentsDuration.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                new AppointmentDuration(mActivity, mChangeAppointmentsDuration, SettingsFragment.this);
+                return true;
+            }
+        });
+    }
+
+    private void setWorkingHoursPreference() {
+        mChangeWorkingHours = findPreference("workingHours_change");
+        mChangeWorkingHours.setFragment("com.example.schedly.ChangeWorkingDaysFragment");
+        mChangeWorkingHours.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                Fragment _newFragment = new ChangeWorkingDaysFragment(mUserWorkingHoursID);
+                FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                transaction.replace(R.id.frag_Settings_FL_Holder, _newFragment);
+                transaction.addToBackStack(null);
+                transaction.commit();
+                return true;
+            }
+        });
+    }
+
+    private void setDisplayNamePreference() {
+        mChangeDisplayName = findPreference("displayName_change");
+        mChangeDisplayName.setSummary(mUserDisplayName);
+        mChangeDisplayName.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                new DisplayName(mActivity, mUserDisplayName, mChangeDisplayName, SettingsFragment.this);
+                return true;
+            }
+        });
+    }
+
+    private void setPasswordPreference() {
+        mChangePasswordPreference.setFragment("com.example.schedly.ChangePasswordFragment");
+        mChangePasswordPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                Fragment _newFragment = new ChangePasswordFragment();
+                FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                transaction.replace(R.id.frag_Settings_FL_Holder, _newFragment);
+                transaction.addToBackStack(null);
+                transaction.commit();
+                return true;
+            }
+        });
+    }
+
+    private void setEmailPreference() {
+        mChangeEmailPreference.setFragment("com.example.schedly.ChangeEmailFragment");
+        mChangeEmailPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                Fragment _newFragment = new ChangeEmailFragment();
+                FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                transaction.replace(R.id.frag_Settings_FL_Holder, _newFragment);
+                transaction.addToBackStack(null);
+                transaction.commit();
+                return true;
+            }
+        });
+    }
+
+    private void setPhoneNumberPreference() {
+        mChangePhoneNumber = findPreference("phoneNumber_change");
+        mChangePhoneNumber.setSummary(mUserPhoneNumber);
+        mChangePhoneNumber.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                new PhoneNumber(mActivity, mUserPhoneNumber, mChangePhoneNumber, SettingsFragment.this);
+                return true;
+            }
+        });
+    }
+
+    private void getDataFromDataBase() {
+        final DocumentReference _docRef = FirebaseFirestore.getInstance().collection("users")
+                .document(mUserID);
+        mRegistration = _docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot snapshot, @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w("ERR", "Listen failed.", e);
+                    return;
+                }
+                if (snapshot != null && snapshot.exists()) {
+                    mUserPhoneNumber = snapshot.get("phoneNumber").toString();
+                    mUserWorkingHoursID = snapshot.get("workingDaysID").toString();
+                    mUserDisplayName = snapshot.get("displayName").toString();
+                    mUserAppointmentsDuration = snapshot.get("appointmentsDuration").toString();
+                    getUserBlockedList();
+                    if(mPreferencesCreated) {
+                        setPreferencesForCurrentUser();
                     }
                 }
             }
@@ -303,17 +347,20 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     }
 
     private void getUserBlockedList() {
-        FirebaseFirestore.getInstance().collection("blockLists")
-                .document(mUserID)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if(task.getResult() != null && task.getResult().exists()) {
-                            mBlockedNumbers = task.getResult().getData();
-                        }
-                    }
-                });
+        final DocumentReference _docRef = FirebaseFirestore.getInstance().collection("blockLists")
+                .document(mUserID);
+        mRegistrationBlock = _docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot snapshot, @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w("ERR", "Listen failed.", e);
+                    return;
+                }
+                if (snapshot != null && snapshot.exists()) {
+                    mBlockedNumbers = snapshot.getData();
+                }
+            }
+        });
     }
 
     public void setmUserDisplayName(String name) {

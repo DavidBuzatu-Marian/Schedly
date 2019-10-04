@@ -18,6 +18,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.schedly.model.InternetReceiver;
+import com.example.schedly.model.NetworkChecker;
 import com.example.schedly.packet_classes.PacketMainLogin;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -457,9 +459,9 @@ public class MainActivity extends AppCompatActivity {
                             } catch (FirebaseAuthInvalidUserException ex) {
                                 final TextInputEditText _txtInputEmail;
                                 if (mDialogView != null) {
-                                    _txtInputEmail = mDialogView.findViewById(R.id.act_main_TIL_password);
+                                    _txtInputEmail = mDialogView.findViewById(R.id.act_main_TIET_email);
                                 } else {
-                                    _txtInputEmail = findViewById(R.id.act_main_TIL_password);
+                                    _txtInputEmail = findViewById(R.id.act_main_TIET_email);
                                 }
                                 Snackbar.make(findViewById(R.id.act_main_CL_Root), "Email not registered. Sign up here", Snackbar.LENGTH_LONG)
                                         .setAction("Sign Up", new View.OnClickListener() {
