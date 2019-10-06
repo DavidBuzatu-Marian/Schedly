@@ -23,8 +23,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.elconfidencial.bubbleshowcase.BubbleShowCaseBuilder;
-import com.example.schedly.CalendarActivity;
 import com.example.schedly.R;
 import com.example.schedly.model.Appointment;
 import com.google.firebase.firestore.FieldValue;
@@ -122,14 +120,6 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
             mTextViewName = itemView.findViewById(R.id.appointment_item_TV_Name);
             mTextViewPhoneNumber = itemView.findViewById(R.id.appointment_item_TV_PhoneNumber);
             mImageViewEdit = itemView.findViewById(R.id.appointment_item_IV_AppointmentOptions);
-
-            new BubbleShowCaseBuilder(mActivity)
-                    .title("Edit appointment") //Any title for the bubble view
-                    .backgroundColor(R.color.colorPrimary)
-                    .description(mActivity.getString(R.string.helpEditExplained))
-                    .targetView(mImageViewEdit)//View to point out
-                    .showOnce("FirstTimerEdit")
-                    .show(); //Display the ShowCase
 
             mImageViewEdit.setOnClickListener(new View.OnClickListener() {
                 @Override

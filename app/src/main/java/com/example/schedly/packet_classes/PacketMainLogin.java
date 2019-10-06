@@ -6,12 +6,11 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
-import com.example.schedly.MainActivity;
+import com.example.schedly.CalendarActivity;
 import com.example.schedly.R;
 import com.example.schedly.ScheduleDurationActivity;
 import com.example.schedly.SetPhoneNumberActivity;
@@ -21,7 +20,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -249,13 +247,14 @@ public class PacketMainLogin {
         }
         else {
             Log.d("StartinCalPacketMain", "Start");
-            Intent CalendarActivity = new Intent(mActivity, com.example.schedly.CalendarActivity.class);
-            CalendarActivity.putExtra("userID", user.getUid());
-            CalendarActivity.putExtra("userWorkingHours", mWorkingHours);
-            CalendarActivity.putExtra("userDaysWithScheduleID", mUserDaysWithScheduleID);
-            CalendarActivity.putExtra("userAppointmentDuration", mUserAppointmentsDuration);
-            CalendarActivity.putExtra("userWorkingHoursID", mUserWorkingHoursID);
-            mActivity.startActivityForResult(CalendarActivity, CA_CANCEL);
+            Intent _calendarIntent = new Intent(mActivity, CalendarActivity.class);
+            _calendarIntent.putExtra("userID", user.getUid());
+            _calendarIntent.putExtra("userWorkingHours", mWorkingHours);
+            _calendarIntent.putExtra("userDaysWithScheduleID", mUserDaysWithScheduleID);
+            _calendarIntent.putExtra("userAppointmentDuration", mUserAppointmentsDuration);
+            _calendarIntent.putExtra("userWorkingHoursID", mUserWorkingHoursID);
+            mActivity.startActivityForResult(_calendarIntent, CA_CANCEL);
+            mActivity.finish();
         }
     }
 

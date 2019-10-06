@@ -9,7 +9,10 @@ import android.telephony.SmsMessage;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.core.app.NotificationCompat;
+
 import com.example.schedly.CalendarActivity;
+import com.example.schedly.R;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +21,8 @@ import java.util.regex.Pattern;
 
 
 public class SMSBroadcastReceiver extends BroadcastReceiver {
-
+    private static final String ACTION_INTERNET = "android.net.conn.CONNECTIVITY_CHANGE";
+    private static final String ACTION_SMS = "Telephony.Sms.Intents.SMS_RECEIVED_ACTION";
     private static final String TAG = "SMSBroadcastReceiver";
     private final String serviceProviderNumber;
     private final String serviceProviderSmsCondition;
@@ -38,7 +42,7 @@ public class SMSBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if(intent.getAction().equals(Telephony.Sms.Intents.SMS_RECEIVED_ACTION)) {
+        if(intent.getAction().equals(ACTION_SMS)) {
             TSMSMessage _newSMSMessage;
             String _smsSender = "";
             StringBuilder _smsBody = new StringBuilder();
@@ -54,6 +58,7 @@ public class SMSBroadcastReceiver extends BroadcastReceiver {
             }
         }
     }
+
 
     public static void bindListener(MessageListener _messageListener){
         mMessageListener = _messageListener;

@@ -6,12 +6,14 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -30,6 +32,7 @@ import com.example.schedly.MainActivity;
 import com.example.schedly.R;
 import com.example.schedly.SettingsActivity;
 import com.example.schedly.StartSplashActivity;
+import com.example.schedly.model.InternetReceiver;
 import com.example.schedly.model.MessageListener;
 import com.example.schedly.model.SMSBroadcastReceiver;
 import com.example.schedly.model.TSMSMessage;
@@ -79,7 +82,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
     private HashMap<String, Object> mResultFromDialogFlow;
     private String mTime, mDateFromUser, mAppointmentType;
     private Long mDateFromUserInMillis;
-    private String mUserID, mUserAppointmentDuration, mMessagePhoneNumber, mUserWorkingDaysID;
+    private String mUserID, mUserAppointmentDuration, mMessagePhoneNumber, mUserWorkingHoursID;
     private HashMap<String, String> mContactName;
     private PacketService mPacketService;
     public static final int SERVICE_ID = 4000;
@@ -107,7 +110,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
         if (_extras != null) {
             mUserID = _extras.getString("userID");
             mUserAppointmentDuration = _extras.getString("userAppointmentDuration");
-            mUserWorkingDaysID = _extras.getString("userWorkingDaysID");
+            mUserWorkingHoursID = _extras.getString("userWorkingDaysID");
             mWorkingHours = (HashMap<String, String>) _extras.getSerializable("userWorkingHours");
         }
         monitorChanges();
@@ -127,6 +130,12 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
 //        registerReceiver(mSMSBroadcastReceiver, _intentFilter);
         SMSBroadcastReceiver.bindListener(this);
 
+        BroadcastReceiver _internetBroadcast = new InternetReceiver();
+        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        filter.addAction(Intent.ACTION_AIRPLANE_MODE_CHANGED);
+        this.registerReceiver(_internetBroadcast, filter);
+
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             startOwnForeground();
         else
@@ -137,22 +146,23 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
     private void startOwnForeground() {
         String NOTIFICATION_CHANNEL_ID = "com.example.schedly";
         String channelName = "Schedly SMS monitoring";
+
         NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_NONE);
         channel.setLightColor(R.color.colorPrimaryDark);
         channel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         assert manager != null;
         manager.createNotificationChannel(channel);
         Intent calendarIntent = new Intent(this, StartSplashActivity.class);
         calendarIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-        PendingIntent _intentDefault = PendingIntent.getActivity(this, 0,
-                calendarIntent, 0);
+        PendingIntent _intentDefault = PendingIntent.getActivity(this, 0, calendarIntent, 0);
 
         /* intent for stopping monitoring */
         Intent _startSettingsIntent = new Intent(this, SettingsActivity.class);
         _startSettingsIntent.putExtra("userID", mUserID);
         _startSettingsIntent.putExtra("userAppointmentDuration", mUserAppointmentDuration);
-        _startSettingsIntent.putExtra("userWorkingDaysID", mUserWorkingDaysID);
+        _startSettingsIntent.putExtra("userWorkingDaysID", mUserWorkingHoursID);
         _startSettingsIntent.putExtra("userWorkingHours", mWorkingHours);
         _startSettingsIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         PendingIntent _intentSettings = PendingIntent.getActivity(this, SETTINGS_RETURN, _startSettingsIntent, 0);
@@ -160,7 +170,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
         Notification notification = notificationBuilder.setOngoing(true)
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("Schedly is making appointments for you")
+                .setContentTitle(this.getString(R.string.notification_monitor_sms))
                 .setPriority(NotificationManager.IMPORTANCE_MIN)
                 .setCategory(Notification.CATEGORY_SERVICE)
                 .setContentIntent(_intentDefault)
@@ -197,7 +207,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
     @Override
     public void messageReceived(TSMSMessage newSMSMessage) {
         mNROfAppointmentsForThisDay = 0;
-        mPacketService = new PacketService(mUserID, mUserAppointmentDuration, mUserWorkingDaysID);
+        mPacketService = new PacketService(mUserID, mUserAppointmentDuration, mUserWorkingHoursID);
         mPacketService.setUserWorkingHours(mWorkingHours);
         mPacketService.setmUserAppointments(mUserAppointments);
         if(!phoneBlocked(mMessagePhoneNumber)) {
@@ -206,6 +216,8 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
 //            }
             mSMSQueue.add(newSMSMessage);
             setUpBeforeFirebase();
+        } else {
+            Log.d("MonitorSMS", "Blocked!");
         }
 
     }
@@ -229,7 +241,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
                 if (!mUUID.containsKey(_sender)) {
                     mUUID.put(_sender, UUID.randomUUID().toString());
                     if (!mContactName.containsKey(mMessagePhoneNumber)) {
-                        getContact(mMessagePhoneNumber);
+//                        getContact(mMessagePhoneNumber);
                     }
                 }
                 Log.d("MESSAGEReceiver", _sender);
@@ -289,8 +301,11 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
                     String _keyWord = data.getProperty("Key-word");
                     if(mDateFromUser != null && !checkPhoneNumberNrAppointments(mMessagePhoneNumber, mDateFromUser)) {
                         responseOptions(_keyWord, message);
-                    } else if(mDateFromUser == null) {
+                    } else if(isMessageForAppointment(mDateFromUser, mTime, mAppointmentType, _keyWord)) {
+                        Log.d("MonitorSMS", "Message for appointment");
                         responseOptions(_keyWord, message);
+                    } else {
+                        Log.d("MonitorSMS", "Ignored message");
                     }
                 } else {
                     Log.d("Succes", task.getException().toString());
@@ -298,6 +313,13 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
                 }
             }
         });
+    }
+
+    private boolean isMessageForAppointment(String dateFromUser, String time, String appointmentType, String keyWord) {
+        if(dateFromUser == null && time == null && (appointmentType == null || keyWord == null)) {
+            /* NOT MESSAGE FOR APPOINTMENT */
+            return false;
+        } else return appointmentType != null || keyWord != null;
     }
 
     private void responseOptions(String keyWord, String message) {
@@ -517,5 +539,18 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
                     }
                 });
         return _phoneNumberBlocked.get();
+    }
+
+
+    public void setParams(String userID, String userAppointmentDuration, String userWorkingHoursID, HashMap<String, String> workingHours, Map<String, Object> userAppointments) {
+        mUserID = userID;
+        mUserAppointmentDuration = userAppointmentDuration;
+        mUserWorkingHoursID = userWorkingHoursID;
+        mWorkingHours = workingHours;
+        mUserAppointments = userAppointments;
+
+        mSMSQueue = new ArrayDeque<>();
+        mUUID = new HashMap<>();
+        mContactName = new HashMap<>();
     }
 }

@@ -1,6 +1,5 @@
 <resources>
     <string name="facebook_app_id">293320568283992</string>
-    <string name="fb_login_protocol_scheme">fb293320568283992</string>
     <string name="server_client_id">125094146390-nvc0ro3tsg4ihkcon42j1v59lkfhn5ge.apps.googleusercontent.com</string>
     <string name="default_web_client_ID">125094146390-m0fk6oqclr1edebu3gdaldiq3r52cika.apps.googleusercontent.com</string>
 
@@ -58,15 +57,15 @@
 
 
     <string-array name="hours_array">
-        <item>5:30</item>
-        <item>6:00</item>
-        <item>6:30</item>
-        <item>7:00</item>
-        <item>7:30</item>
-        <item>8:00</item>
-        <item>8:30</item>
-        <item>9:00</item>
-        <item>9:30</item>
+        <item>05:30</item>
+        <item>06:00</item>
+        <item>06:30</item>
+        <item>07:00</item>
+        <item>07:30</item>
+        <item>08:00</item>
+        <item>08:30</item>
+        <item>09:00</item>
+        <item>09:30</item>
         <item>10:00</item>
         <item>10:30</item>
         <item>11:00</item>
@@ -95,7 +94,7 @@
         <item>22:30</item>
         <item>23:00</item>
         <item>23:30</item>
-        <item>0:00</item>
+        <item>00:00</item>
     </string-array>
     <string name="title_activity_forgot_password">ForgotPasswordActivity</string>
     <string name="act_FPassword_TV_Head">Parolă uitată</string>
@@ -214,5 +213,6 @@
     <string name="responses_closest_days">Acestea sunt cele mai apropiate zile cand va pot primi:</string>
 
     <string name="fragment_SMS_monitoring">Chiar doriți să opriți monitorizarea SMS? Schedly NU va mai putea face programări prin SMS până la reactivare</string>
-
+    <string name="notification_monitor_sms">Schedly se ocupă de programări pentru dvs.</string>
+    <string name="notification_monitor_internet">Reconectați-vă la internet pentru ca Schedly să funcționeze!</string>
 </resources>

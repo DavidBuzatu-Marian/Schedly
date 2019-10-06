@@ -58,15 +58,15 @@
 
 
     <string-array name="hours_array">
-        <item>5:30</item>
-        <item>6:00</item>
-        <item>6:30</item>
-        <item>7:00</item>
-        <item>7:30</item>
-        <item>8:00</item>
-        <item>8:30</item>
-        <item>9:00</item>
-        <item>9:30</item>
+        <item>05:30</item>
+        <item>06:00</item>
+        <item>06:30</item>
+        <item>07:00</item>
+        <item>07:30</item>
+        <item>08:00</item>
+        <item>08:30</item>
+        <item>09:00</item>
+        <item>09:30</item>
         <item>10:00</item>
         <item>10:30</item>
         <item>11:00</item>
@@ -210,5 +210,7 @@
     <string name="resources_not_working">I am sorry, but I don\'t work on this day. Please try another date, time or call me</string>
     <string name="responses_closest_days">These are the closest days I can take you in:</string>
     <string name="fragment_SMS_monitoring">Do you really want to disable SMS monitoring? Schedly will NOT be able to make appointments through SMS if disabled</string>
+    <string name="notification_monitor_sms">Schedly is making appointments for you</string>
+    <string name="notification_monitor_internet">Reconnect to the internet to make Schedly work!</string>
 
 </resources>

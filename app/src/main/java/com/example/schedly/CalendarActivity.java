@@ -1,6 +1,5 @@
 package com.example.schedly;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,12 +21,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.elconfidencial.bubbleshowcase.BubbleShowCaseBuilder;
 import com.example.schedly.adapter.CalendarAdapter;
 import com.example.schedly.model.Appointment;
 import com.example.schedly.model.CustomCalendarView;
 import com.example.schedly.model.CustomEvent;
 import com.example.schedly.packet_classes.PacketCalendar;
-import com.example.schedly.packet_classes.PacketCalendarHelpers;
 import com.example.schedly.service.MonitorIncomingSMSService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.firebase.firestore.DocumentReference;
@@ -64,6 +63,7 @@ public class CalendarActivity extends AppCompatActivity {
     private String ERR = "ERRORS";
     private final int SMS_PERMISSION_CODE = 9000;
     private final int CONTACTS_PERMISSION_CODE = 9001;
+    private final int CALL_LOG_PERMISSION_CODE = 9002;
     public static final int LOG_OUT = 4001;
     public static final int SETTINGS_RETURN = 4000;
     private String userID;
@@ -81,6 +81,8 @@ public class CalendarActivity extends AppCompatActivity {
     private String mCompleteDate;
     private Map<String, Object> mAppointmentsForThisMonth;
     private ListenerRegistration mRegistration;
+    private boolean mArePermissionAccepted = true;
+    private boolean[] mPermissions = new boolean[3];
 
 
     @Override
@@ -90,12 +92,15 @@ public class CalendarActivity extends AppCompatActivity {
 
         /* permisions */
         if (!isSmsPermissionGranted()) {
+            mArePermissionAccepted = false;
             showRequestPermissionsInfoAlertDialog("SMS");
         }
         if (!isContactPermissionGranted()) {
+            mArePermissionAccepted = false;
             showRequestPermissionsInfoAlertDialog("CONTACTS");
         }
         if (!isLogPermissionGranted()) {
+            mArePermissionAccepted = false;
             showRequestPermissionsInfoAlertDialog("LOG");
         }
 
@@ -112,30 +117,54 @@ public class CalendarActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        if(mArePermissionAccepted) {
+            setUpUI();
+        }
         Log.d("OnResume", "Resumed");
-        /* dipslay Helpers */
-        final PacketCalendarHelpers _PCH = new PacketCalendarHelpers(CalendarActivity.this);
-        _PCH.displayHelpers();
 
+//        findViewById(R.id.act_Calendar_BUT_test).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                testMessages();
+//            }
+//        });
+    }
+
+    private void setUpUI() {
         mPacketCalendar = new PacketCalendar(this, mWorkingHours, mUserAppointmentDuration, userID);
         mCalendarView = findViewById(R.id.act_Calendar_CalendarV);
         mCalendarView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //PacketService _psTest = new PacketService(userID, mUserAppointmentDuration, mUserWorkingHoursID);
-                //_psTest.setUserWorkingHours(mWorkingHours);
-                //_psTest.getScheduledDays("12:00", "0724154387", "TIME");
                 Calendar _calendar = mCalendarView.getMarkedDay();
-                _PCH.displayHelpOnDate(mCalendarView);
                 getDateFromCalendarView(_calendar);
                 Log.d("DATE", mDate + "");
             }
         });
 
+//        showBubble();
         startServiceSMSMonitoring();
         setRecyclerView();
         monitorChanges();
     }
+
+    private void showBubble() {
+        new BubbleShowCaseBuilder(this)
+                .title("How does Schedly work?") //Any title for the bubble view
+                .backgroundColor(R.color.colorPrimary)
+                .description(getString(R.string.helpSMSExplained))
+                .targetView(findViewById(R.id.act_Calendar_CL_root)) //View to point out
+                .show(); //Display the ShowCase
+    }
+
+//    private void testMessages() {
+//        MonitorIncomingSMSService _testMonitor = new MonitorIncomingSMSService();
+//        StringBuilder _smsBody = new StringBuilder("Hello! What are you doing?");
+//        TSMSMessage _testMessage = new TSMSMessage(_smsBody, "0724154387", 1570286399839L);
+//        _testMonitor.setParams(userID, mUserAppointmentDuration, mUserWorkingHoursID, mWorkingHours, mAppointmentsForThisMonth);
+//
+//        _testMonitor.messageReceived(_testMessage);
+//    }
 
 
     @Override
@@ -144,7 +173,9 @@ public class CalendarActivity extends AppCompatActivity {
         /* remove registration on stop in order to
          * moderate power and resources consumption
          */
-        mRegistration.remove();
+        if(mRegistration != null) {
+            mRegistration.remove();
+        }
     }
 
     private void setCalendarContent() {
@@ -438,28 +469,28 @@ public class CalendarActivity extends AppCompatActivity {
     }
 
     private void requestReadLogPermission() {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_CALL_LOG)) {
-        }
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CALL_LOG}, CONTACTS_PERMISSION_CODE);
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CALL_LOG}, CALL_LOG_PERMISSION_CODE);
     }
 
     private void requestReadAndSendSmsPermission() {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_SMS)) {
-        }
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.SEND_SMS)) {
-        }
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_SMS, Manifest.permission.RECEIVE_SMS, Manifest.permission.SEND_SMS}, SMS_PERMISSION_CODE);
     }
 
     private void requestReadContactsPermission() {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_CONTACTS)) {
-        }
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS}, CONTACTS_PERMISSION_CODE);
     }
 
     private void closeUponPermissionDenied(int[] grantResults) {
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
+            mArePermissionAccepted = true;
+            for(boolean _permissionBool: mPermissions) {
+                if(!_permissionBool) {
+                    mArePermissionAccepted = false;
+                }
+            }
+            if(mArePermissionAccepted) {
+                setUpUI();
+            }
         } else {
             finishAffinity();
             finish();
@@ -469,16 +500,26 @@ public class CalendarActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case SMS_PERMISSION_CODE: {
-                closeUponPermissionDenied(grantResults);
+
+        switch(requestCode) {
+            case SMS_PERMISSION_CODE:
+                if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    mPermissions[0] = true;
+                }
                 break;
-            }
-            case CONTACTS_PERMISSION_CODE: {
-                closeUponPermissionDenied(grantResults);
+            case CONTACTS_PERMISSION_CODE:
+                if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    mPermissions[1] = true;
+                }
                 break;
-            }
+            case CALL_LOG_PERMISSION_CODE:
+                if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    mPermissions[2] = true;
+                }
+                break;
         }
+
+        closeUponPermissionDenied(grantResults);
     }
 
     @Override
@@ -504,12 +545,5 @@ public class CalendarActivity extends AppCompatActivity {
                 finish();
                 break;
         }
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-
-        finishAffinity();
     }
 }

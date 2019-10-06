@@ -302,7 +302,7 @@ public class PacketCalendar {
         setListenersForATVs(_txtName, _txtNumber, mCallLogNames, mCallLogPNumbers);
     }
 
-    private void getNamesAndPhoneNumbers() {
+    public void getNamesAndPhoneNumbers() {
         mCallLogDetails = getCallLog();
         mCallLogPNumbers = new ArrayList<>();
         mCallLogNames = new ArrayList<>();
@@ -491,9 +491,7 @@ public class PacketCalendar {
             addFreeDayImage(true);
 
         } else {
-            PacketCalendarHelpers _PCH = new PacketCalendarHelpers(mActivity);
             addFreeDayImage(false);
-            _PCH.displayHelpOnAdd();
             setImageViewListener(_dayOfWeek, _dateFormat, capitalize(_dayOfWeekDisplay));
         }
     }

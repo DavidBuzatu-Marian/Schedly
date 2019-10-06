@@ -25,32 +25,34 @@
     </item>
     <item
         android:bottom="0dp"
-        android:gravity="end"
-        android:top="32dp">
-        <shape android:shape="rectangle">
+        android:gravity="start"
+        android:top="36dp"
+        >
+        <shape android:shape="oval">
             <gradient
                 android:startColor="@color/colorEventLessThanHalf"
                 android:endColor="@color/colorEventMoreThanHalf"
                 android:type="linear"
-                android:angle="90"/>
+                android:angle="0"/>
             <size
                 android:width="12dp"
-                android:height="16dp" />
+                android:height="12dp" />
         </shape>
     </item>
     <item
-        android:bottom="14.5dp"
-        android:gravity="end"
-        android:top="16dp">
-        <shape android:shape="rectangle">
+        android:bottom="0dp"
+        android:gravity="start"
+        android:top="36dp"
+        android:left="18dp">
+        <shape android:shape="oval">
             <gradient
                 android:startColor="@color/colorEventMoreThanHalf"
                 android:endColor="@color/colorEventFull"
                 android:type="linear"
-                android:angle="90"/>
+                android:angle="0"/>
             <size
                 android:width="12dp"
-                android:height="16dp" />
+                android:height="12dp" />
         </shape>
     </item>
 </layer-list>

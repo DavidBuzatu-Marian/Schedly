@@ -25,6 +25,7 @@ import org.threeten.bp.format.DateTimeFormatter;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -33,6 +34,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class PacketService {
+    private static final int MAX_SMS_CHAR = 141;
     private Long mDateInMillis;
     private String mUserID, mUserAppointmentDuration, mContactName;
     private FirebaseFirestore mFireStore;
@@ -65,8 +67,15 @@ public class PacketService {
 
 
     private void sendMessage() {
-        SmsManager.getDefault().sendTextMessage(mPhoneNumber, null, mSMSBody.toString(), null, null);
-        Log.d("MESSAGE", mSMSBody.toString());
+        ArrayList<String> _messageParts = new ArrayList<>(3);
+        _messageParts.add(mSMSBody.toString().substring(0, MAX_SMS_CHAR));
+        _messageParts.add(mSMSBody.toString().substring(MAX_SMS_CHAR + 1));
+
+        for (String _message : _messageParts) {
+            Log.d("MESSAGE", _message);
+            SmsManager.getDefault().sendTextMessage(mPhoneNumber, null, _message, null, null);
+        }
+
     }
 
 
