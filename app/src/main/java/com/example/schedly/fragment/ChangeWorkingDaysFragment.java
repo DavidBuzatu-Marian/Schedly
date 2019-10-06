@@ -17,6 +17,7 @@ import androidx.fragment.app.FragmentActivity;
 
 import com.example.schedly.R;
 import com.example.schedly.SettingsActivity;
+import com.example.schedly.StartSplashActivity;
 import com.example.schedly.model.DaysOfWeek;
 import com.example.schedly.packet_classes.PacketCardViewSettings;
 import com.example.schedly.packet_classes.PacketSpinnerViewSettings;
@@ -117,8 +118,11 @@ public class ChangeWorkingDaysFragment extends Fragment {
         LoginManager.getInstance().logOut();
         FirebaseAuth.getInstance().signOut();
         Intent stopServiceIntent = new Intent(mActivity, MonitorIncomingSMSService.class);
-        stopServiceIntent.setAction("ACTION.STOPFOREGROUND_ACTION");
-        getActivity().setResult(WORKING_HOURS_CHANGED);
+        mActivity.stopService(stopServiceIntent);
+        Intent loginIntent = new Intent(mActivity, StartSplashActivity.class);
+        loginIntent.putExtra("LoggedOut", true);
+        loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(loginIntent);
         getActivity().finish();
     }
 }

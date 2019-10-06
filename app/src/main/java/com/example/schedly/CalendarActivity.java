@@ -21,7 +21,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.elconfidencial.bubbleshowcase.BubbleShowCaseBuilder;
 import com.example.schedly.adapter.CalendarAdapter;
 import com.example.schedly.model.Appointment;
 import com.example.schedly.model.CustomCalendarView;
@@ -148,15 +147,6 @@ public class CalendarActivity extends AppCompatActivity {
         monitorChanges();
     }
 
-    private void showBubble() {
-        new BubbleShowCaseBuilder(this)
-                .title("How does Schedly work?") //Any title for the bubble view
-                .backgroundColor(R.color.colorPrimary)
-                .description(getString(R.string.helpSMSExplained))
-                .targetView(findViewById(R.id.act_Calendar_CL_root)) //View to point out
-                .show(); //Display the ShowCase
-    }
-
 //    private void testMessages() {
 //        MonitorIncomingSMSService _testMonitor = new MonitorIncomingSMSService();
 //        StringBuilder _smsBody = new StringBuilder("Hello! What are you doing?");
@@ -179,8 +169,9 @@ public class CalendarActivity extends AppCompatActivity {
     }
 
     private void setCalendarContent() {
-        long _startMonth = YearMonth.from(LocalDate.now()).atDay(1).atStartOfDay(ZoneOffset.systemDefault()).toInstant().toEpochMilli();
-        long _endMonth = YearMonth.from(LocalDate.now()).atEndOfMonth().atStartOfDay(ZoneOffset.systemDefault()).toInstant().toEpochMilli();
+        LocalDate _month = Instant.ofEpochMilli(mDate).atZone(ZoneId.systemDefault()).toLocalDate();
+        long _startMonth = YearMonth.from(_month).atDay(1).atStartOfDay(ZoneOffset.systemDefault()).toInstant().toEpochMilli();
+        long _endMonth = YearMonth.from(_month).atEndOfMonth().atStartOfDay(ZoneOffset.systemDefault()).toInstant().toEpochMilli();
         if(mAppointmentsForThisMonth != null) {
             setEvents(_startMonth, _endMonth);
         } else {
