@@ -32,7 +32,6 @@ import static com.example.schedly.MainActivity.WORKING_HOURS_CHANGED;
 
 public class StartSplashActivity extends AppCompatActivity {
 
-    private FirebaseAuth mAuth;
     FirebaseFirestore mFirebaseFirestore;
     private GoogleSignInClient mGoogleSignInClient;
     private int mResultCode = 0, mRequestCode = 0;
@@ -49,11 +48,6 @@ public class StartSplashActivity extends AppCompatActivity {
             redirectWithScreenSize();
             finish();
         }
-
-        mAuth = FirebaseAuth.getInstance();
-        // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        mFirebaseFirestore = FirebaseFirestore.getInstance();
         /* preference check for first login
          * this is used in calendar activity
          * in order to display helpers
@@ -62,16 +56,21 @@ public class StartSplashActivity extends AppCompatActivity {
         if(!_isPreferenceSet) {
             setFirstLoginPreference();
         }
+        checkLoggedIn();
+    }
+
+    private void checkLoggedIn() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        mFirebaseFirestore = FirebaseFirestore.getInstance();
         /* check if user is logged, redirect accordingly */
         if(currentUser != null) {
-            Log.d("Firebase", "Logged");
             /* get user info and redirect */
             PacketMainLogin _packetMainLogin = new PacketMainLogin(this, false);
             _packetMainLogin.getUserDetails(currentUser);
         }
         else {
             /* get screen size and redirect to corresponding main */
-           redirectWithScreenSize();
+            redirectWithScreenSize();
         }
     }
 
@@ -91,10 +90,6 @@ public class StartSplashActivity extends AppCompatActivity {
         DisplayMetrics _displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(_displayMetrics);
         int _height = _displayMetrics.heightPixels;
-        int _width = _displayMetrics.widthPixels;
-        /* if screen height smaller than 1200px
-         * show another login activity layout
-         */
         Intent _intentMainActivity = new Intent(this, MainActivity.class);
         _intentMainActivity.putExtra("resultCode", mResultCode);
         _intentMainActivity.putExtra("requestCode", mRequestCode);
@@ -128,7 +123,6 @@ public class StartSplashActivity extends AppCompatActivity {
             case EMAIL_CHANGED:
             case PASSWORD_CHANGED:
             case WORKING_HOURS_CHANGED:
-                Log.d("Result", "Good");
                 mResultCode = resultCode;
                 redirectWithScreenSize();
                 finish();

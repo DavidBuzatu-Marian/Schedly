@@ -19,6 +19,7 @@ import com.example.schedly.R;
 import com.example.schedly.SettingsActivity;
 import com.example.schedly.StartSplashActivity;
 import com.example.schedly.model.DaysOfWeek;
+import com.example.schedly.model.LogOut;
 import com.example.schedly.packet_classes.PacketCardViewSettings;
 import com.example.schedly.packet_classes.PacketSpinnerViewSettings;
 import com.example.schedly.service.MonitorIncomingSMSService;
@@ -41,12 +42,8 @@ public class ChangeWorkingDaysFragment extends Fragment {
     private View mInflater;
     private ArrayAdapter<CharSequence> mAdapterHours;
     private PacketSpinnerViewSettings mPacketSpinnerViewSettings;
-    private PacketCardViewSettings mCardViewSettings;
-    private GoogleSignInClient mGoogleSignInClient;
-    private String mUserWorkingDaysID;
 
-    public ChangeWorkingDaysFragment(String _workingDaysID) {
-        mUserWorkingDaysID = _workingDaysID;
+    public ChangeWorkingDaysFragment() {
     }
 
     @Override
@@ -64,14 +61,14 @@ public class ChangeWorkingDaysFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-
         mAdapterHours = ArrayAdapter.createFromResource(getContext(), R.array.hours_array, R.layout.spinner_workinghours);
         mAdapterHours.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        PacketCardViewSettings mCardViewSettings = new PacketCardViewSettings(getContext(), mInflater);
+        mPacketSpinnerViewSettings = new PacketSpinnerViewSettings(getContext(), mInflater, mAdapterHours);
+        setUpSaveButton();
+    }
 
-        mCardViewSettings = new PacketCardViewSettings(getContext(), mInflater);
-
-        mPacketSpinnerViewSettings = new PacketSpinnerViewSettings(getContext(), mUserWorkingDaysID, mInflater, mAdapterHours);
-
+    private void setUpSaveButton() {
         Button _saveChangesButton = mInflater.findViewById(R.id.frag_CWHours_BUT_saveChanges);
         RelativeLayout.LayoutParams _layoutParamsBTN =  (RelativeLayout.LayoutParams) _saveChangesButton.getLayoutParams();
         _layoutParamsBTN.addRule(RelativeLayout.BELOW, DaysOfWeek.SUN.getCardViewId());
@@ -86,18 +83,16 @@ public class ChangeWorkingDaysFragment extends Fragment {
     }
 
     private void saveNewWorkingDaysInDatabase() {
-        FirebaseFirestore mFireStore = FirebaseFirestore.getInstance();
         Map<String, Object> daysToAdd = mPacketSpinnerViewSettings.getDaysToAdd();
-
-        mFireStore.collection("workingDays")
-                .document(mUserWorkingDaysID)
+        FirebaseFirestore.getInstance().collection("workingDays")
+                .document(FirebaseAuth.getInstance().getUid())
                 .update(daysToAdd)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d("Settings", "DocumentSnapshot successfully written!");
                         getFragmentManager().popBackStack();
-                        logOut();
+                        LogOut _logOut = new LogOut(mActivity);
+                        _logOut.LogOutFromApp();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -106,23 +101,5 @@ public class ChangeWorkingDaysFragment extends Fragment {
                         Log.w("Settings", "Error writing document", e);
                     }
                 });
-    }
-
-    private void logOut() {
-        final GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_ID))
-                .requestEmail()
-                .build();
-        mGoogleSignInClient = GoogleSignIn.getClient(getActivity(), gso);
-        mGoogleSignInClient.signOut();
-        LoginManager.getInstance().logOut();
-        FirebaseAuth.getInstance().signOut();
-        Intent stopServiceIntent = new Intent(mActivity, MonitorIncomingSMSService.class);
-        mActivity.stopService(stopServiceIntent);
-        Intent loginIntent = new Intent(mActivity, StartSplashActivity.class);
-        loginIntent.putExtra("LoggedOut", true);
-        loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(loginIntent);
-        getActivity().finish();
     }
 }

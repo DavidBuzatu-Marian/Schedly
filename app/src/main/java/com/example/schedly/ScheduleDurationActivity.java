@@ -29,8 +29,8 @@ public class ScheduleDurationActivity extends AppCompatActivity {
 
     private String mUserID;
     private final String TAG = "SDuration";
-    AnimationTransitionOnActivity _animationTransitionOnActivity;
-    private String mUserPhoneNumber, mUserWorkingHoursID, mUserAppointmentsDuration;
+    AnimationTransitionOnActivity mAnimationTransitionOnActivity;
+    private String mUserPhoneNumber, mUserAppointmentsDuration;
     private HashMap<String, String> mWorkingHours = new HashMap<>();
 
     @Override
@@ -41,20 +41,21 @@ public class ScheduleDurationActivity extends AppCompatActivity {
         Bundle _extras = getIntent().getExtras();
         if(_extras != null) {
             mUserPhoneNumber = _extras.getString("userPhoneNumber");
-            mUserWorkingHoursID = _extras.getString("userWorkingHoursID");
             mWorkingHours = (HashMap<String, String>) _extras.getSerializable("userWorkingHours");
             mUserID = _extras.getString("userID");
         }
+        setUpFloatingButton();
+    }
 
+    private void setUpFloatingButton() {
         final EditText _sDurationTV = findViewById(R.id.act_SDuration_TIET_MinutesSelector);
         final EditText _dNameTV = findViewById(R.id.act_SDuration_TIET_DisplayName);
-
         FloatingActionButton _floatingActionButton = findViewById(R.id.act_SDuration_floating_action_button);
         _floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(!errorDetected(_sDurationTV, _dNameTV)) {
-                    _animationTransitionOnActivity = new AnimationTransitionOnActivity(findViewById(R.id.act_SDuration_V_AnimationFill), (int) view.getX(), (int) view.getY());
+                    mAnimationTransitionOnActivity = new AnimationTransitionOnActivity(findViewById(R.id.act_SDuration_V_AnimationFill), (int) view.getX(), (int) view.getY());
                     addDurationToDB(_sDurationTV.getText().toString(), _dNameTV.getText().toString());
                 }
                 else {
@@ -78,18 +79,17 @@ public class ScheduleDurationActivity extends AppCompatActivity {
 
     private void addDurationToDB(String minutes, String name) {
         mUserAppointmentsDuration = minutes;
-        FirebaseFirestore _firebaseFirestore = FirebaseFirestore.getInstance();
         Map<String, Object> duration = new HashMap<>();
         duration.put("appointmentsDuration", minutes);
         duration.put("displayName", name);
-        _firebaseFirestore.collection("users")
+        FirebaseFirestore.getInstance().collection("users")
                 .document(mUserID)
                 .update(duration)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, "DocumentSnapshot successfully written!");
-                        startCalendar(mUserID);
+                        startCalendar();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -100,12 +100,11 @@ public class ScheduleDurationActivity extends AppCompatActivity {
                 });
     }
 
-    private void startCalendar(String userID) {
+    private void startCalendar() {
         Intent _calendarIntent = new Intent(ScheduleDurationActivity.this, CalendarActivity.class);
-        _calendarIntent.putExtra("userID", userID);
+        _calendarIntent.putExtra("userID", mUserID);
         _calendarIntent.putExtra("userWorkingHours", mWorkingHours);
         _calendarIntent.putExtra("userAppointmentDuration", mUserAppointmentsDuration);
-        _calendarIntent.putExtra("userWorkingHoursID", mUserWorkingHoursID);
         _calendarIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivityForResult(_calendarIntent, CA_CANCEL);
     }
@@ -114,27 +113,7 @@ public class ScheduleDurationActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        switch (resultCode) {
-            case LOG_OUT:
-                setResult(LOG_OUT);
-                this.finish();
-                break;
-            case CA_CANCEL:
-                setResult(CA_CANCEL);
-                this.finish();
-                break;
-            case EMAIL_CHANGED:
-                setResult(EMAIL_CHANGED);
-                finish();
-                break;
-            case PASSWORD_CHANGED:
-                setResult(PASSWORD_CHANGED);
-                finish();
-                break;
-            case WORKING_HOURS_CHANGED:
-                setResult(WORKING_HOURS_CHANGED);
-                finish();
-                break;
-        }
+        setResult(resultCode);
+        this.finish();
     }
 }

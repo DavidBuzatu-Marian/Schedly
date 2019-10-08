@@ -84,6 +84,7 @@ public class PhoneNumber {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
+                        Toast.makeText(mActivity, mActivity.getString(R.string.dialog_pnumber_change_success), Toast.LENGTH_SHORT).show();
                         mPreference.setSummary(mPhoneNumber);
                         mSettingsFragment.setmUserPhoneNumber(mPhoneNumber);
                         Log.d("Change", "DocumentSnapshot successfully written!");

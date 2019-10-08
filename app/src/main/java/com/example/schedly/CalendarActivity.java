@@ -58,15 +58,13 @@ import static com.example.schedly.MainActivity.PASSWORD_CHANGED;
 import static com.example.schedly.MainActivity.WORKING_HOURS_CHANGED;
 
 public class CalendarActivity extends AppCompatActivity {
-
-    private String ERR = "ERRORS";
+    private final String TAG = "CalendarActivity";
     private final int SMS_PERMISSION_CODE = 9000;
     private final int CONTACTS_PERMISSION_CODE = 9001;
     private final int CALL_LOG_PERMISSION_CODE = 9002;
     public static final int LOG_OUT = 4001;
     public static final int SETTINGS_RETURN = 4000;
-    private String userID;
-    private String mUserWorkingHoursID;
+    private String mUserID;
     private CustomCalendarView mCalendarView;
     private Long mDate = 0L;
     private RecyclerView mRecyclerView;
@@ -88,8 +86,18 @@ public class CalendarActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calendar);
-
         /* permisions */
+        checkEachPermission();
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            mUserID = extras.getString("userID");
+            mWorkingHours = (HashMap<String, String>) extras.getSerializable("userWorkingHours");
+            mUserAppointmentDuration = extras.getString("userAppointmentDuration");
+        }
+
+    }
+
+    private void checkEachPermission() {
         if (!isSmsPermissionGranted()) {
             mArePermissionAccepted = false;
             showRequestPermissionsInfoAlertDialog("SMS");
@@ -102,24 +110,15 @@ public class CalendarActivity extends AppCompatActivity {
             mArePermissionAccepted = false;
             showRequestPermissionsInfoAlertDialog("LOG");
         }
-
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            userID = extras.getString("userID");
-            mWorkingHours = (HashMap<String, String>) extras.getSerializable("userWorkingHours");
-            mUserWorkingHoursID = extras.getString("userWorkingHoursID");
-            mUserAppointmentDuration = extras.getString("userAppointmentDuration");
-        }
-
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if(mArePermissionAccepted) {
+        if (mArePermissionAccepted) {
             setUpUI();
         }
-        Log.d("OnResume", "Resumed");
+        Log.d(TAG, "Resumed");
 
 //        findViewById(R.id.act_Calendar_BUT_test).setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -130,7 +129,7 @@ public class CalendarActivity extends AppCompatActivity {
     }
 
     private void setUpUI() {
-        mPacketCalendar = new PacketCalendar(this, mWorkingHours, mUserAppointmentDuration, userID);
+        mPacketCalendar = new PacketCalendar(this, mWorkingHours, mUserAppointmentDuration, mUserID);
         mCalendarView = findViewById(R.id.act_Calendar_CalendarV);
         mCalendarView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -140,8 +139,6 @@ public class CalendarActivity extends AppCompatActivity {
                 Log.d("DATE", mDate + "");
             }
         });
-
-//        showBubble();
         startServiceSMSMonitoring();
         setRecyclerView();
         monitorChanges();
@@ -163,7 +160,7 @@ public class CalendarActivity extends AppCompatActivity {
         /* remove registration on stop in order to
          * moderate power and resources consumption
          */
-        if(mRegistration != null) {
+        if (mRegistration != null) {
             mRegistration.remove();
         }
     }
@@ -172,15 +169,17 @@ public class CalendarActivity extends AppCompatActivity {
         LocalDate _month = Instant.ofEpochMilli(mDate).atZone(ZoneId.systemDefault()).toLocalDate();
         long _startMonth = YearMonth.from(_month).atDay(1).atStartOfDay(ZoneOffset.systemDefault()).toInstant().toEpochMilli();
         long _endMonth = YearMonth.from(_month).atEndOfMonth().atStartOfDay(ZoneOffset.systemDefault()).toInstant().toEpochMilli();
-        if(mAppointmentsForThisMonth != null) {
+        if (mAppointmentsForThisMonth != null) {
             setEvents(_startMonth, _endMonth);
         } else {
             mCalendarView.updateCalendar(null);
         }
+        setUpNavigationCalendarBUT();
+    }
 
+    private void setUpNavigationCalendarBUT() {
         ImageView mBUTPrev = findViewById(R.id.calendar_prev_button);
         ImageView mBUTNext = findViewById(R.id.calendar_next_button);
-
         mBUTPrev.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -199,44 +198,52 @@ public class CalendarActivity extends AppCompatActivity {
         });
     }
 
-    
+
     private void onButtonsClick(LocalDate dateNow) {
         mCalendarView.setDate(dateNow);
         long _startMonth = YearMonth.from(dateNow).atDay(1).atStartOfDay(ZoneOffset.systemDefault()).toInstant().toEpochMilli();
         long _endMonth = YearMonth.from(dateNow).atEndOfMonth().atStartOfDay(ZoneOffset.systemDefault()).toInstant().toEpochMilli();
-        if(mAppointmentsForThisMonth != null) {
+        if (mAppointmentsForThisMonth != null) {
             setEvents(_startMonth, _endMonth);
         } else {
-            mCalendarView.updateCalendar(null );
+            mCalendarView.updateCalendar(null);
         }
     }
+
     private void setEvents(long startMonth, long endMonth) {
-        long _numberOfAppointments;
         CustomEvent.setUserAppointmentDuration(Long.parseLong(mUserAppointmentDuration));
         @SuppressLint("UseSparseArrays") final HashMap<Long, CustomEvent> _events = new HashMap<>();
-        for(Map.Entry<String, Object> _appointment : mAppointmentsForThisMonth.entrySet()) {
+        for (Map.Entry<String, Object> _appointment : mAppointmentsForThisMonth.entrySet()) {
             long _dateInMillis = Long.parseLong(_appointment.getKey());
-            if(_dateInMillis >= startMonth && _dateInMillis <= endMonth && hasValue(_appointment.getValue())) {
+            if (_dateInMillis >= startMonth && _dateInMillis <= endMonth && hasValue(_appointment.getValue())) {
                 DateTimeFormatter _DTF = DateTimeFormatter.ofPattern("EEEE", Locale.US);
                 LocalDate _date = Instant.ofEpochMilli(_dateInMillis).atZone(ZoneId.systemDefault()).toLocalDate();
                 String _dayOfWeek = _date.format(_DTF);
-
                 CustomEvent _CEvent = new CustomEvent(_dateInMillis);
-                _numberOfAppointments = countAppointmentsForThisDay(_dateInMillis);
-                _CEvent.setUserNumberOfAppointments(_numberOfAppointments);
-                String[] _timeStart = mWorkingHours.get(_dayOfWeek + "Start").split(":");
-                String[] _timeEnd = mWorkingHours.get(_dayOfWeek + "End").split(":");
-                LocalDateTime _dateTimeStart = Instant.ofEpochMilli(0).atZone(ZoneId.systemDefault()).toLocalDate().atTime(Integer.parseInt(_timeStart[0]), Integer.parseInt(_timeStart[1]));
-                LocalDateTime _dateTimeEnd = Instant.ofEpochMilli(0).atZone(ZoneId.systemDefault()).toLocalDate().atTime(Integer.parseInt(_timeEnd[0]), Integer.parseInt(_timeEnd[1]));
-                Long _timeStartMillis = _dateTimeStart.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-                Long _timeEndMillis = _dateTimeEnd.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-                Log.d("DATES",  _timeStartMillis + "; " + _timeEndMillis);
-                _CEvent.setStartHour(_timeStartMillis);
-                _CEvent.setEndHour(_timeEndMillis);
-                _events.put(_dateInMillis, _CEvent);
+
+                if(!mWorkingHours.get(_dayOfWeek + "Start").equals("Free")) {
+                    _events.put(_dateInMillis, putDateInEvents(_CEvent, _dateInMillis, _dayOfWeek));
+                }
             }
         }
         mCalendarView.updateCalendar(_events);
+    }
+
+    private CustomEvent putDateInEvents(CustomEvent _CEvent, long _dateInMillis, String _dayOfWeek) {
+        long _numberOfAppointments;
+        _numberOfAppointments = countAppointmentsForThisDay(_dateInMillis);
+        _CEvent.setUserNumberOfAppointments(_numberOfAppointments);
+        String[] _timeStart = mWorkingHours.get(_dayOfWeek + "Start").split(":");
+        String[] _timeEnd = mWorkingHours.get(_dayOfWeek + "End").split(":");
+        LocalDateTime _dateTimeStart = Instant.ofEpochMilli(0).atZone(ZoneId.systemDefault()).toLocalDate().atTime(Integer.parseInt(_timeStart[0]), Integer.parseInt(_timeStart[1]));
+        LocalDateTime _dateTimeEnd = Instant.ofEpochMilli(0).atZone(ZoneId.systemDefault()).toLocalDate().atTime(Integer.parseInt(_timeEnd[0]), Integer.parseInt(_timeEnd[1]));
+        Long _timeStartMillis = _dateTimeStart.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        Long _timeEndMillis = _dateTimeEnd.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        Log.d(TAG + "DATES", _timeStartMillis + "; " + _timeEndMillis);
+        _CEvent.setStartHour(_timeStartMillis);
+        _CEvent.setEndHour(_timeEndMillis);
+
+        return _CEvent;
     }
 
     private boolean hasValue(Object value) {
@@ -247,24 +254,20 @@ public class CalendarActivity extends AppCompatActivity {
     }
 
     private long countAppointmentsForThisDay(Long dateInMillis) {
-        long numberOfAppointments = 0;
+        long _numberOfAppointments = 0;
         assert mAppointmentsForThisMonth != null;
         Object _values = mAppointmentsForThisMonth.containsKey(dateInMillis.toString()) ? mAppointmentsForThisMonth.get(dateInMillis.toString()) : null;
         if (_values != null) {
-            Log.d("Day", _values.toString());
             Gson _gson = new Gson();
             String _json = _gson.toJson(_values);
             try {
                 Map<String, Object> result = new ObjectMapper().readValue(_json, Map.class);
-                numberOfAppointments = result.size();
-                Log.d("Number is: ", numberOfAppointments + "");
+                _numberOfAppointments = result.size();
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
-
-            Log.d("Day", "Day json is: " + _json);
         }
-        return numberOfAppointments;
+        return _numberOfAppointments;
     }
 
     private void setRecyclerView() {
@@ -274,7 +277,7 @@ public class CalendarActivity extends AppCompatActivity {
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        mAdapter = new CalendarAdapter(CalendarActivity.this, mDataSet, userID);
+        mAdapter = new CalendarAdapter(CalendarActivity.this, mDataSet, mUserID);
         mRecyclerView.setAdapter(mAdapter);
     }
 
@@ -289,11 +292,7 @@ public class CalendarActivity extends AppCompatActivity {
         mDate = calendar.getTimeInMillis();
 
         mPacketCalendar.setDateForTVs(calendar, mDate, mCompleteDate);
-
-
-        Log.d("Date", mDate + "");
-//        getDayID();
-        if(mAppointmentsForThisMonth != null) {
+        if (mAppointmentsForThisMonth != null) {
             getEachAppointments();
         }
     }
@@ -302,9 +301,8 @@ public class CalendarActivity extends AppCompatActivity {
         SharedPreferences _userPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         if (_userPreferences.getBoolean("serviceActive", true)) {
             Intent serviceIntent = new Intent(CalendarActivity.this, MonitorIncomingSMSService.class);
-            serviceIntent.putExtra("userID", userID);
+            serviceIntent.putExtra("userID", mUserID);
             serviceIntent.putExtra("userAppointmentDuration", mUserAppointmentDuration);
-            serviceIntent.putExtra("userWorkingDaysID", mUserWorkingHoursID);
             serviceIntent.putExtra("userWorkingHours", mWorkingHours);
             serviceIntent.setAction("ACTION.STARTSERVICE_ACTION");
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -313,82 +311,92 @@ public class CalendarActivity extends AppCompatActivity {
                 startService(serviceIntent);
             }
         }
+        setUpSettingsIV();
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, true);
+    }
 
+    private void setUpSettingsIV() {
         ImageView imageViewSettings = findViewById(R.id.act_Calendar_IV_Settings);
         imageViewSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent startSettingsActivity = new Intent(CalendarActivity.this, SettingsActivity.class);
-                startSettingsActivity.putExtra("userID", userID);
+                startSettingsActivity.putExtra("userID", mUserID);
                 startSettingsActivity.putExtra("userAppointmentDuration", mUserAppointmentDuration);
-                startSettingsActivity.putExtra("userWorkingDaysID", mUserWorkingHoursID);
                 startSettingsActivity.putExtra("userWorkingHours", mWorkingHours);
                 startActivityForResult(startSettingsActivity, SETTINGS_RETURN);
             }
         });
-        PreferenceManager.setDefaultValues(this, R.xml.preferences, true);
     }
 
 
     private void monitorChanges() {
-        final DocumentReference docRef = FirebaseFirestore.getInstance().collection("scheduledHours").document(userID);
+        final DocumentReference docRef = FirebaseFirestore.getInstance().collection("scheduledHours").document(mUserID);
         mRegistration = docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
-            public void onEvent(@Nullable DocumentSnapshot snapshot,
-                                @Nullable FirebaseFirestoreException e) {
+            public void onEvent(@Nullable DocumentSnapshot snapshot, @Nullable FirebaseFirestoreException e) {
                 if (e != null) {
-                    Log.w("ERR", "Listen failed.", e);
+                    Log.w(TAG, "Listen failed.", e);
                     return;
                 }
                 if (snapshot != null && snapshot.exists()) {
-                    mAppointmentsForThisMonth = snapshot.getData();
-                    Log.d("TESTDB", "Current data: " + snapshot.getData());
-                    if (mDate == 0L) {
-                        Calendar _calendar = Calendar.getInstance();
-                        _calendar.setTimeInMillis(mCalendarView.getDate().atStartOfDay(ZoneOffset.systemDefault()).toInstant().toEpochMilli());
-                        getDateFromCalendarView(_calendar);
-                        Log.d("DATE", mDate + "");
-                    } else {
-                        getEachAppointments();
-                    }
-                    setCalendarContent();
+                    snapshotExists(snapshot);
                 } else {
-                    Log.d("TESTDB", "Current data: null");
-                    Calendar _calendar = Calendar.getInstance();
-                    _calendar.setTimeInMillis(mCalendarView.getDate().atStartOfDay(ZoneOffset.systemDefault()).toInstant().toEpochMilli());
-                    getDateFromCalendarView(_calendar);
-                    setCalendarContent();
+                    snapshotNotExists();
                 }
             }
         });
     }
 
+    private void snapshotNotExists() {
+        Log.d("TESTDB", "Current data: null");
+        Calendar _calendar = Calendar.getInstance();
+        _calendar.setTimeInMillis(mCalendarView.getDate().atStartOfDay(ZoneOffset.systemDefault()).toInstant().toEpochMilli());
+        getDateFromCalendarView(_calendar);
+        setCalendarContent();
+    }
+
+    private void snapshotExists(DocumentSnapshot snapshot) {
+        mAppointmentsForThisMonth = snapshot.getData();
+        Log.d("TESTDB", "Current data: " + snapshot.getData());
+        if (mDate == 0L) {
+            Calendar _calendar = Calendar.getInstance();
+            _calendar.setTimeInMillis(mCalendarView.getDate().atStartOfDay(ZoneOffset.systemDefault()).toInstant().toEpochMilli());
+            getDateFromCalendarView(_calendar);
+            Log.d("DATE", mDate + "");
+        } else {
+            getEachAppointments();
+        }
+        setCalendarContent();
+    }
+
     private void getEachAppointments() {
-        /* check if date has appointments */
-//        final AtomicBoolean _dateFoundTrue = new AtomicBoolean(false);
         mDataSet.clear();
         mCounter = 0;
+        Log.d("GetEachAppointment", TAG);
         Object _values = mAppointmentsForThisMonth.containsKey(mDate.toString()) ? mAppointmentsForThisMonth.get(mDate.toString()) : null;
         if (_values != null) {
             Log.d("Day", _values.toString());
             Gson _gson = new Gson();
             String _json = _gson.toJson(_values);
-            try {
-                Map<String, Object> result = new ObjectMapper().readValue(_json, Map.class);
-                Map<String, Object> _treeMap = new TreeMap<>(result);
-                for (Map.Entry<String, Object> _schedule : _treeMap.entrySet()) {
-                    Log.d("Day", "Hour is: " + _schedule.getKey());
-                    String jjson = _gson.toJson(_schedule.getValue());
-                    Log.d("Day", "Info are: " + jjson);
-                    mDataSet.add(mCounter++, new Appointment(_schedule.getKey(), _gson, jjson, mCompleteDate, mDate));
-                }
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-
-            Log.d("Day", "Day json is: " + _json);
+            parseJSON(_gson, _json);
         }
         mAdapter.notifyDataSetChanged();
+    }
+
+    private void parseJSON(Gson gson, String json) {
+        try {
+            Map<String, Object> result = new ObjectMapper().readValue(json, Map.class);
+            Map<String, Object> _treeMap = new TreeMap<>(result);
+            for (Map.Entry<String, Object> _schedule : _treeMap.entrySet()) {
+                Log.d("Day", "Hour is: " + _schedule.getKey());
+                String jjson = gson.toJson(_schedule.getValue());
+                Log.d("Day", "Info are: " + jjson);
+                mDataSet.add(mCounter++, new Appointment(_schedule.getKey(), gson, jjson, mCompleteDate, mDate));
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
 
     /* *************** PERMISSIONS ***************** */
@@ -407,7 +415,6 @@ public class CalendarActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.permission_alert_dialog_CONTACTS); // title
         builder.setMessage(R.string.permission_dialog_CONTACTS_body); // message
-
         builder.setPositiveButton(R.string.permission_alert_dialog_OK, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -418,7 +425,6 @@ public class CalendarActivity extends AppCompatActivity {
                 }
             }
         });
-
         builder.setCancelable(false);
         builder.show();
     }
@@ -427,7 +433,6 @@ public class CalendarActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.permission_alert_dialog_SMS); // title
         builder.setMessage(R.string.permission_dialog_SMS_body); // message
-
         builder.setPositiveButton(R.string.permission_alert_dialog_OK, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -438,7 +443,6 @@ public class CalendarActivity extends AppCompatActivity {
                 }
             }
         });
-
         builder.setCancelable(false);
         builder.show();
     }
@@ -474,12 +478,12 @@ public class CalendarActivity extends AppCompatActivity {
     private void closeUponPermissionDenied(int[] grantResults) {
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             mArePermissionAccepted = true;
-            for(boolean _permissionBool: mPermissions) {
-                if(!_permissionBool) {
+            for (boolean _permissionBool : mPermissions) {
+                if (!_permissionBool) {
                     mArePermissionAccepted = false;
                 }
             }
-            if(mArePermissionAccepted) {
+            if (mArePermissionAccepted) {
                 setUpUI();
             }
         } else {
@@ -491,32 +495,29 @@ public class CalendarActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        switch(requestCode) {
+        switch (requestCode) {
             case SMS_PERMISSION_CODE:
-                if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     mPermissions[0] = true;
                 }
                 break;
             case CONTACTS_PERMISSION_CODE:
-                if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     mPermissions[1] = true;
                 }
                 break;
             case CALL_LOG_PERMISSION_CODE:
-                if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     mPermissions[2] = true;
                 }
                 break;
         }
-
         closeUponPermissionDenied(grantResults);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         Log.d("Result", resultCode + ":");
         switch (resultCode) {
             case LOG_OUT:

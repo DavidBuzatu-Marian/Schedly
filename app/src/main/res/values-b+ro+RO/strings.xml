@@ -215,4 +215,10 @@
     <string name="fragment_SMS_monitoring">Chiar doriți să opriți monitorizarea SMS? Schedly NU va mai putea face programări prin SMS până la reactivare</string>
     <string name="notification_monitor_sms">Schedly se ocupă de programări pentru dvs.</string>
     <string name="notification_monitor_internet">Reconectați-vă la internet pentru ca Schedly să funcționeze!</string>
+    <string name="activity_main_small_socials_message">Alegeți o metodă de mai jos:</string>
+    <string name="activity_main_small_socials_message_title">LOG IN</string>
+    <string name="activity_main_snackbar_email_not_registered">Email neînregistrat. Înregistrați-vă aici</string>
+    <string name="activity_main_snackbar_email_not_registered_action">Înregistrați-vă</string>
+    <string name="activity_main_small_credentials">Folosiți datele cu care v-ați înregistrat</string>
+    <string name="dialog_pnumber_change_success">Număr de telefon schimbat cu succes</string>
 </resources>

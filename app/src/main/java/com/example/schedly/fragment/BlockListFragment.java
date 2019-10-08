@@ -3,7 +3,6 @@ package com.example.schedly.fragment;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +21,6 @@ import com.example.schedly.R;
 import com.example.schedly.SettingsActivity;
 import com.example.schedly.adapter.BlockListAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -56,6 +54,7 @@ public class BlockListFragment extends Fragment {
         mInflater = inflater.inflate(R.layout.fragment_block_list, container, false);
         return mInflater;
     }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,30 +71,35 @@ public class BlockListFragment extends Fragment {
     private void getBlockedNumbers() {
         mCounter = 0;
         mDataSet.clear();
-
         FirebaseFirestore.getInstance().collection("blockLists")
                 .document(mUserID)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if(task.getResult() != null && task.getResult().exists()) {
-                            Map<String, Object> _PNumbers = task.getResult().getData();
-                            for(Map.Entry<String, Object> _PNumber : _PNumbers.entrySet()) {
-                                mDataSet.add(mCounter++, _PNumber.getKey());
-                                Log.d("Logged", _PNumber.getKey());
-                            }
-                        }
-                        Log.d("Logged", "Err");
+                        getTaskValuesToDataSet(task);
                         mAdapter.notifyDataSetChanged();
                     }
                 });
+    }
+
+    private void getTaskValuesToDataSet(Task<DocumentSnapshot> task) {
+        if (task.getResult() != null && task.getResult().exists()) {
+            Map<String, Object> _PNumbers = task.getResult().getData();
+            for (Map.Entry<String, Object> _PNumber : _PNumbers.entrySet()) {
+                mDataSet.add(mCounter++, _PNumber.getKey());
+            }
+        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
         setRecyclerView();
+        setUpViewsOnClick();
+    }
+
+    private void setUpViewsOnClick() {
         Button _buttonAdd = mInflater.findViewById(R.id.frag_BList_BUT_Add);
         _buttonAdd.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -113,30 +117,38 @@ public class BlockListFragment extends Fragment {
     }
 
     private void addNumberToBlockList() {
-        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(mInflater.getContext());
         LayoutInflater inflater = mActivity.getLayoutInflater();
         final View _dialogLayout = inflater.inflate(R.layout.fragment_block_number_dialog, null);
-        builder.setView(_dialogLayout);
-        builder.setTitle(R.string.frag_BlockList_DialogBlock_Title);
-        builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+        AlertDialog _dialog = buildAlertDialog(_dialogLayout).create();
+        _dialog.show();
+        setElements(_dialogLayout);
+    }
+
+    private AlertDialog.Builder buildAlertDialog(View _dialogLayout) {
+        AlertDialog.Builder _builder = new AlertDialog.Builder(mInflater.getContext());
+        _builder.setView(_dialogLayout);
+        _builder.setTitle(R.string.frag_BlockList_DialogBlock_Title);
+        _builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                if(mValidNumber && !mDataSet.contains(mCCP.getFullNumberWithPlus())) {
-                    saveBlockedPhoneNumber(mCCP.getFullNumberWithPlus());
-                } else {
-                    Toast.makeText(mActivity, mActivity.getString(R.string.dialog_phone_number_error), Toast.LENGTH_SHORT).show();
-                }
+                verifyNumberAndSave();
             }
         });
-        builder.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+        _builder.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 dialogInterface.dismiss();
             }
         });
-        AlertDialog _dialog = builder.create();
-        _dialog.show();
-        setElements(_dialogLayout);
+        return _builder;
+    }
+
+    private void verifyNumberAndSave() {
+        if (mValidNumber && !mDataSet.contains(mCCP.getFullNumberWithPlus())) {
+            saveBlockedPhoneNumber(mCCP.getFullNumberWithPlus());
+        } else {
+            Toast.makeText(mActivity, mActivity.getString(R.string.dialog_phone_number_error), Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void saveBlockedPhoneNumber(final String fullNumberWithPlus) {
@@ -155,12 +167,10 @@ public class BlockListFragment extends Fragment {
     }
 
     private void setRecyclerView() {
-        /* RecyclerView */
+        LinearLayoutManager mLayoutManager = new LinearLayoutManager(mInflater.getContext());
         mRecyclerView = mInflater.findViewById(R.id.frag_BList_RV);
         mRecyclerView.setHasFixedSize(true);
-        LinearLayoutManager mLayoutManager = new LinearLayoutManager(mInflater.getContext());
         mRecyclerView.setLayoutManager(mLayoutManager);
-
         mAdapter = new BlockListAdapter(mInflater.getContext(), mDataSet, mUserID);
         mRecyclerView.setAdapter(mAdapter);
     }
@@ -169,7 +179,6 @@ public class BlockListFragment extends Fragment {
         mCCP = dialogLayout.findViewById(R.id.dialog_settings_BL_CPNumber_cpp);
         mEditTextCarrierNumber = dialogLayout.findViewById(R.id.dialog_settings_BL_CPNumber_ET_carrierNumber);
         mCCP.registerCarrierNumberEditText(mEditTextCarrierNumber);
-
         mCCP.setPhoneNumberValidityChangeListener(new CountryCodePicker.PhoneNumberValidityChangeListener() {
             @Override
             public void onValidityChanged(boolean isValidNumber) {

@@ -212,5 +212,11 @@
     <string name="fragment_SMS_monitoring">Do you really want to disable SMS monitoring? Schedly will NOT be able to make appointments through SMS if disabled</string>
     <string name="notification_monitor_sms">Schedly is making appointments for you</string>
     <string name="notification_monitor_internet">Reconnect to the internet to make Schedly work!</string>
+    <string name="activity_main_small_socials_message">Choose one method from below:</string>
+    <string name="activity_main_small_socials_message_title">SIGN IN</string>
+    <string name="activity_main_snackbar_email_not_registered">Email not registered. Sign up here</string>
+    <string name="activity_main_snackbar_email_not_registered_action">Sign Up</string>
+    <string name="activity_main_small_credentials">Use the credentials which you used for sign up</string>
+    <string name="dialog_pnumber_change_success">Phone number changed successfully</string>
 
 </resources>

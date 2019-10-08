@@ -21,6 +21,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
@@ -34,16 +35,14 @@ public class PacketSpinnerViewSettings extends AppCompatSpinner {
     private HashMap<Integer, Integer> mIDsArray = new HashMap<>(16);
     private String[] mStartHours = new String[8];
     private String[] mEndHours = new String[8];
-    private String mUserWorkingDaysID;
     private View mView;
     private Map<String, Object> mUserWorkingDays;
     private final ArrayAdapter<CharSequence> mAdapterHours;
     private int mDaysIterator;
 
 
-    public PacketSpinnerViewSettings(Context context, String _userWorkingDaysID, View _view, ArrayAdapter<CharSequence> _adapterHours) {
+    public PacketSpinnerViewSettings(Context context, View _view, ArrayAdapter<CharSequence> _adapterHours) {
         super(context);
-        mUserWorkingDaysID = _userWorkingDaysID;
         mView = _view;
         mAdapterHours = _adapterHours;
         getUserWorkingDays();
@@ -53,7 +52,7 @@ public class PacketSpinnerViewSettings extends AppCompatSpinner {
     private void getUserWorkingDays() {
         FirebaseFirestore mFireStore = FirebaseFirestore.getInstance();
         mFireStore.collection("workingDays")
-                .document(mUserWorkingDaysID)
+                .document(FirebaseAuth.getInstance().getUid())
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override

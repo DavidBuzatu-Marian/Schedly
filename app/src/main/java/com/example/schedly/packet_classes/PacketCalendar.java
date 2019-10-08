@@ -65,7 +65,7 @@ public class PacketCalendar {
     private String mSelectedAppointmentHour;
     private PopupWindow mPopWindow;
     private String mCompleteDate, mUserID;
-    private HashMap<String, String> mCallLogDetails, mContactsDetails;
+    private HashMap<String, String> mCallLogDetails;
     private ArrayList<String> mCallLogPNumbers;
     private ArrayList<String> mCallLogNames;
 
@@ -78,48 +78,64 @@ public class PacketCalendar {
     }
 
     private void setImageViewListener(final String dayOfWeek, final String dateFormat, final String dayOfWeekDisplay) {
-        TextView _txtAdd = mActivity.findViewById(R.id.act_Calendar_TV_AddNew);
+        setTVText();
+        setIV(dayOfWeek, dateFormat, dayOfWeekDisplay);
+    }
+
+    private void setIV(final String dayOfWeek, final String dateFormat, final String dayOfWeekDisplay) {
         ImageView _imageAdd = mActivity.findViewById(R.id.act_Calendar_IV_AddIcon);
         _imageAdd.setVisibility(View.VISIBLE);
-        _txtAdd.setText(R.string.act_Calendar_TV_AddNew);
         _imageAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final View _inflatedView = LayoutInflater.from(mActivity).inflate(R.layout.add_popup_appointment, null, false);
+                final View _inflatedView = inflateFromView(view, dayOfWeek, dateFormat, dayOfWeekDisplay);
+                final Point _height = getScreenHeight();
+                setUpPopUpWindow(_inflatedView, _height, view, dayOfWeek, dateFormat, dayOfWeekDisplay);
+            }
+        });
+    }
 
-                // get device size
-                Display _display = (mActivity.findViewById(R.id.act_Calendar_CL_root)).getDisplay();
-                final Point _size = new Point();
-                _display.getSize(_size);
-                // set height depends on the device size
-                if (_size.y < 1350) {
-                    mPopWindow = new PopupWindow(_inflatedView, _size.x - 50, _size.y, true);
-                } else if (_size.y > 1350 && _size.y < 1900) {
-                    mPopWindow = new PopupWindow(_inflatedView, _size.x - 50, _size.y * 3 / 4, true);
-                } else {
-                    mPopWindow = new PopupWindow(_inflatedView, _size.x - 50, _size.y / 2, true);
-                }
-                mPopWindow.setBackgroundDrawable(mActivity.getDrawable(R.drawable.bkg_appointment_options));
-                // make it focusable to show the keyboard to enter in `EditText`
-                mPopWindow.setFocusable(true);
-                // make it outside touchable to dismiss the popup window
-                mPopWindow.setOutsideTouchable(true);
-                mPopWindow.setAnimationStyle(R.style.PopupAnimation);
+    private Point getScreenHeight() {
+        Display _display = (mActivity.findViewById(R.id.act_Calendar_CL_root)).getDisplay();
+        final Point _size = new Point();
+        _display.getSize(_size);
+        return _size;
+    }
 
-                // show the popup at bottom of the screen and set some margin at bottom
-                mPopWindow.showAtLocation(view, Gravity.BOTTOM, 0, 0);
-                setSpinnerAdapter(_inflatedView, dayOfWeek);
-                setInformationInPopup(_inflatedView, dateFormat, dayOfWeekDisplay);
-                setPopUpButtonsListeners(_inflatedView);
+    private View inflateFromView(View view, String dayOfWeek, String dateFormat, String dayOfWeekDisplay) {
+        return LayoutInflater.from(mActivity).inflate(R.layout.add_popup_appointment, null, false);
+    }
 
-                ImageView _closeImg = _inflatedView.findViewById(R.id.popup_add_IV_Close);
-                _closeImg.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        mPopWindow.dismiss();
-                    }
-                });
+    private void setTVText() {
+        TextView _txtAdd = mActivity.findViewById(R.id.act_Calendar_TV_AddNew);
+        _txtAdd.setText(R.string.act_Calendar_TV_AddNew);
+    }
 
+    private void setUpPopUpWindow(View inflatedView, Point size, View view, String dayOfWeek, String dateFormat, String dayOfWeekDisplay) {
+        if (size.y < 1350) {
+            mPopWindow = new PopupWindow(inflatedView, size.x - 50, size.y, true);
+        } else if (size.y > 1350 && size.y < 1900) {
+            mPopWindow = new PopupWindow(inflatedView, size.x - 50, size.y * 3 / 4, true);
+        } else {
+            mPopWindow = new PopupWindow(inflatedView, size.x - 50, size.y / 2, true);
+        }
+        mPopWindow.setBackgroundDrawable(mActivity.getDrawable(R.drawable.bkg_appointment_options));
+        mPopWindow.setFocusable(true);
+        mPopWindow.setOutsideTouchable(true);
+        mPopWindow.setAnimationStyle(R.style.PopupAnimation);
+        mPopWindow.showAtLocation(view, Gravity.BOTTOM, 0, 0);
+        setUpElementsInPopUp(inflatedView, dayOfWeek, dateFormat, dayOfWeekDisplay);
+    }
+
+    private void setUpElementsInPopUp(View inflatedView, String dayOfWeek, String dateFormat, String dayOfWeekDisplay) {
+        setSpinnerAdapter(inflatedView, dayOfWeek);
+        setInformationInPopup(inflatedView, dateFormat, dayOfWeekDisplay);
+        setPopUpButtonsListeners(inflatedView);
+        ImageView _closeImg = inflatedView.findViewById(R.id.popup_add_IV_Close);
+        _closeImg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mPopWindow.dismiss();
             }
         });
     }
@@ -132,31 +148,42 @@ public class PacketCalendar {
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        DocumentSnapshot _document = task.getResult();
-                        assert _document != null;
-                        if (task.isSuccessful() && _document.exists()) {
-                            Log.d("Task", task.toString());
-                            Map<String, Object> _map = task.getResult().getData();
-                            assert _map != null;
-                            Object _values = _map.containsKey(mDate.toString()) ? _map.get(mDate.toString()) : null;
-                            if (_values != null) {
-                                Log.d("DayFromPacket", _values.toString());
-                                Gson _gson = new Gson();
-                                String _json = _gson.toJson(_values);
-                                try {
-                                    Map<String, Object> result = new ObjectMapper().readValue(_json, Map.class);
-                                    for (Map.Entry<String, Object> _schedule : result.entrySet()) {
-                                        _hours.remove(_schedule.getKey());
-                                    }
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                                Log.d("DayFromPacket", "Day json is: " + _json);
-                            }
-                        }
-                        setUpSpinner(inflatedView, _hours);
+                        getTaskValues(task, _hours, inflatedView);
                     }
                 });
+    }
+
+    private void getTaskValues(Task<DocumentSnapshot> task, ArrayList<String> _hours, View inflatedView) {
+        DocumentSnapshot _document = task.getResult();
+        assert _document != null;
+        if (task.isSuccessful() && _document.exists()) {
+            setUpHoursInSpinner(task, _hours, inflatedView);
+        } else {
+            setUpSpinner(inflatedView, _hours);
+        }
+    }
+
+    private void setUpHoursInSpinner(Task<DocumentSnapshot> task, ArrayList<String> _hours, View inflatedView) {
+        Map<String, Object> _map = task.getResult().getData();
+        assert _map != null;
+        Object _values = _map.containsKey(mDate.toString()) ? _map.get(mDate.toString()) : null;
+        if (_values != null) {
+            removeScheduledHours(_hours, _values);
+        }
+        setUpSpinner(inflatedView, _hours);
+    }
+
+    private void removeScheduledHours(ArrayList<String> hours, Object values) {
+        Gson _gson = new Gson();
+        String _json = _gson.toJson(values);
+        try {
+            Map<String, Object> result = new ObjectMapper().readValue(_json, Map.class);
+            for (Map.Entry<String, Object> _schedule : result.entrySet()) {
+                hours.remove(_schedule.getKey());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @SuppressLint("DefaultLocale")
@@ -164,23 +191,18 @@ public class PacketCalendar {
         ArrayList<String> _hours = new ArrayList<>();
         String _timeStart = mWorkingHours.get(dayOfWeek + "Start");
         String _timeEnd = mWorkingHours.get(dayOfWeek + "End");
-
         String[] _timeStartSplitted = _timeStart.split(":");
         String[] _timeEndSplitted = _timeEnd.split(":");
-
         int _hourStart = Integer.parseInt(_timeStartSplitted[0]),
                 _hourEnd = Integer.parseInt(_timeEndSplitted[0]),
                 _minuteStart = Integer.parseInt(_timeStartSplitted[1]),
                 _minuteEnd = Integer.parseInt(_timeEndSplitted[1]);
-
         LocalTime _time = LocalTime.of(_hourStart, _minuteStart);
         LocalTime _limitTime = LocalTime.of(_hourEnd, _minuteEnd);
-
         while (_time.isBefore(_limitTime)) {
             _hours.add(String.format("%02d", _time.getHour()) + ":" + String.format("%02d", _time.getMinute()));
             _time = _time.plusMinutes(Long.parseLong(mUserAppointmentDuration));
         }
-
         return _hours;
     }
 
@@ -189,17 +211,18 @@ public class PacketCalendar {
         final ArrayAdapter<String> _adapterHours = new ArrayAdapter<>(mActivity,
                 android.R.layout.simple_dropdown_item_1line, hours);
         _hoursSpinner.setAdapter(_adapterHours);
+        setOnSpinnerItemSelected(_hoursSpinner, _adapterHours);
+    }
 
-        _hoursSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+    private void setOnSpinnerItemSelected(Spinner hoursSpinner, final ArrayAdapter<String> adapterHours) {
+        hoursSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
-                Log.d("Selection", _adapterHours.getItem(position) + ":..");
-                mSelectedAppointmentHour = _adapterHours.getItem(position);
+                mSelectedAppointmentHour = adapterHours.getItem(position);
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-                Log.d("Selection", "aee");
                 mSelectedAppointmentHour = null;
             }
         });
@@ -208,27 +231,17 @@ public class PacketCalendar {
     private void setPopUpButtonsListeners(View inflatedView) {
         final AutoCompleteTextView _txtName = inflatedView.findViewById(R.id.popup_add_ATV_Name);
         final AutoCompleteTextView _txtNumber = inflatedView.findViewById(R.id.popup_add_ATV_PhoneNumber);
+        setUpButtonAddContact(inflatedView, _txtName, _txtNumber);
+        setUpButtonAddAppointment(inflatedView, _txtName, _txtNumber);
+    }
 
-        Button _buttonAddToContacts = inflatedView.findViewById(R.id.popup_add_BUT_AddToContacts);
-        _buttonAddToContacts.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent _addToContactsIntent = new Intent(Intent.ACTION_INSERT);
-                _addToContactsIntent.setType(ContactsContract.Contacts.CONTENT_TYPE);
-                _addToContactsIntent.putExtra(ContactsContract.Intents.Insert.NAME, _txtName.getText().toString());
-                _addToContactsIntent.putExtra(ContactsContract.Intents.Insert.PHONE, _txtNumber.getText().toString());
-
-                mActivity.startActivity(_addToContactsIntent);
-            }
-        });
-
+    private void setUpButtonAddAppointment(View inflatedView, final AutoCompleteTextView txtName, final AutoCompleteTextView txtNumber) {
         Button _buttonAddAppointment = inflatedView.findViewById(R.id.popup_add_BUT_AddAppoinrmwnr);
         _buttonAddAppointment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                /* we already have schedules on this day */
                 if (mSelectedAppointmentHour != null) {
-                    saveAppointmentToDB(_txtName.getText().toString(), _txtNumber.getText().toString());
+                    saveAppointmentToDB(txtName.getText().toString(), txtNumber.getText().toString());
                 } else {
                     Toast.makeText(mActivity, mActivity.getString(R.string.toast_add_appointment_hours), Toast.LENGTH_LONG).show();
                 }
@@ -236,18 +249,25 @@ public class PacketCalendar {
         });
     }
 
+    private void setUpButtonAddContact(View inflatedView, final AutoCompleteTextView txtName, final AutoCompleteTextView txtNumber) {
+        Button _buttonAddToContacts = inflatedView.findViewById(R.id.popup_add_BUT_AddToContacts);
+        _buttonAddToContacts.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent _addToContactsIntent = new Intent(Intent.ACTION_INSERT);
+                _addToContactsIntent.setType(ContactsContract.Contacts.CONTENT_TYPE);
+                _addToContactsIntent.putExtra(ContactsContract.Intents.Insert.NAME, txtName.getText().toString());
+                _addToContactsIntent.putExtra(ContactsContract.Intents.Insert.PHONE, txtNumber.getText().toString());
+                mActivity.startActivity(_addToContactsIntent);
+            }
+        });
+    }
+
     private void saveAppointmentToDB(final String name, final String phoneNumber) {
-        Log.d("Details", name);
         if (phoneNumber.equals("")) {
             Toast.makeText(mActivity, mActivity.getString(R.string.toast_add_appointment_phone_number), Toast.LENGTH_LONG).show();
         } else {
-            Map<String, String> _detailsOfAppointment = new HashMap<>();
-            _detailsOfAppointment.put("PhoneNumber", phoneNumber);
-            _detailsOfAppointment.put("Name", name.equals("") ? null : name);
-            Map<String, Object> _hourAndInfo = new HashMap<>();
-            _hourAndInfo.put(mSelectedAppointmentHour, _detailsOfAppointment);
-            Map<String, Object> _appointment = new HashMap<>();
-            _appointment.put(mDate.toString(), _hourAndInfo);
+            Map<String, Object> _appointment = setDataForAppointmentSave(name, phoneNumber);
             FirebaseFirestore.getInstance().collection("scheduledHours")
                     .document(mUserID)
                     .set(_appointment, SetOptions.merge())
@@ -261,12 +281,21 @@ public class PacketCalendar {
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            Snackbar.make(mActivity.findViewById(R.id.act_Calendar_CL_root),
-                                    mActivity.getString(R.string.snackbar_add_appointment_failed),
-                                    Snackbar.LENGTH_LONG).show();
+                            Snackbar.make(mActivity.findViewById(R.id.act_Calendar_CL_root), mActivity.getString(R.string.snackbar_add_appointment_failed), Snackbar.LENGTH_LONG).show();
                         }
                     });
         }
+    }
+
+    private Map<String, Object> setDataForAppointmentSave(String name, String phoneNumber) {
+        Map<String, String> _detailsOfAppointment = new HashMap<>();
+        _detailsOfAppointment.put("PhoneNumber", phoneNumber);
+        _detailsOfAppointment.put("Name", name.equals("") ? null : name);
+        Map<String, Object> _hourAndInfo = new HashMap<>();
+        _hourAndInfo.put(mSelectedAppointmentHour, _detailsOfAppointment);
+        Map<String, Object> _appointment = new HashMap<>();
+        _appointment.put(mDate.toString(), _hourAndInfo);
+        return _appointment;
     }
 
     private void sendMessage(String phoneNumber) {
@@ -281,20 +310,16 @@ public class PacketCalendar {
     }
 
     private void setInformationInPopup(View inflatedView, String dateFormat, String dayOfWeekDisplay) {
-        TextView _txtDayOfWeek = inflatedView.findViewById(R.id.popup_add_TV_DayOfWeek);
-        TextView _txtDate = inflatedView.findViewById(R.id.popup_add_TV_Date);
-        _txtDate.setText(dateFormat);
-        _txtDayOfWeek.setText(dayOfWeekDisplay);
+        setUpTVsInPopUp(inflatedView, dateFormat, dayOfWeekDisplay);
+        setUpAdapters(inflatedView);
+    }
 
+    private void setUpAdapters(View inflatedView) {
         ArrayAdapter<String> _adapterNumber = new ArrayAdapter<>(mActivity,
                 android.R.layout.simple_dropdown_item_1line, mCallLogPNumbers);
         ArrayAdapter<String> _adapterNames = new ArrayAdapter<>(mActivity,
                 android.R.layout.simple_dropdown_item_1line, mCallLogNames);
-
-        /* auto set name if number exists
-         * set number if name exists */
         final AutoCompleteTextView _txtName = inflatedView.findViewById(R.id.popup_add_ATV_Name);
-        Log.d("Err", _txtName.getId() + "");
         final AutoCompleteTextView _txtNumber = inflatedView.findViewById(R.id.popup_add_ATV_PhoneNumber);
         _txtNumber.setAdapter(_adapterNumber);
         _txtName.setAdapter(_adapterNames);
@@ -302,24 +327,23 @@ public class PacketCalendar {
         setListenersForATVs(_txtName, _txtNumber, mCallLogNames, mCallLogPNumbers);
     }
 
-    public void getNamesAndPhoneNumbers() {
+    private void setUpTVsInPopUp(View inflatedView, String dateFormat, String dayOfWeekDisplay) {
+        TextView _txtDayOfWeek = inflatedView.findViewById(R.id.popup_add_TV_DayOfWeek);
+        TextView _txtDate = inflatedView.findViewById(R.id.popup_add_TV_Date);
+        _txtDate.setText(dateFormat);
+        _txtDayOfWeek.setText(dayOfWeekDisplay);
+    }
+
+    private void getNamesAndPhoneNumbers() {
         mCallLogDetails = getCallLog();
         mCallLogPNumbers = new ArrayList<>();
         mCallLogNames = new ArrayList<>();
-        for (HashMap.Entry<String, String> _entry : mCallLogDetails.entrySet()) {
-            /* add each phone number */
-            mCallLogPNumbers.add(_entry.getKey());
-            if (_entry.getValue() == null) {
-                mCallLogNames.add("");
-            } else {
-                mCallLogNames.add(_entry.getValue());
-            }
-        }
+        removeDuplicates(mCallLogDetails);
+        removeDuplicates(getContactList());
+    }
 
-        HashMap<String, String> _contactsDetails = getContactList(mCallLogPNumbers);
-
-        for (HashMap.Entry<String, String> _entry : _contactsDetails.entrySet()) {
-            /* add each phone number */
+    private void removeDuplicates(HashMap<String, String> contactsDetails) {
+        for (HashMap.Entry<String, String> _entry : contactsDetails.entrySet()) {
             mCallLogPNumbers.add(_entry.getKey());
             if (_entry.getValue() == null) {
                 mCallLogNames.add("");
@@ -336,7 +360,6 @@ public class PacketCalendar {
             @Override
             public boolean onKey(View view, int i, KeyEvent keyEvent) {
                 int _index = callLogPNumbers.indexOf(txtNumber.getText().toString());
-                Log.d("Det", _index + ": " + txtNumber.getText().toString());
                 if (_index != -1) {
                     txtName.setText(callLogNames.get(_index));
                 }
@@ -347,7 +370,6 @@ public class PacketCalendar {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 int _index = callLogPNumbers.indexOf(txtNumber.getText().toString());
-                Log.d("Det", _index + ": " + txtNumber.getText().toString());
                 if (_index != -1) {
                     txtName.setText(callLogNames.get(_index));
                 }
@@ -358,7 +380,6 @@ public class PacketCalendar {
             @Override
             public boolean onKey(View view, int i, KeyEvent keyEvent) {
                 int _index = callLogNames.indexOf(txtName.getText().toString());
-                Log.d("Det", _index + ": " + txtName.getText().toString());
                 if (_index != -1) {
                     txtNumber.setText(callLogPNumbers.get(_index));
                 }
@@ -369,7 +390,6 @@ public class PacketCalendar {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 int _index = callLogNames.indexOf(txtName.getText().toString());
-                Log.d("Det", _index + ": " + txtName.getText().toString());
                 if (_index != -1) {
                     txtNumber.setText(callLogPNumbers.get(_index));
                 }
@@ -379,7 +399,6 @@ public class PacketCalendar {
 
     private HashMap<String, String> getCallLog() {
         HashMap<String, String> _details = new HashMap<>();
-
         String[] _projection = new String[]{
                 CallLog.Calls.CACHED_NAME,
                 CallLog.Calls.NUMBER,
@@ -387,7 +406,6 @@ public class PacketCalendar {
                 CallLog.Calls.DATE,
                 CallLog.Calls.DURATION
         };
-
         Cursor _managedCursor = getApplicationContext().getContentResolver().query(CallLog.Calls.CONTENT_URI, _projection, null, null, null);
         while (_managedCursor.moveToNext()) {
             boolean _stateTrue = false;
@@ -405,31 +423,19 @@ public class PacketCalendar {
         return _details;
     }
 
-    private HashMap<String, String> getContactList(ArrayList<String> _callLogNumbers) {
+    private HashMap<String, String> getContactList() {
         HashMap<String, String> _details = new HashMap<>();
         ContentResolver _contentResolver = mActivity.getContentResolver();
         Cursor _cursor = _contentResolver.query(ContactsContract.Contacts.CONTENT_URI,
                 null, null, null, null);
-
-        /* we got some values */
         if ((_cursor != null ? _cursor.getCount() : 0) > 0) {
-            /* while we have values ... */
             while (_cursor != null && _cursor.moveToNext()) {
-                /* get the id in order to get number later */
-                String _contactID = _cursor.getString(
-                        _cursor.getColumnIndex(ContactsContract.Contacts._ID));
-                String _contactName = _cursor.getString(_cursor.getColumnIndex(
-                        ContactsContract.Contacts.DISPLAY_NAME));
-
-                if (_cursor.getInt(_cursor.getColumnIndex(
-                        ContactsContract.Contacts.HAS_PHONE_NUMBER)) > 0) {
+                String _contactID = _cursor.getString(_cursor.getColumnIndex(ContactsContract.Contacts._ID));
+                String _contactName = _cursor.getString(_cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                if (_cursor.getInt(_cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER)) > 0) {
                     String[] _NumberAndName = new String[2];
-                    Cursor _phoneCursor = _contentResolver.query(
-                            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                            null,
-                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
+                    Cursor _phoneCursor = _contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
                             new String[]{_contactID}, null);
-
                     while (_phoneCursor.moveToNext()) {
                         boolean _stateTrue = false;
                         String _contactPNumber = _phoneCursor.getString(_phoneCursor.getColumnIndex(
@@ -437,16 +443,13 @@ public class PacketCalendar {
                         if (_contactPNumber.contains(" ")) {
                             _contactPNumber = _contactPNumber.replaceAll(" ", "");
                         }
-
                         _NumberAndName[0] = _contactPNumber;
                         _NumberAndName[1] = _contactName; // name
-
-                        for (String _phoneNumberUsed : _callLogNumbers) {
+                        for (String _phoneNumberUsed : mCallLogPNumbers) {
                             if (_phoneNumberUsed.equals(_contactPNumber)) {
                                 _stateTrue = true;
                             }
                         }
-
                         if (_details.containsKey(_NumberAndName[0])) {
                             _stateTrue = true;
                         }
@@ -481,19 +484,21 @@ public class PacketCalendar {
         _dateFormat = _date.format(_DTFDate);
         _tvDayInfo.setText(capitalize(_dayOfWeekDisplay));
         _tvDayDate.setText(_dateFormat);
-        Log.d("Details", mWorkingHours.toString() + ": " + _dayOfWeek);
         if (mWorkingHours.get(_dayOfWeek + "Start").equals("Free")) {
-            TextView _txtAdd = mActivity.findViewById(R.id.act_Calendar_TV_AddNew);
-            ImageView _imageAdd = mActivity.findViewById(R.id.act_Calendar_IV_AddIcon);
-            _imageAdd.setVisibility(View.GONE);
-            _txtAdd.setText(R.string.act_Calendar_TV_Free);
-
+            setTVAndIVAdd();
             addFreeDayImage(true);
 
         } else {
             addFreeDayImage(false);
             setImageViewListener(_dayOfWeek, _dateFormat, capitalize(_dayOfWeekDisplay));
         }
+    }
+
+    private void setTVAndIVAdd() {
+        TextView _txtAdd = mActivity.findViewById(R.id.act_Calendar_TV_AddNew);
+        ImageView _imageAdd = mActivity.findViewById(R.id.act_Calendar_IV_AddIcon);
+        _imageAdd.setVisibility(View.GONE);
+        _txtAdd.setText(R.string.act_Calendar_TV_Free);
     }
 
     private String capitalize(String dayOfWeekDisplay) {

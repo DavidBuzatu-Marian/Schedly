@@ -35,13 +35,12 @@ import static com.example.schedly.MainActivity.SP_CANCEL;
 import static com.example.schedly.MainActivity.SWH_CANCEL;
 
 public class PacketMainLogin {
+    private final String TAG = "PacketMain";
     private Activity mActivity;
-    private final String TAG = "RES";
     private boolean mIsMain;
     /* firestore */
     FirebaseFirestore mFirebaseFirestore;
     /* store user info */
-    private String mUserWorkingHoursID;
     private String mUserPhoneNumber;
     private String mUserProfession;
     private String mUserAppointmentsDuration;
@@ -52,16 +51,16 @@ public class PacketMainLogin {
     private boolean mDialogExists;
 
 
-    public PacketMainLogin(Activity activity,  boolean isMain) {
+    public PacketMainLogin(Activity activity, boolean isMain) {
         mActivity = activity;
         mIsMain = isMain;
         mFirebaseFirestore = FirebaseFirestore.getInstance();
-        if(mIsMain) {
+        if (mIsMain) {
             /* we come from main activity
              * get views for progress bar
              */
             mProgressBar = mActivity.findViewById(R.id.act_main_PB);
-            mRootConstraintLayout= mActivity.findViewById(R.id.act_main_CL_Root);
+            mRootConstraintLayout = mActivity.findViewById(R.id.act_main_CL_Root);
         }
     }
 
@@ -73,28 +72,9 @@ public class PacketMainLogin {
                 if (task.isSuccessful()) {
                     DocumentSnapshot _document = task.getResult();
                     if (_document.exists()) {
-                        Log.d(TAG, "Success");
-                        mUserPhoneNumber = _document.get("phoneNumber") != null ? _document.get("phoneNumber").toString() : null;
-                        mUserProfession = _document.get("profession") != null ? _document.get("profession").toString() : null;
-                        mUserWorkingHoursID = _document.get("workingDaysID") != null ? _document.get("workingDaysID").toString() : null;
-                        mUserAppointmentsDuration = _document.get("appointmentsDuration") != null ? _document.get("appointmentsDuration").toString() : null;
-                        mUserDaysWithScheduleID = _document.get("daysWithScheduleID") != null ? _document.get("daysWithScheduleID").toString() : null;
-
-                        if(mUserPhoneNumber == null || mUserProfession == null) {
-                            redirectUser(currentUser);
-                        }
-                        else {
-                            if (mUserWorkingHoursID == null) {
-                                addUserWorkingDaysID(currentUser);
-                            } else {
-                                checkWorkingDaysSetup(currentUser);
-                            }
-                        }
+                        documentExistsCode(_document, currentUser);
                     } else {
-                        mUserPhoneNumber = null;
-                        mUserProfession = null;
-                        addUserToDatabase(currentUser);
-                        addUserWorkingDaysID(currentUser);
+                        documentNotExists(currentUser);
                     }
                 } else {
                     mUserPhoneNumber = null;
@@ -104,6 +84,130 @@ public class PacketMainLogin {
                 }
             }
         });
+    }
+
+    private void documentNotExists(FirebaseUser currentUser) {
+        mUserPhoneNumber = null;
+        mUserProfession = null;
+        addUserToDatabase(currentUser);
+    }
+
+    private void addUserToDatabase(final FirebaseUser currentUser) {
+        Map<String, Object> userToAdd = new HashMap<>();
+        userToAdd.put("phoneNumber", null);
+        userToAdd.put("profession", null);
+        mFirebaseFirestore.collection("users")
+                .document(currentUser.getUid())
+                .set(userToAdd)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        addUserWorkingDays(currentUser);
+                    }
+                });
+    }
+
+    private void addUserWorkingDays(final FirebaseUser currentUser) {
+        /* add days of the week to collection */
+        Map<String, Object> daysOfTheWeek = getInitMap();
+        mFirebaseFirestore.collection("workingDays")
+                .document(currentUser.getUid())
+                .set(daysOfTheWeek)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        redirectUser(currentUser);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "Failed to save Working Days");
+                    }
+                });
+    }
+
+    private Map<String, Object> getInitMap() {
+        Map<String, Object> _data = new HashMap<>();
+        _data.put("MondayStart", null);
+        _data.put("MondayEnd", null);
+        _data.put("TuesdayStart", null);
+        _data.put("TuesdayEnd", null);
+        _data.put("WednesdayStart", null);
+        _data.put("WednesdayEnd", null);
+        _data.put("ThursdayStart", null);
+        _data.put("ThursdayEnd", null);
+        _data.put("FridayStart", null);
+        _data.put("FridayEnd", null);
+        _data.put("SaturdayStart", null);
+        _data.put("SaturdayEnd", null);
+        _data.put("SundayStart", null);
+        _data.put("SundayEnd", null);
+        return _data;
+    }
+
+    private void documentExistsCode(DocumentSnapshot document, FirebaseUser currentUser) {
+        mUserPhoneNumber = document.get("phoneNumber") != null ? document.get("phoneNumber").toString() : null;
+        mUserProfession = document.get("profession") != null ? document.get("profession").toString() : null;
+        mUserAppointmentsDuration = document.get("appointmentsDuration") != null ? document.get("appointmentsDuration").toString() : null;
+        mUserDaysWithScheduleID = document.get("daysWithScheduleID") != null ? document.get("daysWithScheduleID").toString() : null;
+
+        if (mUserPhoneNumber == null || mUserProfession == null) {
+            redirectUser(currentUser);
+        } else {
+            checkWorkingDaysSetup(currentUser);
+        }
+    }
+
+    private void redirectUser(final FirebaseUser localUser) {
+        /* REDIRECT */
+        if (mUserPhoneNumber == null || mUserProfession == null) {
+            getToInitActivity(localUser);
+        } else {
+            checkWorkingDaysSetup(localUser);
+        }
+    }
+
+    private void getToInitActivity(FirebaseUser user) {
+        if (mIsMain) {
+            showProgressBar(false);
+        }
+        if (mUserPhoneNumber == null) {
+            Intent _phoneNumberIntent = new Intent(mActivity, SetPhoneNumberActivity.class);
+            _phoneNumberIntent.putExtra("userID", user.getUid());
+            mActivity.startActivityForResult(_phoneNumberIntent, SPN_CANCEL);
+        } else if (mUserProfession == null) {
+            Intent _professionIntent = new Intent(mActivity, SetProfessionActivity.class);
+            _professionIntent.putExtra("userPhoneNumber", mUserPhoneNumber);
+            _professionIntent.putExtra("userID", user.getUid());
+            mActivity.startActivityForResult(_professionIntent, SP_CANCEL);
+        } else {
+            Intent _workingDaysIntent = new Intent(mActivity, SetWorkingHoursActivity.class);
+            _workingDaysIntent.putExtra("userPhoneNumber", mUserPhoneNumber);
+            _workingDaysIntent.putExtra("userID", user.getUid());
+            mActivity.startActivityForResult(_workingDaysIntent, SWH_CANCEL);
+        }
+    }
+
+    private void checkWorkingDaysSetup(final FirebaseUser currentUser) {
+        Log.d("CheckPacketMain", "CheckingWorkingHours");
+        final FirebaseUser localUser = currentUser;
+        mFirebaseFirestore.collection("workingDays")
+                .document(currentUser.getUid())
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.getData() == null ) {
+                            addUserWorkingDays(currentUser);
+                        } else if (!document.getData().containsValue(null)) {
+                            getWorkingHours(task, localUser);
+                        } else {
+                            getToInitActivity(currentUser);
+                        }
+                    }
+                });
     }
 
     private void getWorkingHours(Task<DocumentSnapshot> task, FirebaseUser localUser) {
@@ -117,142 +221,23 @@ public class PacketMainLogin {
         getToCalendarActivity(localUser);
     }
 
-    private void checkWorkingDaysSetup(FirebaseUser currentUser) {
-        Log.d("CheckPacketMain", "CheckingWorkingHours");
-        final FirebaseUser localUser = currentUser;
-        mFirebaseFirestore.collection("workingDays")
-                .document(mUserWorkingHoursID)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        DocumentSnapshot document = task.getResult();
-                        if(document.getData().containsValue(null)) {
-                            getToInitActivity(localUser);
-                        }
-                        else {
-                            getWorkingHours(task, localUser);
-                        }
-                    }
-                });
-    }
-
-    private void addUserToDatabase(FirebaseUser user) {
-        Map<String, Object> userToAdd = new HashMap<>();
-        userToAdd.put("phoneNumber", null);
-        userToAdd.put("profession", null);
-        mFirebaseFirestore.collection("users")
-                .document(user.getUid())
-                .set(userToAdd);
-    }
-
-    private void addUserWorkingDaysID(final FirebaseUser currentUser) {
-        /* add days of the week to collection */
-        Map<String, Object> daysOfTheWeek = new HashMap<>();
-        daysOfTheWeek.put("MondayStart", null);
-        daysOfTheWeek.put("MondayEnd", null);
-        daysOfTheWeek.put("TuesdayStart", null);
-        daysOfTheWeek.put("TuesdayEnd", null);
-        daysOfTheWeek.put("WednesdayStart", null);
-        daysOfTheWeek.put("WednesdayEnd", null);
-        daysOfTheWeek.put("ThursdayStart", null);
-        daysOfTheWeek.put("ThursdayEnd", null);
-        daysOfTheWeek.put("FridayStart", null);
-        daysOfTheWeek.put("FridayEnd", null);
-        daysOfTheWeek.put("SaturdayStart", null);
-        daysOfTheWeek.put("SaturdayEnd", null);
-        daysOfTheWeek.put("SundayStart", null);
-        daysOfTheWeek.put("SundayEnd", null);
-        mFirebaseFirestore.collection("workingDays")
-                .add(daysOfTheWeek)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        FirebaseFirestore mFireStore = FirebaseFirestore.getInstance();
-                        Map<String, Object> userToAdd = new HashMap<>();
-                        Log.d(TAG, "DocumentSnapshot written:" + documentReference.getId());
-                        mUserWorkingHoursID = documentReference.getId();
-                        userToAdd.put("workingDaysID", mUserWorkingHoursID);
-                        mFireStore.collection("users")
-                                .document(currentUser.getUid())
-                                .update(userToAdd)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        redirectUser(currentUser);
-                                        Log.d(TAG, "DocumentSnapshot successfully written!");
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.w(TAG, "Error writing document", e);
-                                    }
-                                });
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error adding document", e);
-                    }
-                });
-    }
-
-    private void redirectUser(final FirebaseUser localUser) {
-        /* REDIRECT */
-        if(mUserPhoneNumber == null || mUserProfession == null) {
-            getToInitActivity(localUser);
-        }
-        else {
-            checkWorkingDaysSetup(localUser);
-        }
-    }
-
-
-    private void getToInitActivity(FirebaseUser user) {
-        if(mIsMain) {
-            showProgressBar(false);
-        }
-        if(mUserPhoneNumber == null) {
-            Intent firstStep = new Intent(mActivity, SetPhoneNumberActivity.class);
-            firstStep.putExtra("userID", user.getUid());
-            mActivity.startActivityForResult(firstStep, SPN_CANCEL);
-        }
-        else if(mUserProfession == null) {
-            Intent secondStep = new Intent(mActivity, SetProfessionActivity.class);
-            secondStep.putExtra("userPhoneNumber", mUserPhoneNumber);
-            secondStep.putExtra("userID", user.getUid());
-            mActivity.startActivityForResult(secondStep, SP_CANCEL);
-        } else {
-            Intent thirdStep = new Intent(mActivity, SetWorkingHoursActivity.class);
-            thirdStep.putExtra("userPhoneNumber", mUserPhoneNumber);
-            thirdStep.putExtra("userWorkingHoursID", mUserWorkingHoursID);
-            thirdStep.putExtra("userID", user.getUid());
-            mActivity.startActivityForResult(thirdStep, SWH_CANCEL);
-        }
-    }
-
     private void getToCalendarActivity(FirebaseUser user) {
-        if(mIsMain) {
+        if (mIsMain) {
             showProgressBar(false);
         }
-        if(mUserAppointmentsDuration == null) {
-            Intent ScheduleDuration = new Intent(mActivity, ScheduleDurationActivity.class);
-            ScheduleDuration.putExtra("userPhoneNumber", mUserPhoneNumber);
-            ScheduleDuration.putExtra("userWorkingHoursID", mUserWorkingHoursID);
-            ScheduleDuration.putExtra("userWorkingHours", mWorkingHours);
-            ScheduleDuration.putExtra("userID", user.getUid());
-            mActivity.startActivityForResult(ScheduleDuration, SD_CANCEL);
-        }
-        else {
+        if (mUserAppointmentsDuration == null) {
+            Intent _scheduleDurationIntent = new Intent(mActivity, ScheduleDurationActivity.class);
+            _scheduleDurationIntent.putExtra("userPhoneNumber", mUserPhoneNumber);
+            _scheduleDurationIntent.putExtra("userWorkingHours", mWorkingHours);
+            _scheduleDurationIntent.putExtra("userID", user.getUid());
+            mActivity.startActivityForResult(_scheduleDurationIntent, SD_CANCEL);
+        } else {
             Log.d("StartinCalPacketMain", "Start");
             Intent _calendarIntent = new Intent(mActivity, CalendarActivity.class);
             _calendarIntent.putExtra("userID", user.getUid());
             _calendarIntent.putExtra("userWorkingHours", mWorkingHours);
             _calendarIntent.putExtra("userDaysWithScheduleID", mUserDaysWithScheduleID);
             _calendarIntent.putExtra("userAppointmentDuration", mUserAppointmentsDuration);
-            _calendarIntent.putExtra("userWorkingHoursID", mUserWorkingHoursID);
             mActivity.startActivityForResult(_calendarIntent, CA_CANCEL);
             mActivity.finish();
         }
@@ -260,19 +245,18 @@ public class PacketMainLogin {
 
 
     public void showProgressBar(boolean show) {
-        if(show) {
+        if (show) {
             mProgressBar.setVisibility(View.VISIBLE);
             mRootConstraintLayout.setClickable(false);
             mRootConstraintLayout.setEnabled(false);
-            if(!mDialogExists) {
+            if (!mDialogExists) {
                 disableView(false);
             }
-        }
-        else {
+        } else {
             mProgressBar.setVisibility(View.GONE);
             mRootConstraintLayout.setClickable(true);
             mRootConstraintLayout.setEnabled(true);
-            if(!mDialogExists) {
+            if (!mDialogExists) {
                 disableView(true);
             }
         }
@@ -289,7 +273,7 @@ public class PacketMainLogin {
 
     private void loopThroughViews(ViewGroup viewGroup, boolean value) {
         int _childrenNumber = viewGroup.getChildCount(), _counter;
-        for(_counter = 0; _counter < _childrenNumber; _counter++) {
+        for (_counter = 0; _counter < _childrenNumber; _counter++) {
             View _childView = viewGroup.getChildAt(_counter);
             _childView.setEnabled(value);
             Log.d("Views", _childView.toString());

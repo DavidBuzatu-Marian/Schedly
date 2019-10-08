@@ -20,23 +20,17 @@ import com.hbb20.CountryCodePicker;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.example.schedly.CalendarActivity.LOG_OUT;
-import static com.example.schedly.MainActivity.CA_CANCEL;
-import static com.example.schedly.MainActivity.EMAIL_CHANGED;
-import static com.example.schedly.MainActivity.PASSWORD_CHANGED;
 import static com.example.schedly.MainActivity.SP_CANCEL;
-import static com.example.schedly.MainActivity.WORKING_HOURS_CHANGED;
 
 public class SetPhoneNumberActivity extends AppCompatActivity {
 
     private String mUserID;
-    private String TAG = "Database";
+    private String TAG = "SetPhoneNumber";
     private CountryCodePicker mCCP;
     private EditText mEditTextCarrierNumber;
     private boolean mValidNumber = false;
     private String mPhoneNumberReturn;
-    AnimationTransitionOnActivity _animationTransitionOnActivity;
+    AnimationTransitionOnActivity mAnimationTransitionOnActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +40,26 @@ public class SetPhoneNumberActivity extends AppCompatActivity {
         if (_extras != null) {
             mUserID = _extras.getString("userID");
         }
+        setCCP();
+        setUpFloatingButton();
+    }
+
+    private void setUpFloatingButton() {
+        FloatingActionButton _floatingActionButton = findViewById(R.id.act_SPNumber_floating_action_button);
+        _floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mValidNumber) {
+                    mAnimationTransitionOnActivity = new AnimationTransitionOnActivity(findViewById(R.id.act_SPNumber_V_AnimationFill), (int) view.getX(), (int) view.getY());
+                    addUserDataToDatabase(mUserID);
+                } else {
+                    Toast.makeText(SetPhoneNumberActivity.this, "Phone number is invalid!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private void setCCP() {
         mCCP = findViewById(R.id.act_SPNumber_cpp);
         mEditTextCarrierNumber = findViewById(R.id.act_SPNumber_ET_carrierNumber);
         mCCP.registerCarrierNumberEditText(mEditTextCarrierNumber);
@@ -56,31 +70,15 @@ public class SetPhoneNumberActivity extends AppCompatActivity {
                 mValidNumber = isValidNumber;
             }
         });
-
-        FloatingActionButton _floatingActionButton = findViewById(R.id.act_SPNumber_floating_action_button);
-        _floatingActionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Write phone number to database if valid
-                if(mValidNumber) {
-                    _animationTransitionOnActivity = new AnimationTransitionOnActivity(findViewById(R.id.act_SPNumber_V_AnimationFill), (int) view.getX(), (int) view.getY());
-                    addUserDataToDatabase(mUserID);
-                }
-                else {
-                    Toast.makeText(SetPhoneNumberActivity.this, "Phone number is invalid!", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
     }
 
 
     private void addUserDataToDatabase(final String userID) {
-        FirebaseFirestore _firebaseFirestore = FirebaseFirestore.getInstance();
         mPhoneNumberReturn = mEditTextCarrierNumber.getText().toString();
         Map<String, Object> userToAdd = new HashMap<>();
         userToAdd.put("phoneNumber", mCCP.getFullNumberWithPlus());
         userToAdd.put("profession", null);
-        _firebaseFirestore.collection("users")
+        FirebaseFirestore.getInstance().collection("users")
                 .document(userID)
                 .set(userToAdd, SetOptions.merge())
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -109,30 +107,11 @@ public class SetPhoneNumberActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
-        switch (resultCode) {
-            case SP_CANCEL:
-                mEditTextCarrierNumber.setText(mPhoneNumberReturn);
-                break;
-            case LOG_OUT:
-                setResult(LOG_OUT);
-                this.finish();
-                break;
-            case CA_CANCEL:
-                setResult(CA_CANCEL);
-                this.finish();
-                break;
-            case EMAIL_CHANGED:
-                setResult(EMAIL_CHANGED);
-                finish();
-                break;
-            case PASSWORD_CHANGED:
-                setResult(PASSWORD_CHANGED);
-                finish();
-                break;
-            case WORKING_HOURS_CHANGED:
-                setResult(WORKING_HOURS_CHANGED);
-                finish();
-                break;
+        if (resultCode == SP_CANCEL) {
+            mEditTextCarrierNumber.setText(mPhoneNumberReturn);
+        } else {
+            setResult(resultCode);
+            this.finish();
         }
     }
 
