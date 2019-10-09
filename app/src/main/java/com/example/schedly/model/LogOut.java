@@ -27,6 +27,21 @@ public class LogOut {
     }
 
     public void LogOutFromApp() {
+        logOutFromFirebase();
+        stopService();
+        Intent _loginIntent = getIntentForLogOut();
+        mContext.startActivity(_loginIntent);
+        mActivity.finishAffinity();
+    }
+
+    private Intent getIntentForLogOut() {
+        Intent _loginIntent = new Intent(mActivity, StartSplashActivity.class);
+        _loginIntent.putExtra("LoggedOut", true);
+        _loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        return _loginIntent;
+    }
+
+    private void logOutFromFirebase() {
         final GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(mContext.getString(R.string.default_web_client_ID))
                 .requestEmail()
@@ -35,12 +50,14 @@ public class LogOut {
         mGoogleSignInClient.signOut();
         LoginManager.getInstance().logOut();
         FirebaseAuth.getInstance().signOut();
-        Intent stopServiceIntent = new Intent(mActivity, MonitorIncomingSMSService.class);
-        mActivity.stopService(stopServiceIntent);
-        Intent loginIntent = new Intent(mActivity, StartSplashActivity.class);
-        loginIntent.putExtra("LoggedOut", true);
-        loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-        mContext.startActivity(loginIntent);
-        mActivity.finishAffinity();
+    }
+
+    private void stopService() {
+        Intent _stopServiceIntent = new Intent(mActivity, MonitorIncomingSMSService.class);
+        mActivity.stopService(_stopServiceIntent);
+    }
+
+    public void LogOutSetUp() {
+        logOutFromFirebase();
     }
 }

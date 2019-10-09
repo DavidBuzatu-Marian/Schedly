@@ -32,6 +32,7 @@ public class ScheduleDurationActivity extends AppCompatActivity {
     AnimationTransitionOnActivity mAnimationTransitionOnActivity;
     private String mUserPhoneNumber, mUserAppointmentsDuration;
     private HashMap<String, String> mWorkingHours = new HashMap<>();
+    private String mUserDisplayName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +80,7 @@ public class ScheduleDurationActivity extends AppCompatActivity {
 
     private void addDurationToDB(String minutes, String name) {
         mUserAppointmentsDuration = minutes;
+        mUserDisplayName = name;
         Map<String, Object> duration = new HashMap<>();
         duration.put("appointmentsDuration", minutes);
         duration.put("displayName", name);
@@ -88,8 +90,7 @@ public class ScheduleDurationActivity extends AppCompatActivity {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "DocumentSnapshot successfully written!");
-                        startCalendar();
+                        startCalendarActivity();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -100,7 +101,7 @@ public class ScheduleDurationActivity extends AppCompatActivity {
                 });
     }
 
-    private void startCalendar() {
+    private void startCalendarActivity() {
         Intent _calendarIntent = new Intent(ScheduleDurationActivity.this, CalendarActivity.class);
         _calendarIntent.putExtra("userID", mUserID);
         _calendarIntent.putExtra("userWorkingHours", mWorkingHours);

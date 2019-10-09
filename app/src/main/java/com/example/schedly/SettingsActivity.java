@@ -14,7 +14,6 @@ public class SettingsActivity extends AppCompatActivity {
     private Toolbar mToolBar;
     private String mUserID;
     private String mUserAppointmentDuration;
-    private String mUserWorkingDaysID;
     private HashMap<String, String> mWorkingHours;
 
     @Override
@@ -22,11 +21,29 @@ public class SettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_settings);
         mToolBar = findViewById(R.id.frag_Settings_Toolbar);
+        initSettingsFrament();
+        setToolBarNavClick();
+
+        Bundle _extras = getIntent().getExtras();
+        getExtrasValues(_extras);
+    }
+
+    private void getExtrasValues(Bundle extras) {
+        if (extras != null) {
+            mUserID = extras.getString("userID");
+            mUserAppointmentDuration = extras.getString("userAppointmentDuration");
+            mWorkingHours = (HashMap<String, String>) extras.getSerializable("userWorkingHours");
+        }
+    }
+
+    private void initSettingsFrament() {
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.frag_Settings_FL_Holder, new SettingsFragment())
                 .commit();
+    }
 
+    private void setToolBarNavClick() {
         mToolBar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -38,14 +55,6 @@ public class SettingsActivity extends AppCompatActivity {
                 }
             }
         });
-
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            mUserID = extras.getString("userID");
-            mUserAppointmentDuration = extras.getString("userAppointmentDuration");
-            mUserWorkingDaysID = extras.getString("userWorkingDaysID");
-            mWorkingHours = (HashMap<String, String>) extras.getSerializable("userWorkingHours");
-        }
     }
 
 
@@ -59,10 +68,6 @@ public class SettingsActivity extends AppCompatActivity {
 
     public String getmUserAppointmentDuration() {
         return mUserAppointmentDuration;
-    }
-
-    public String getmUserWorkingDaysID() {
-        return mUserWorkingDaysID;
     }
 
     public HashMap<String, String> getmWorkingHours() {

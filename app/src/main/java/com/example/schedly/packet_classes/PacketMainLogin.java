@@ -39,7 +39,7 @@ public class PacketMainLogin {
     private Activity mActivity;
     private boolean mIsMain;
     /* firestore */
-    FirebaseFirestore mFirebaseFirestore;
+    private FirebaseFirestore mFirebaseFirestore;
     /* store user info */
     private String mUserPhoneNumber;
     private String mUserProfession;
@@ -47,8 +47,8 @@ public class PacketMainLogin {
     private ProgressBar mProgressBar;
     private ConstraintLayout mRootConstraintLayout;
     private HashMap<String, String> mWorkingHours = new HashMap<>();
-    private String mUserDaysWithScheduleID;
     private boolean mDialogExists;
+    private String mUserDisplayName;
 
 
     public PacketMainLogin(Activity activity, boolean isMain) {
@@ -56,9 +56,6 @@ public class PacketMainLogin {
         mIsMain = isMain;
         mFirebaseFirestore = FirebaseFirestore.getInstance();
         if (mIsMain) {
-            /* we come from main activity
-             * get views for progress bar
-             */
             mProgressBar = mActivity.findViewById(R.id.act_main_PB);
             mRootConstraintLayout = mActivity.findViewById(R.id.act_main_CL_Root);
         }
@@ -77,13 +74,17 @@ public class PacketMainLogin {
                         documentNotExists(currentUser);
                     }
                 } else {
-                    mUserPhoneNumber = null;
-                    mUserProfession = null;
-                    redirectUser(currentUser);
+                    setDetailsNull(currentUser);
                     Log.d(TAG, "get failed with ", task.getException());
                 }
             }
         });
+    }
+
+    private void setDetailsNull(FirebaseUser currentUser) {
+        mUserPhoneNumber = null;
+        mUserProfession = null;
+        redirectUser(currentUser);
     }
 
     private void documentNotExists(FirebaseUser currentUser) {
@@ -150,7 +151,7 @@ public class PacketMainLogin {
         mUserPhoneNumber = document.get("phoneNumber") != null ? document.get("phoneNumber").toString() : null;
         mUserProfession = document.get("profession") != null ? document.get("profession").toString() : null;
         mUserAppointmentsDuration = document.get("appointmentsDuration") != null ? document.get("appointmentsDuration").toString() : null;
-        mUserDaysWithScheduleID = document.get("daysWithScheduleID") != null ? document.get("daysWithScheduleID").toString() : null;
+        mUserDisplayName = document.get("displayName") != null ? document.get("displayName").toString() : null;
 
         if (mUserPhoneNumber == null || mUserProfession == null) {
             redirectUser(currentUser);
@@ -173,20 +174,32 @@ public class PacketMainLogin {
             showProgressBar(false);
         }
         if (mUserPhoneNumber == null) {
-            Intent _phoneNumberIntent = new Intent(mActivity, SetPhoneNumberActivity.class);
-            _phoneNumberIntent.putExtra("userID", user.getUid());
-            mActivity.startActivityForResult(_phoneNumberIntent, SPN_CANCEL);
+            startPhoneNumberActivity(user);
         } else if (mUserProfession == null) {
-            Intent _professionIntent = new Intent(mActivity, SetProfessionActivity.class);
-            _professionIntent.putExtra("userPhoneNumber", mUserPhoneNumber);
-            _professionIntent.putExtra("userID", user.getUid());
-            mActivity.startActivityForResult(_professionIntent, SP_CANCEL);
+            startProfessionActivity(user);
         } else {
-            Intent _workingDaysIntent = new Intent(mActivity, SetWorkingHoursActivity.class);
-            _workingDaysIntent.putExtra("userPhoneNumber", mUserPhoneNumber);
-            _workingDaysIntent.putExtra("userID", user.getUid());
-            mActivity.startActivityForResult(_workingDaysIntent, SWH_CANCEL);
+            startWorkingHoursActivity(user);
         }
+    }
+
+    private void startWorkingHoursActivity(FirebaseUser user) {
+        Intent _workingDaysIntent = new Intent(mActivity, SetWorkingHoursActivity.class);
+        _workingDaysIntent.putExtra("userPhoneNumber", mUserPhoneNumber);
+        _workingDaysIntent.putExtra("userID", user.getUid());
+        mActivity.startActivityForResult(_workingDaysIntent, SWH_CANCEL);
+    }
+
+    private void startPhoneNumberActivity(FirebaseUser user) {
+        Intent _phoneNumberIntent = new Intent(mActivity, SetPhoneNumberActivity.class);
+        _phoneNumberIntent.putExtra("userID", user.getUid());
+        mActivity.startActivityForResult(_phoneNumberIntent, SPN_CANCEL);
+    }
+
+    private void startProfessionActivity(FirebaseUser user) {
+        Intent _professionIntent = new Intent(mActivity, SetProfessionActivity.class);
+        _professionIntent.putExtra("userPhoneNumber", mUserPhoneNumber);
+        _professionIntent.putExtra("userID", user.getUid());
+        mActivity.startActivityForResult(_professionIntent, SP_CANCEL);
     }
 
     private void checkWorkingDaysSetup(final FirebaseUser currentUser) {
@@ -199,10 +212,11 @@ public class PacketMainLogin {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         DocumentSnapshot document = task.getResult();
-                        if (document.getData() == null ) {
+                        if (document.getData() == null) {
                             addUserWorkingDays(currentUser);
                         } else if (!document.getData().containsValue(null)) {
                             getWorkingHours(task, localUser);
+                            toLastSteps(localUser);
                         } else {
                             getToInitActivity(currentUser);
                         }
@@ -212,58 +226,50 @@ public class PacketMainLogin {
 
     private void getWorkingHours(Task<DocumentSnapshot> task, FirebaseUser localUser) {
         Map<String, Object> _map = task.getResult().getData();
-        Log.d("GettingHoursPacketMain", _map.toString());
         for (Map.Entry<String, Object> _entry : _map.entrySet()) {
-            Log.d("Appointment", _entry.getKey());
             mWorkingHours.put(_entry.getKey(), _entry.getValue().toString());
         }
-
-        getToCalendarActivity(localUser);
     }
 
-    private void getToCalendarActivity(FirebaseUser user) {
+    private void toLastSteps(FirebaseUser user) {
         if (mIsMain) {
             showProgressBar(false);
         }
         if (mUserAppointmentsDuration == null) {
-            Intent _scheduleDurationIntent = new Intent(mActivity, ScheduleDurationActivity.class);
-            _scheduleDurationIntent.putExtra("userPhoneNumber", mUserPhoneNumber);
-            _scheduleDurationIntent.putExtra("userWorkingHours", mWorkingHours);
-            _scheduleDurationIntent.putExtra("userID", user.getUid());
-            mActivity.startActivityForResult(_scheduleDurationIntent, SD_CANCEL);
+            startAppointmentsDurationActivity(user);
         } else {
-            Log.d("StartinCalPacketMain", "Start");
-            Intent _calendarIntent = new Intent(mActivity, CalendarActivity.class);
-            _calendarIntent.putExtra("userID", user.getUid());
-            _calendarIntent.putExtra("userWorkingHours", mWorkingHours);
-            _calendarIntent.putExtra("userDaysWithScheduleID", mUserDaysWithScheduleID);
-            _calendarIntent.putExtra("userAppointmentDuration", mUserAppointmentsDuration);
-            mActivity.startActivityForResult(_calendarIntent, CA_CANCEL);
-            mActivity.finish();
+            startCalendarActivity(user);
         }
+    }
+
+    private void startCalendarActivity(FirebaseUser user) {
+        Intent _calendarIntent = new Intent(mActivity, CalendarActivity.class);
+        _calendarIntent.putExtra("userID", user.getUid());
+        _calendarIntent.putExtra("userWorkingHours", mWorkingHours);
+        _calendarIntent.putExtra("userAppointmentDuration", mUserAppointmentsDuration);
+        mActivity.startActivityForResult(_calendarIntent, CA_CANCEL);
+        mActivity.finish();
+    }
+
+    private void startAppointmentsDurationActivity(FirebaseUser user) {
+        Intent _scheduleDurationIntent = new Intent(mActivity, ScheduleDurationActivity.class);
+        _scheduleDurationIntent.putExtra("userPhoneNumber", mUserPhoneNumber);
+        _scheduleDurationIntent.putExtra("userWorkingHours", mWorkingHours);
+        _scheduleDurationIntent.putExtra("userID", user.getUid());
+        mActivity.startActivityForResult(_scheduleDurationIntent, SD_CANCEL);
     }
 
 
     public void showProgressBar(boolean show) {
-        if (show) {
-            mProgressBar.setVisibility(View.VISIBLE);
-            mRootConstraintLayout.setClickable(false);
-            mRootConstraintLayout.setEnabled(false);
-            if (!mDialogExists) {
-                disableView(false);
-            }
-        } else {
-            mProgressBar.setVisibility(View.GONE);
-            mRootConstraintLayout.setClickable(true);
-            mRootConstraintLayout.setEnabled(true);
-            if (!mDialogExists) {
-                disableView(true);
-            }
+        mProgressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+        mRootConstraintLayout.setClickable(!show);
+        mRootConstraintLayout.setEnabled(!show);
+        if (!mDialogExists) {
+            disableViews(!show);
         }
-
     }
 
-    private void disableView(boolean value) {
+    private void disableViews(boolean value) {
         ViewGroup _viewGroup = mActivity.findViewById(R.id.act_main_CL_Root);
         loopThroughViews(_viewGroup, value);
         mActivity.findViewById(R.id.act_main_TIL_email).setEnabled(value);
@@ -276,7 +282,6 @@ public class PacketMainLogin {
         for (_counter = 0; _counter < _childrenNumber; _counter++) {
             View _childView = viewGroup.getChildAt(_counter);
             _childView.setEnabled(value);
-            Log.d("Views", _childView.toString());
         }
         viewGroup.setEnabled(value);
     }

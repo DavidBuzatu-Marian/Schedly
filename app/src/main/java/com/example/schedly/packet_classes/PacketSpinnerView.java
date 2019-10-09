@@ -60,22 +60,23 @@ public class PacketSpinnerView extends AppCompatSpinner {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked) {
-                    mActivity.findViewById(DaysOfWeek.valueOf(day).geteSpinnerStartID()).setVisibility(View.GONE);
-                    mActivity.findViewById(DaysOfWeek.valueOf(day).geteSpinnerEndID()).setVisibility(View.GONE);
-
-                    DaysOfWeek.valueOf(day).setFreeStatus(true);
+                    setDayVisibility(true, day);
                     mStartHours[mIDsArray.get(DaysOfWeek.valueOf(day).geteSpinnerStartID())] = "Free";
                     mEndHours[mIDsArray.get(DaysOfWeek.valueOf(day).geteSpinnerEndID())] = "Free";
                 }
                 else {
-                    mActivity.findViewById(DaysOfWeek.valueOf(day).geteSpinnerStartID()).setVisibility(View.VISIBLE);
-                    mActivity.findViewById(DaysOfWeek.valueOf(day).geteSpinnerEndID()).setVisibility(View.VISIBLE);
+                    setDayVisibility(false, day);
                     mStartHours[mIDsArray.get(DaysOfWeek.valueOf(day).geteSpinnerStartID())] = ((Spinner) mActivity.findViewById(DaysOfWeek.valueOf(day).geteSpinnerStartID())).getSelectedItem().toString();
                     mEndHours[mIDsArray.get(DaysOfWeek.valueOf(day).geteSpinnerEndID())] = ((Spinner) mActivity.findViewById(DaysOfWeek.valueOf(day).geteSpinnerEndID())).getSelectedItem().toString();
-                    DaysOfWeek.valueOf(day).setFreeStatus(false);
                 }
             }
         });
+    }
+
+    private void setDayVisibility(boolean b, String day) {
+        mActivity.findViewById(DaysOfWeek.valueOf(day).geteSpinnerStartID()).setVisibility(b ? View.GONE: View.VISIBLE);
+        mActivity.findViewById(DaysOfWeek.valueOf(day).geteSpinnerEndID()).setVisibility(b ? View.GONE: View.VISIBLE);
+        DaysOfWeek.valueOf(day).setFreeStatus(b);
     }
 
     public void setUpSpinners(final ArrayAdapter<CharSequence> mAdapterHours) {

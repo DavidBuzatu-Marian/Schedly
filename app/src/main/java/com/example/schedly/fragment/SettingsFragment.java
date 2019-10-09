@@ -37,8 +37,6 @@ import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.Map;
 
-import static com.example.schedly.CalendarActivity.LOG_OUT;
-
 public class SettingsFragment extends PreferenceFragmentCompat {
     private Preference mChangeEmailPreference;
     private Preference mChangePasswordPreference, mChangeWorkingHours;

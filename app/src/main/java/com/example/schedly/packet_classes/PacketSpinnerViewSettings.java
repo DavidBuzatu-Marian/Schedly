@@ -40,13 +40,12 @@ public class PacketSpinnerViewSettings extends AppCompatSpinner {
     private final ArrayAdapter<CharSequence> mAdapterHours;
     private int mDaysIterator;
 
-
     public PacketSpinnerViewSettings(Context context, View _view, ArrayAdapter<CharSequence> _adapterHours) {
         super(context);
         mView = _view;
         mAdapterHours = _adapterHours;
         getUserWorkingDays();
-        initializeMaps();
+        initializeIDArrays();
     }
 
     private void getUserWorkingDays() {
@@ -66,21 +65,14 @@ public class PacketSpinnerViewSettings extends AppCompatSpinner {
     }
 
 
-    private void initializeMaps() {
+    private void initializeIDArrays() {
         int _counter = 0;
-
         for(DaysOfWeek _day: DaysOfWeek.values()) {
             if(!_day.geteDisplayName().equals("All")) {
                 mIDsArray.put(_day.geteSpinnerStartID(), _counter / 2);
                 mIDsArray.put(_day.geteSpinnerEndID(), _counter / 2);
-
-                _counter += 2;
-            }
-        }
-
-        for(DaysOfWeek _day: DaysOfWeek.values()) {
-            if(!_day.geteDisplayName().equals("All")) {
                 setCheckChanged((CheckBox) mView.findViewById(_day.geteCheckBoxID()), _day.geteDisplayName().substring(0, 3).toUpperCase());
+                _counter += 2;
             }
         }
     }
@@ -90,51 +82,34 @@ public class PacketSpinnerViewSettings extends AppCompatSpinner {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked) {
-                    mView.findViewById(DaysOfWeek.valueOf(day).geteSpinnerStartID()).setVisibility(View.GONE);
-                    mView.findViewById(DaysOfWeek.valueOf(day).geteSpinnerEndID()).setVisibility(View.GONE);
-
-                    DaysOfWeek.valueOf(day).setFreeStatus(true);
+                    setDayVisibility(true, day);
                     mStartHours[mIDsArray.get(DaysOfWeek.valueOf(day).geteSpinnerStartID())] = "Free";
                     mEndHours[mIDsArray.get(DaysOfWeek.valueOf(day).geteSpinnerEndID())] = "Free";
                 }
                 else {
-                    mView.findViewById(DaysOfWeek.valueOf(day).geteSpinnerStartID()).setVisibility(View.VISIBLE);
-                    mView.findViewById(DaysOfWeek.valueOf(day).geteSpinnerEndID()).setVisibility(View.VISIBLE);
+                    setDayVisibility(false, day);
                     mStartHours[mIDsArray.get(DaysOfWeek.valueOf(day).geteSpinnerStartID())] = ((Spinner) mView.findViewById(DaysOfWeek.valueOf(day).geteSpinnerStartID())).getSelectedItem().toString();
                     mEndHours[mIDsArray.get(DaysOfWeek.valueOf(day).geteSpinnerEndID())] = ((Spinner) mView.findViewById(DaysOfWeek.valueOf(day).geteSpinnerEndID())).getSelectedItem().toString();
-                    DaysOfWeek.valueOf(day).setFreeStatus(false);
                 }
             }
         });
+    }
+
+    private void setDayVisibility(boolean b, String day) {
+        mView.findViewById(DaysOfWeek.valueOf(day).geteSpinnerStartID()).setVisibility(b ? View.GONE : View.VISIBLE);
+        mView.findViewById(DaysOfWeek.valueOf(day).geteSpinnerEndID()).setVisibility(b ? View.GONE : View.VISIBLE);
+        DaysOfWeek.valueOf(day).setFreeStatus(b);
     }
 
     public void setUpSpinners() {
         mDaysIterator = 0;
         for(DaysOfWeek _day: DaysOfWeek.values()) {
             if(!_day.geteDisplayName().equals("All")) {
-                String _dayStart = _day.geteDisplayName() + "Start",
-                        _dayEnd = _day.geteDisplayName() + "End";
-
                 Spinner _startHours = mView.findViewById(_day.geteSpinnerStartID());
                 Spinner _endHours = mView.findViewById(_day.geteSpinnerEndID());
-
-                _startHours.setAdapter(mAdapterHours);
-                _endHours.setAdapter(mAdapterHours);
-
-                if (!mUserWorkingDays.get(_dayStart).toString().equals("Free")) {
-                    String _valueStart = mUserWorkingDays.get(_dayStart).toString();
-                    String _valueEnd = mUserWorkingDays.get(_dayEnd).toString();
-                    _startHours.setSelection(mAdapterHours.getPosition(_valueStart));
-                    _endHours.setSelection(mAdapterHours.getPosition(_valueEnd));
-
-                    _day.setFreeStatus(false);
-                } else {
-                    ((CheckBox) mView.findViewById(_day.geteCheckBoxID())).setChecked(true);
-                    _day.setFreeStatus(true);
-                }
+                setSpinnerAdaptersAndValues(_startHours, _endHours, _day);
                 _startHours.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     private int counter;
-
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                         counter = mIDsArray.get(parent.getId());
@@ -164,6 +139,23 @@ public class PacketSpinnerViewSettings extends AppCompatSpinner {
                 });
             }
             mDaysIterator++;
+        }
+    }
+
+    private void setSpinnerAdaptersAndValues(Spinner startHours, Spinner endHours, DaysOfWeek _day) {
+        String _dayStart = _day.geteDisplayName() + "Start",
+                _dayEnd = _day.geteDisplayName() + "End";
+        startHours.setAdapter(mAdapterHours);
+        endHours.setAdapter(mAdapterHours);
+        if (!mUserWorkingDays.get(_dayStart).toString().equals("Free")) {
+            String _valueStart = mUserWorkingDays.get(_dayStart).toString();
+            String _valueEnd = mUserWorkingDays.get(_dayEnd).toString();
+            startHours.setSelection(mAdapterHours.getPosition(_valueStart));
+            endHours.setSelection(mAdapterHours.getPosition(_valueEnd));
+            _day.setFreeStatus(false);
+        } else {
+            ((CheckBox) mView.findViewById(_day.geteCheckBoxID())).setChecked(true);
+            _day.setFreeStatus(true);
         }
     }
 

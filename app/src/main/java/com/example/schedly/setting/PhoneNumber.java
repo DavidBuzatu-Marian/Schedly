@@ -39,11 +39,10 @@ public class PhoneNumber {
         mPhoneNumber = phoneNumber;
         mPreference = preference;
         mSettingsFragment = fragment;
-        showDialog();
+        buildDialog();
     }
 
-    private void showDialog() {
-
+    private void buildDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
         LayoutInflater inflater = mActivity.getLayoutInflater();
         final View _dialogLayout = inflater.inflate(R.layout.dialog_settings_phone_number, null);
@@ -87,7 +86,6 @@ public class PhoneNumber {
                         Toast.makeText(mActivity, mActivity.getString(R.string.dialog_pnumber_change_success), Toast.LENGTH_SHORT).show();
                         mPreference.setSummary(mPhoneNumber);
                         mSettingsFragment.setmUserPhoneNumber(mPhoneNumber);
-                        Log.d("Change", "DocumentSnapshot successfully written!");
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {

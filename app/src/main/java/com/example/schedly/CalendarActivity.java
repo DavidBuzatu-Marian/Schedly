@@ -86,15 +86,17 @@ public class CalendarActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calendar);
-        /* permisions */
         checkEachPermission();
         Bundle extras = getIntent().getExtras();
+        getExtrasValues(extras);
+    }
+
+    private void getExtrasValues(Bundle extras) {
         if (extras != null) {
             mUserID = extras.getString("userID");
             mWorkingHours = (HashMap<String, String>) extras.getSerializable("userWorkingHours");
             mUserAppointmentDuration = extras.getString("userAppointmentDuration");
         }
-
     }
 
     private void checkEachPermission() {
@@ -118,8 +120,6 @@ public class CalendarActivity extends AppCompatActivity {
         if (mArePermissionAccepted) {
             setUpUI();
         }
-        Log.d(TAG, "Resumed");
-
 //        findViewById(R.id.act_Calendar_BUT_test).setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View view) {
@@ -130,18 +130,21 @@ public class CalendarActivity extends AppCompatActivity {
 
     private void setUpUI() {
         mPacketCalendar = new PacketCalendar(this, mWorkingHours, mUserAppointmentDuration, mUserID);
+        setCalendarViewOnClick();
+        startServiceSMSMonitoring();
+        setRecyclerView();
+        monitorChanges();
+    }
+
+    private void setCalendarViewOnClick() {
         mCalendarView = findViewById(R.id.act_Calendar_CalendarV);
         mCalendarView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Calendar _calendar = mCalendarView.getMarkedDay();
                 getDateFromCalendarView(_calendar);
-                Log.d("DATE", mDate + "");
             }
         });
-        startServiceSMSMonitoring();
-        setRecyclerView();
-        monitorChanges();
     }
 
 //    private void testMessages() {
@@ -157,9 +160,6 @@ public class CalendarActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        /* remove registration on stop in order to
-         * moderate power and resources consumption
-         */
         if (mRegistration != null) {
             mRegistration.remove();
         }
@@ -220,7 +220,6 @@ public class CalendarActivity extends AppCompatActivity {
                 LocalDate _date = Instant.ofEpochMilli(_dateInMillis).atZone(ZoneId.systemDefault()).toLocalDate();
                 String _dayOfWeek = _date.format(_DTF);
                 CustomEvent _CEvent = new CustomEvent(_dateInMillis);
-
                 if(!mWorkingHours.get(_dayOfWeek + "Start").equals("Free")) {
                     _events.put(_dateInMillis, putDateInEvents(_CEvent, _dateInMillis, _dayOfWeek));
                 }
@@ -235,15 +234,22 @@ public class CalendarActivity extends AppCompatActivity {
         _CEvent.setUserNumberOfAppointments(_numberOfAppointments);
         String[] _timeStart = mWorkingHours.get(_dayOfWeek + "Start").split(":");
         String[] _timeEnd = mWorkingHours.get(_dayOfWeek + "End").split(":");
-        LocalDateTime _dateTimeStart = Instant.ofEpochMilli(0).atZone(ZoneId.systemDefault()).toLocalDate().atTime(Integer.parseInt(_timeStart[0]), Integer.parseInt(_timeStart[1]));
-        LocalDateTime _dateTimeEnd = Instant.ofEpochMilli(0).atZone(ZoneId.systemDefault()).toLocalDate().atTime(Integer.parseInt(_timeEnd[0]), Integer.parseInt(_timeEnd[1]));
-        Long _timeStartMillis = _dateTimeStart.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-        Long _timeEndMillis = _dateTimeEnd.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-        Log.d(TAG + "DATES", _timeStartMillis + "; " + _timeEndMillis);
+        LocalDateTime _dateTimeStart = getTimeInMillis(_timeStart);
+        LocalDateTime _dateTimeEnd = getTimeInMillis(_timeEnd);
+        Long _timeStartMillis = getDateInMillis(_dateTimeStart);
+        Long _timeEndMillis = getDateInMillis(_dateTimeEnd);
         _CEvent.setStartHour(_timeStartMillis);
         _CEvent.setEndHour(_timeEndMillis);
 
         return _CEvent;
+    }
+
+    private Long getDateInMillis(LocalDateTime dateTime) {
+        return dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+    }
+
+    private LocalDateTime getTimeInMillis(String[] time) {
+        return Instant.ofEpochMilli(0).atZone(ZoneId.systemDefault()).toLocalDate().atTime(Integer.parseInt(time[0]), Integer.parseInt(time[1]));
     }
 
     private boolean hasValue(Object value) {
@@ -271,12 +277,10 @@ public class CalendarActivity extends AppCompatActivity {
     }
 
     private void setRecyclerView() {
-        /* RecyclerView */
         mRecyclerView = findViewById(R.id.act_Calendar_RV_Schedule);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
-
         mAdapter = new CalendarAdapter(CalendarActivity.this, mDataSet, mUserID);
         mRecyclerView.setAdapter(mAdapter);
     }
@@ -300,19 +304,24 @@ public class CalendarActivity extends AppCompatActivity {
     public void startServiceSMSMonitoring() {
         SharedPreferences _userPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         if (_userPreferences.getBoolean("serviceActive", true)) {
-            Intent serviceIntent = new Intent(CalendarActivity.this, MonitorIncomingSMSService.class);
-            serviceIntent.putExtra("userID", mUserID);
-            serviceIntent.putExtra("userAppointmentDuration", mUserAppointmentDuration);
-            serviceIntent.putExtra("userWorkingHours", mWorkingHours);
-            serviceIntent.setAction("ACTION.STARTSERVICE_ACTION");
+            Intent _serviceIntent = getServiceIntent();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(serviceIntent);
+                startForegroundService(_serviceIntent);
             } else {
-                startService(serviceIntent);
+                startService(_serviceIntent);
             }
         }
         setUpSettingsIV();
         PreferenceManager.setDefaultValues(this, R.xml.preferences, true);
+    }
+
+    private Intent getServiceIntent() {
+        Intent _serviceIntent = new Intent(CalendarActivity.this, MonitorIncomingSMSService.class);
+        _serviceIntent.putExtra("userID", mUserID);
+        _serviceIntent.putExtra("userAppointmentDuration", mUserAppointmentDuration);
+        _serviceIntent.putExtra("userWorkingHours", mWorkingHours);
+        _serviceIntent.setAction("ACTION.STARTSERVICE_ACTION");
+        return _serviceIntent;
     }
 
     private void setUpSettingsIV() {

@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
+import com.example.schedly.model.LogOut;
 import com.example.schedly.packet_classes.PacketMainLogin;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -42,16 +43,11 @@ public class StartSplashActivity extends AppCompatActivity {
         AndroidThreeTen.init(this);
 
         Bundle _extras = getIntent().getExtras();
-        Log.d("Extras", _extras != null ? _extras.getBoolean("LoggedOut") + "" : "Null");
         if(_extras != null && _extras.getBoolean("LoggedOut")) {
             mResultCode = LOG_OUT;
             redirectWithScreenSize();
             finish();
         }
-        /* preference check for first login
-         * this is used in calendar activity
-         * in order to display helpers
-         */
         boolean _isPreferenceSet = getFirstLoginPreference();
         if(!_isPreferenceSet) {
             setFirstLoginPreference();
@@ -62,14 +58,11 @@ public class StartSplashActivity extends AppCompatActivity {
     private void checkLoggedIn() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         mFirebaseFirestore = FirebaseFirestore.getInstance();
-        /* check if user is logged, redirect accordingly */
         if(currentUser != null) {
-            /* get user info and redirect */
             PacketMainLogin _packetMainLogin = new PacketMainLogin(this, false);
             _packetMainLogin.getUserDetails(currentUser);
         }
         else {
-            /* get screen size and redirect to corresponding main */
             redirectWithScreenSize();
         }
     }
@@ -90,15 +83,20 @@ public class StartSplashActivity extends AppCompatActivity {
         DisplayMetrics _displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(_displayMetrics);
         int _height = _displayMetrics.heightPixels;
+        Intent _intentMainActivity = getIntentMainActivity(_height);
+        startActivity(_intentMainActivity);
+        finish();
+    }
+
+    private Intent getIntentMainActivity(int height) {
         Intent _intentMainActivity = new Intent(this, MainActivity.class);
         _intentMainActivity.putExtra("resultCode", mResultCode);
         _intentMainActivity.putExtra("requestCode", mRequestCode);
         _intentMainActivity.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        if(_height < 1350) {
+        if(height < 1350) {
             _intentMainActivity.putExtra("SmallHeight", R.layout.activity_login_xsmall_devices);
         }
-        startActivity(_intentMainActivity);
-        finish();
+        return _intentMainActivity;
     }
 
 
@@ -106,14 +104,8 @@ public class StartSplashActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == SPN_CANCEL || requestCode == SP_CANCEL || requestCode == SWH_CANCEL || requestCode == SD_CANCEL) {
-            final GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                    .requestIdToken(getString(R.string.default_web_client_ID))
-                    .requestEmail()
-                    .build();
-            mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-            mGoogleSignInClient.signOut();
-            LoginManager.getInstance().logOut();
-            FirebaseAuth.getInstance().signOut();
+            LogOut _logOut = new LogOut(this);
+            _logOut.LogOutSetUp();
             mRequestCode = requestCode;
             redirectWithScreenSize();
             finish();
