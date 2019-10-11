@@ -211,12 +211,15 @@
     <string name="responses_closest_days">These are the closest days I can take you in:</string>
     <string name="fragment_SMS_monitoring">Do you really want to disable SMS monitoring? Schedly will NOT be able to make appointments through SMS if disabled</string>
     <string name="notification_monitor_sms">Schedly is making appointments for you</string>
-    <string name="notification_monitor_internet">Reconnect to the internet to make Schedly work!</string>
+    <string name="notification_monitor_internet">You\'re not connected to the internet!</string>
     <string name="activity_main_small_socials_message">Choose one method from below:</string>
     <string name="activity_main_small_socials_message_title">SIGN IN</string>
     <string name="activity_main_snackbar_email_not_registered">Email not registered. Sign up here</string>
     <string name="activity_main_snackbar_email_not_registered_action">Sign Up</string>
     <string name="activity_main_small_credentials">Use the credentials which you used for sign up</string>
     <string name="dialog_pnumber_change_success">Phone number changed successfully</string>
+    <string name="dialog_login_error_title">Something went wrong</string>
+    <string name="dialog_login_error_message">Please check your internet connection or try another method for login</string>
+    <string name="dialog_login_error_button">OK</string>
 
 </resources>

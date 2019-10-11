@@ -31,8 +31,8 @@
         >
         <shape android:shape="oval">
             <gradient
-                android:startColor="@color/colorEventLessThanHalf"
-                android:endColor="@color/colorEventMoreThanHalf"
+                android:startColor="@color/colorEventFull"
+                android:endColor="@color/colorPrimaryDark"
                 android:type="linear"
                 android:angle="0"/>
             <size
@@ -47,8 +47,8 @@
         android:left="16dp">
         <shape android:shape="oval">
             <gradient
-                android:startColor="@color/colorEventMoreThanHalf"
-                android:endColor="@color/colorEventFull"
+                android:startColor="@color/colorEventFull"
+                android:endColor="@color/colorPrimaryDark"
                 android:type="linear"
                 android:angle="0"/>
             <size

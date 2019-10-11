@@ -26,7 +26,6 @@ public class CircularTextView extends TextView {
         super(context, attrs, defStyleAttr);
     }
 
-
     @Override
     public void draw(Canvas canvas) {
 

@@ -28,14 +28,6 @@ public class Appointment{
         mDateInMillis = dateInMillis;
     }
 
-    public Appointment(String hour, String name, String phoneNumber, String date, Long dateInMillis) {
-        mHour = hour;
-        mName = name;
-        mPhoneNumber = phoneNumber;
-        mDate = date;
-        mDateInMillis = dateInMillis;
-    }
-
 
 
     public String getmHour() {

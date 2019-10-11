@@ -4,14 +4,18 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -62,7 +66,6 @@ public class MainActivity extends AppCompatActivity {
     public static final int SUWEmailFail = 2100;
     /* google sign in code */
     public static final int RC_SIGN_IN = 1001;
-    public static final int SUWESuccess = 2000;
     /* first step back code */
     public static final int SPN_CANCEL = 2001;
     /* second step back code */
@@ -82,12 +85,13 @@ public class MainActivity extends AppCompatActivity {
     /* password reset */
     public static final int PR_SUCCESS = 4010;
     /* firestore */
-    FirebaseFirestore mFirebaseFirestore;
+    private FirebaseFirestore mFirebaseFirestore;
     private GoogleSignInClient mGoogleSignInClient;
     private boolean mShowPasswordTrue = false;
     private PacketMainLogin mPacketMainLogin;
     private View mDialogView = null;
     private int mResultCode, mRequestCode;
+    private AlertDialog mDialogError;
 
     @Override
     public void onStart() {
@@ -129,13 +133,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setUpEmailLogin(final View view) {
-        /* for sign up */
         signUpSetUp(view);
-        /* for password reset */
         forgotPasswordSetUp(view);
-        /* for show password */
         showPasswordSetUp(view);
-        /* for sign in */
         signInSetUp(view);
     }
 
@@ -202,11 +202,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setUpEmailLogin() {
-        /* for password reset */
         forgotPasswordSetUp();
-        /* for show password */
         showPasswordSetUp();
-        /* for sign in */
         signInSetUp();
     }
 
@@ -283,11 +280,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setUpSocialsLogin(View view) {
-        /* FACEBOOK LOGIN */
         mCallbackManager = CallbackManager.Factory.create();
         facebookLogin(view);
-
-        /* GOOGLE LOGIN */
         googleLogin(view);
     }
 
@@ -326,17 +320,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onError(FacebookException error) {
                 Log.d(TAG, "facebook:onError", error);
-                // ...
+                loginErrorDialog();
             }
 
         });
     }
 
     private void setUpSocialsLogin() {
-        /* FACEBOOK LOGIN */
         mCallbackManager = CallbackManager.Factory.create();
         facebookLogin();
-        /* GOOGLE LOGIN */
         googleLogin();
     }
 
@@ -359,10 +351,16 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onError(FacebookException error) {
+                loginErrorDialog();
                 Log.d(TAG, "facebook:onError", error);
-                // ...
             }
         });
+    }
+
+    private void loginErrorDialog() {
+        LayoutInflater inflater = getLayoutInflater();
+        View _dialogLayout = inflater.inflate(R.layout.dialog_login_error, null);
+        createAlertDialog(_dialogLayout);
     }
 
     private void googleLogin() {
@@ -396,8 +394,7 @@ public class MainActivity extends AppCompatActivity {
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.d("successWithCredential", "signInWithCredential:failure", task.getException());
-                            Toast.makeText(MainActivity.this, R.string.loginFail,
-                                    Toast.LENGTH_SHORT).show();
+                            loginErrorDialog();
                             mPacketMainLogin.showProgressBar(false);
                         }
                     }
@@ -416,6 +413,7 @@ public class MainActivity extends AppCompatActivity {
             GoogleSignInAccount _account = completedTask.getResult(ApiException.class);
             firebaseAuthWithGoogle(_account);
         } catch (ApiException e) {
+            loginErrorDialog();
             Log.w(TAG, "handleSignInResult:error", e);
             mPacketMainLogin.showProgressBar(false);
         }
@@ -432,9 +430,8 @@ public class MainActivity extends AppCompatActivity {
                             @NonNull FirebaseUser user = mAuth.getCurrentUser();
                             mPacketMainLogin.getUserDetails(user);
                         } else {
+                            loginErrorDialog();
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
-                            Toast.makeText(MainActivity.this, R.string.loginFail,
-                                    Toast.LENGTH_SHORT).show();
                             mPacketMainLogin.showProgressBar(false);
                         }
                     }
@@ -538,33 +535,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void callLoginEmailDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
         View _dialogLayout = inflater.inflate(R.layout.dialog_login_small_height_email, null);
-        builder.setView(_dialogLayout);
-        builder.setTitle(getString(R.string.activity_main_small_socials_message_title));
-        builder.setMessage(getString(R.string.activity_main_small_credentials));
-        AlertDialog dialog = builder.create();
-        dialog.show();
-        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialogInterface) {
-                mDialogView = null;
-                mPacketMainLogin.setDialogViewExists(false);
-            }
-        });
-        mDialogView = _dialogLayout;
-        mPacketMainLogin.setDialogViewExists(true);
+        createAlertDialog(_dialogLayout, R.string.activity_main_small_socials_message_title, R.string.activity_main_small_credentials);
+        setmDialogView(_dialogLayout);
         setUpEmailLogin(_dialogLayout);
     }
 
-    private void callLoginSocialsDialog() {
+    private void setmDialogView(View dialogLayout) {
+        mDialogView = dialogLayout;
+        mPacketMainLogin.setDialogViewExists(true);
+    }
+
+    private void createAlertDialog(View dialogLayout,
+                                   int title,
+                                   int message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = getLayoutInflater();
-        View _dialogLayout = inflater.inflate(R.layout.dialog_login_small_height_socials, null);
-        builder.setView(_dialogLayout);
-        builder.setTitle(getString(R.string.activity_main_small_socials_message_title));
-        builder.setMessage(getString(R.string.activity_main_small_socials_message));
+        builder.setView(dialogLayout);
+        builder.setTitle(getString(title));
+        builder.setMessage(getString(message));
         AlertDialog dialog = builder.create();
         dialog.show();
         dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
@@ -574,8 +563,25 @@ public class MainActivity extends AppCompatActivity {
                 mPacketMainLogin.setDialogViewExists(false);
             }
         });
-        mDialogView = _dialogLayout;
-        mPacketMainLogin.setDialogViewExists(true);
+    }
+
+    private void createAlertDialog(View dialogLayout) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(dialogLayout);
+        mDialogError = builder.create();
+        mDialogError.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        mDialogError.show();
+    }
+
+    public void dismissDialogError(View view) {
+        mDialogError.dismiss();
+    }
+
+    private void callLoginSocialsDialog() {
+        LayoutInflater inflater = getLayoutInflater();
+        View _dialogLayout = inflater.inflate(R.layout.dialog_login_small_height_socials, null);
+        createAlertDialog(_dialogLayout, R.string.activity_main_small_socials_message_title, R.string.activity_main_small_socials_message);
+        setmDialogView(_dialogLayout);
         setUpSocialsLogin(_dialogLayout);
 
     }

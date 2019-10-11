@@ -27,6 +27,7 @@
         android:bottom="0dp"
         android:gravity="start"
         android:top="36dp"
+        android:left="10dp"
         >
         <shape android:shape="oval">
             <gradient
@@ -43,7 +44,7 @@
         android:bottom="0dp"
         android:gravity="start"
         android:top="36dp"
-        android:left="18dp">
+        android:left="26dp">
         <shape android:shape="oval">
             <gradient
                 android:startColor="@color/colorEventMoreThanHalf"

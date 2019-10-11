@@ -23,14 +23,5 @@ public class ContextForStrings extends Application {
         return instance.getApplicationContext();
     }
 
-//    @NonNull
-//    public static Resources getLocalizedResources(Locale locale) {
-//        Context _context = instance.getApplicationContext();
-//        Configuration _config = _context.getResources().getConfiguration();
-//        _config = new Configuration(_config);
-//        _config.setLocale(locale);
-//        Context _localizedContext = _context.createConfigurationContext(_config);
-//        return _localizedContext.getResources();
-//    }
 }
 

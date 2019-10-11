@@ -29,7 +29,6 @@ public class CustomEvent extends Date {
         long _differenceInMillis = mEndHour - mStartHour;
         long _minutes = _differenceInMillis / 60000;
         long _numberOfAppointmentsPossible = _minutes / mUserAppointmentDuration;
-        Log.d("Number", _numberOfAppointmentsPossible + "");
         if(mUserNumberOfAppointments < (_numberOfAppointmentsPossible / 2) && mUserAppointmentDuration > 0) {
             return R.drawable.event_less_than_half;
         } else if(mUserNumberOfAppointments >= (_numberOfAppointmentsPossible / 2) && mUserNumberOfAppointments < _numberOfAppointmentsPossible) {
@@ -37,14 +36,6 @@ public class CustomEvent extends Date {
         } else {
             return R.drawable.event_full;
         }
-    }
-
-    public boolean compareDates(Date dateToCompare) {
-        return dateToCompare.equals(mDate);
-    }
-
-    public Date getmDate() {
-        return mDate;
     }
 
     public void setUserNumberOfAppointments(Long mUserNumberOfAppointments) {

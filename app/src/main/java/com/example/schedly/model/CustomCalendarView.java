@@ -34,11 +34,10 @@ public class CustomCalendarView extends LinearLayout {
     private LocalDate mDateNow;
     private final int DAYS_COUNT = 37;
     private long mCurrentDateInMillis;
-    private boolean mFirstInstance;
+    private boolean mFirstInstance = true;
     private Calendar mCalendarToday;
     private Calendar mMarkedDay = null;
     private HashMap<Long, CustomEvent> mEvents;
-    private ImageView mBUTPrev, mBUTNext;
 
     public CustomCalendarView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -46,19 +45,13 @@ public class CustomCalendarView extends LinearLayout {
     }
 
     private void assignUiElements() {
-        // layout is inflated, assign local variables to components
         mTXTDisplayDate = findViewById(R.id.date_display_date);
         mGridView = findViewById(R.id.calendar_grid);
         mDateNow = LocalDate.now().atStartOfDay(ZoneOffset.systemDefault()).toLocalDate();
         mCurrentDateInMillis = mDateNow.atStartOfDay(ZoneOffset.systemDefault()).toInstant().toEpochMilli();
-        mFirstInstance = true;
-        mBUTPrev = findViewById(R.id.calendar_prev_button);
-        mBUTNext = findViewById(R.id.calendar_next_button);
+        mCalendarToday = Calendar.getInstance();
+        mCalendarToday.setTimeInMillis(mCurrentDateInMillis);
     }
-
-    /**
-     * Load control xml layout
-     */
     private void initControl(Context context, AttributeSet attrs) {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.custom_calendar_view, this);
@@ -69,50 +62,43 @@ public class CustomCalendarView extends LinearLayout {
         mEvents = events;
         ArrayList<Date> _cells = new ArrayList<>();
         long _time = YearMonth.from(mDateNow).atDay(1).atStartOfDay(ZoneOffset.systemDefault()).toInstant().toEpochMilli();
-        Calendar _calendar = Calendar.getInstance();
-        _calendar.setTimeInMillis(_time);
 
-        int _monthBeginningCell = _calendar.get(Calendar.DAY_OF_WEEK) - 1;
-
-        // move calendar backwards to the beginning of the week
-        _calendar.add(Calendar.DAY_OF_MONTH, -_monthBeginningCell);
-        // fill cells
-        while (_cells.size() < DAYS_COUNT) {
-            _cells.add(_calendar.getTime());
-            _calendar.add(Calendar.DAY_OF_MONTH, 1);
-        }
-
-        /* update grid. if first update, mark date.
-         * else take the first day of the month
-         */
-        if(mFirstInstance) {
-            mCalendarToday = Calendar.getInstance();
-            mCalendarToday.setTimeInMillis(mCurrentDateInMillis);
-            _calendar.setTimeInMillis(mCurrentDateInMillis);
-        } else {
-            _calendar.setTimeInMillis(_time);
-        }
+        Calendar _calendar = getCalendarAfterRemovingPrevDates(_time);
+        fillCells(_cells ,_calendar);
+        _calendar.setTimeInMillis(getTimeForInstance(_time));
+        mFirstInstance = false;
 
         mGridView.setAdapter(new CustomCalendarAdapter(getContext(), this, _cells, events, _calendar, mCalendarToday));
-        mGridView.setOnTouchListener(new CustomOnSwipeTouchListener(getContext()) {
-            @Override
-            public void onSwipeLeft() {
-                super.onSwipeLeft();
-                mBUTNext.performClick();
-            }
+        displayDateInTXT();
+    }
 
-            @Override
-            public void onSwipeRight() {
-                super.onSwipeRight();
-                mBUTPrev.performClick();
-            }
-        });
+    private void displayDateInTXT() {
         LocalDate _localeDate = LocalDate.of(mDateNow.getYear(), mDateNow.getMonthValue(), mDateNow.getDayOfMonth());
         Month _month = _localeDate.getMonth();
-        mFirstInstance = false;
         String _date = _month.getDisplayName(TextStyle.FULL, Locale.getDefault()) + " " + mDateNow.getYear();
         mTXTDisplayDate.setText(_date);
     }
+
+    private Calendar getCalendarAfterRemovingPrevDates(long time) {
+        Calendar _calendar = Calendar.getInstance();
+        _calendar.setTimeInMillis(time);
+        int _monthBeginningCell = _calendar.get(Calendar.DAY_OF_WEEK) - 1;
+        // move calendar backwards to the beginning of the week
+        _calendar.add(Calendar.DAY_OF_MONTH, -_monthBeginningCell);
+        return _calendar;
+    }
+
+    private void fillCells(ArrayList<Date> cells, Calendar calendar) {
+        while (cells.size() < DAYS_COUNT) {
+            cells.add(calendar.getTime());
+            calendar.add(Calendar.DAY_OF_MONTH, 1);
+        }
+    }
+
+    private long getTimeForInstance(long time) {
+        return mFirstInstance ? mCurrentDateInMillis : time;
+    }
+
 
     public void setMarkedDate(Calendar markedDate) {
         mMarkedDay = markedDate;

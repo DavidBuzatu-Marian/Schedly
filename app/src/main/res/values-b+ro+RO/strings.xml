@@ -214,7 +214,7 @@
 
     <string name="fragment_SMS_monitoring">Chiar doriți să opriți monitorizarea SMS? Schedly NU va mai putea face programări prin SMS până la reactivare</string>
     <string name="notification_monitor_sms">Schedly se ocupă de programări pentru dvs.</string>
-    <string name="notification_monitor_internet">Reconectați-vă la internet pentru ca Schedly să funcționeze!</string>
+    <string name="notification_monitor_internet">Nu sunteți conectat la internet!</string>
     <string name="activity_main_small_socials_message">Alegeți o metodă de mai jos:</string>
     <string name="activity_main_small_socials_message_title">LOG IN</string>
     <string name="activity_main_snackbar_email_not_registered">Email neînregistrat. Înregistrați-vă aici</string>

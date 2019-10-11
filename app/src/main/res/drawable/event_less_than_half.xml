@@ -12,7 +12,7 @@
     </item>
     <item
         android:bottom="0dp"
-        android:gravity="start"
+        android:gravity="center_horizontal"
         android:top="36dp"
         >
         <shape android:shape="oval">
