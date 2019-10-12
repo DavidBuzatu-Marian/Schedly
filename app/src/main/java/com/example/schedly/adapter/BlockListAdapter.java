@@ -15,6 +15,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.schedly.R;
+import com.example.schedly.fragment.BlockListFragment;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FieldValue;
@@ -67,7 +68,6 @@ public class BlockListAdapter extends RecyclerView.Adapter<BlockListAdapter.Bloc
 
             mPNumberTV = itemView.findViewById(R.id.frag_BList_TV_PNumber);
             mUnblockTV = itemView.findViewById(R.id.frag_BList_TV_Unblock);
-
             mUnblockTV.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -82,29 +82,33 @@ public class BlockListAdapter extends RecyclerView.Adapter<BlockListAdapter.Bloc
                     .setMessage(mContext.getString(R.string.frag_BlockList_DialogMessage))
                     .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
-                            String _phoneNumber = mPNumberTV.getText().toString();
-
-                            Map<String, Object> _deleteNumber = new HashMap<>();
-                            _deleteNumber.put(_phoneNumber, FieldValue.delete());
-                            FirebaseFirestore.getInstance().collection("blockLists")
-                                    .document(mUserID)
-                                    .set(_deleteNumber, SetOptions.merge())
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            mDataSet.remove(mPosition);
-                                            BlockListAdapter.this.notifyDataSetChanged();
-                                        }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Log.d("ErrBlockList", e.toString());
-                                        }
-                                    });
+                            removePhoneNumberFromDB();
                         }
                     })
                     .setNegativeButton(android.R.string.no, null).show();
+        }
+
+        private void removePhoneNumberFromDB() {
+            String _phoneNumber = mPNumberTV.getText().toString();
+            Map<String, Object> _deleteNumber = new HashMap<>();
+            _deleteNumber.put(_phoneNumber, FieldValue.delete());
+            FirebaseFirestore.getInstance().collection("blockLists")
+                    .document(mUserID)
+                    .set(_deleteNumber, SetOptions.merge())
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            mDataSet.remove(mPosition);
+                            BlockListFragment.setCounter(getItemCount());
+                            BlockListAdapter.this.notifyDataSetChanged();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d("ErrBlockList", e.toString());
+                        }
+                    });
         }
 
 

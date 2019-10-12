@@ -40,7 +40,7 @@ public class BlockListFragment extends Fragment {
     private BlockListAdapter mAdapter;
     private String mUserID;
     private ArrayList<String> mDataSet = new ArrayList<>();
-    private int mCounter;
+    private static int mCounter;
     private CountryCodePicker mCCP;
     private EditText mEditTextCarrierNumber;
     private boolean mValidNumber;
@@ -185,5 +185,9 @@ public class BlockListFragment extends Fragment {
                 mValidNumber = isValidNumber;
             }
         });
+    }
+
+    public static void setCounter(int counter) {
+        mCounter = counter;
     }
 }

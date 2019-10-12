@@ -320,7 +320,7 @@ public class CalendarActivity extends AppCompatActivity {
         _serviceIntent.putExtra("userID", mUserID);
         _serviceIntent.putExtra("userAppointmentDuration", mUserAppointmentDuration);
         _serviceIntent.putExtra("userWorkingHours", mWorkingHours);
-        _serviceIntent.setAction("ACTION.STARTSERVICE_ACTION");
+//        _serviceIntent.setAction("ACTION.STARTSERVICE_ACTION");
         return _serviceIntent;
     }
 

@@ -406,7 +406,7 @@ public class PacketService {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        increaseNrOfAppointments(mDateInMillis.toString(), mUserID);
+                        increaseNrOfAppointments(mDateInMillis.toString());
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -430,14 +430,14 @@ public class PacketService {
         return _appointment;
     }
 
-    private void increaseNrOfAppointments(String date, String userID) {
+    private void increaseNrOfAppointments(String date) {
         mNrOfAppointmentsForDate++;
         Map<String, String> _date = new HashMap<>();
         _date.put(date, mNrOfAppointmentsForDate.toString());
         Map<String, Object> _infoForThisUser = new HashMap<>();
-        _infoForThisUser.put(userID, _date);
+        _infoForThisUser.put(mPhoneNumber, _date);
         FirebaseFirestore.getInstance().collection("phoneNumbersFromClients")
-                .document(mPhoneNumber)
+                .document(mUserID)
                 .set(_infoForThisUser, SetOptions.merge())
                 .addOnFailureListener(new OnFailureListener() {
                     @Override

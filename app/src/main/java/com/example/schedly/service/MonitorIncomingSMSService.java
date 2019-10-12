@@ -209,7 +209,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
     public void messageReceived(TSMSMessage newSMSMessage) {
         mNROfAppointmentsForThisDay = 0;
         initNewPacketService();
-        if (!phoneBlocked(mMessagePhoneNumber)) {
+        if (!phoneBlocked()) {
             mSMSQueue.add(newSMSMessage);
             setUpBeforeFirebase();
         } else {
@@ -453,12 +453,12 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
         final AtomicBoolean _phoneNumberBlocked = new AtomicBoolean(false);
         FirebaseFirestore.getInstance()
                 .collection("phoneNumbersFromClients")
-                .document(phoneNumber)
+                .document(mUserID)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        getNrOfAppointments(task);
+                        checkNumberExistsInMap(task);
                         _phoneNumberBlocked.set(mNROfAppointmentsForThisDay > 3);
                         mPacketService.setNrOfAppointmentsForNumber(mNROfAppointmentsForThisDay);
                     }
@@ -466,26 +466,33 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
         return _phoneNumberBlocked.get();
     }
 
-    private void getNrOfAppointments(Task<DocumentSnapshot> task) {
+    private void checkNumberExistsInMap(Task<DocumentSnapshot> task) {
         mNROfAppointmentsForThisDay = 0;
         if (task.getResult() != null && task.getResult().exists()) {
             Map<String, Object> _maps = task.getResult().getData();
             Gson _gson = new Gson();
-            try {
-                Object _values = _maps.values();
-                String _json = _gson.toJson(_values);
-                Map<String, Object> _data = new ObjectMapper().readValue(_json.substring(1, _json.length() - 1), Map.class);
-                if (_data.containsKey(mDateFromUserInMillis.toString())) {
-                    mNROfAppointmentsForThisDay = Integer.parseInt(_data.get(mDateFromUserInMillis.toString()).toString());
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+            assert _maps != null;
+            if(_maps.containsKey(mMessagePhoneNumber)) {
+                getAppointmentsNumber(_maps, _gson);
             }
         }
     }
 
+    private void getAppointmentsNumber(Map<String, Object> maps, Gson gson) {
+        try {
+            Object _values = maps.get(mMessagePhoneNumber);
+            String _json = gson.toJson(_values);
+            Map<String, Object> _data = new ObjectMapper().readValue(_json.substring(1, _json.length() - 1), Map.class);
+            if (_data.containsKey(mDateFromUserInMillis.toString())) {
+                mNROfAppointmentsForThisDay = Integer.parseInt(_data.get(mDateFromUserInMillis.toString()).toString());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-    private boolean phoneBlocked(final String mMessagePhoneNumber) {
+
+    private boolean phoneBlocked() {
         final AtomicBoolean _phoneNumberBlocked = new AtomicBoolean(false);
         FirebaseFirestore.getInstance()
                 .collection("blockLists")
