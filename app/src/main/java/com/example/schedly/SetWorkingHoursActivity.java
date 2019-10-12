@@ -20,6 +20,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.example.schedly.CalendarActivity.LOG_OUT;
+import static com.example.schedly.MainActivity.CA_CANCEL;
 import static com.example.schedly.MainActivity.SD_CANCEL;
 
 public class SetWorkingHoursActivity extends AppCompatActivity {
@@ -76,7 +79,7 @@ public class SetWorkingHoursActivity extends AppCompatActivity {
         mWorkingHours =  mPacketSpinnerView.getWorkingDays();
         FirebaseFirestore.getInstance().collection("workingDays")
                 .document(mUserID)
-                .update(daysToAdd)
+                .set(daysToAdd)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -106,7 +109,9 @@ public class SetWorkingHoursActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         Log.d("request", requestCode + "");
-        setResult(resultCode);
-        this.finish();
+        if(resultCode == CA_CANCEL || resultCode == LOG_OUT) {
+            setResult(resultCode);
+            this.finish();
+        }
     }
 }

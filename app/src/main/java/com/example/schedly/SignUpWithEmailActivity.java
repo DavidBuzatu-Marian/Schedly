@@ -18,6 +18,8 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -215,16 +217,59 @@ public class SignUpWithEmailActivity extends AppCompatActivity {
         }
     }
 
-    private void addUserDataDatabase(FirebaseUser user) {
+    private void addUserDataDatabase(final FirebaseUser user) {
         Map<String, Object> userToAdd = new HashMap<>();
         userToAdd.put("phoneNumber", mCCP.getFullNumberWithPlus());
         userToAdd.put("profession", null);
         FirebaseFirestore.getInstance().collection("users")
                 .document(user.getUid())
-                .set(userToAdd);
-        Log.d(TAG, "CREATED");
-        setResult(SUWEmailSuccess);
-        SignUpWithEmailActivity.this.finish();
+                .set(userToAdd)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        addUserWorkingDaysInDB(user);
+                    }
+                });
+    }
+
+    private void addUserWorkingDaysInDB(FirebaseUser user) {
+        Map<String, Object> daysOfTheWeek = getInitMap();
+        FirebaseFirestore.getInstance().collection("workingDays")
+                .document(user.getUid())
+                .set(daysOfTheWeek)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "CREATED");
+                        setResult(SUWEmailSuccess);
+                        SignUpWithEmailActivity.this.finish();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "Failed to save Working Days");
+                    }
+                });
+    }
+
+    private Map<String, Object> getInitMap() {
+        Map<String, Object> _data = new HashMap<>();
+        _data.put("MondayStart", null);
+        _data.put("MondayEnd", null);
+        _data.put("TuesdayStart", null);
+        _data.put("TuesdayEnd", null);
+        _data.put("WednesdayStart", null);
+        _data.put("WednesdayEnd", null);
+        _data.put("ThursdayStart", null);
+        _data.put("ThursdayEnd", null);
+        _data.put("FridayStart", null);
+        _data.put("FridayEnd", null);
+        _data.put("SaturdayStart", null);
+        _data.put("SaturdayEnd", null);
+        _data.put("SundayStart", null);
+        _data.put("SundayEnd", null);
+        return _data;
     }
 
     private void showProgressBar(boolean show) {

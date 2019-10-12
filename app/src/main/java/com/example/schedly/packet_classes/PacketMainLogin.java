@@ -84,7 +84,7 @@ public class PacketMainLogin {
     private void setDetailsNull(FirebaseUser currentUser) {
         mUserPhoneNumber = null;
         mUserProfession = null;
-        redirectUser(currentUser);
+        addUserWorkingDays(currentUser);
     }
 
     private void documentNotExists(FirebaseUser currentUser) {
@@ -94,6 +94,7 @@ public class PacketMainLogin {
     }
 
     private void addUserToDatabase(final FirebaseUser currentUser) {
+        Log.d("TESTTEST", "TEST");
         Map<String, Object> userToAdd = new HashMap<>();
         userToAdd.put("phoneNumber", null);
         userToAdd.put("profession", null);
@@ -109,7 +110,6 @@ public class PacketMainLogin {
     }
 
     private void addUserWorkingDays(final FirebaseUser currentUser) {
-        /* add days of the week to collection */
         Map<String, Object> daysOfTheWeek = getInitMap();
         mFirebaseFirestore.collection("workingDays")
                 .document(currentUser.getUid())
@@ -152,16 +152,11 @@ public class PacketMainLogin {
         mUserProfession = document.get("profession") != null ? document.get("profession").toString() : null;
         mUserAppointmentsDuration = document.get("appointmentsDuration") != null ? document.get("appointmentsDuration").toString() : null;
         mUserDisplayName = document.get("displayName") != null ? document.get("displayName").toString() : null;
-
-        if (mUserPhoneNumber == null || mUserProfession == null) {
-            redirectUser(currentUser);
-        } else {
-            checkWorkingDaysSetup(currentUser);
-        }
+        redirectUser(currentUser);
     }
 
     private void redirectUser(final FirebaseUser localUser) {
-        /* REDIRECT */
+        Log.d("TESTTEST", "TESTREDIRECT");
         if (mUserPhoneNumber == null || mUserProfession == null) {
             getToInitActivity(localUser);
         } else {
@@ -203,7 +198,6 @@ public class PacketMainLogin {
     }
 
     private void checkWorkingDaysSetup(final FirebaseUser currentUser) {
-        Log.d("CheckPacketMain", "CheckingWorkingHours");
         final FirebaseUser localUser = currentUser;
         mFirebaseFirestore.collection("workingDays")
                 .document(currentUser.getUid())
@@ -212,10 +206,8 @@ public class PacketMainLogin {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         DocumentSnapshot document = task.getResult();
-                        if (document.getData() == null) {
-                            addUserWorkingDays(currentUser);
-                        } else if (!document.getData().containsValue(null)) {
-                            getWorkingHours(task, localUser);
+                        if (!document.getData().containsValue(null)) {
+                            getWorkingHours(task);
                             toLastSteps(localUser);
                         } else {
                             getToInitActivity(currentUser);
@@ -224,7 +216,7 @@ public class PacketMainLogin {
                 });
     }
 
-    private void getWorkingHours(Task<DocumentSnapshot> task, FirebaseUser localUser) {
+    private void getWorkingHours(Task<DocumentSnapshot> task) {
         Map<String, Object> _map = task.getResult().getData();
         for (Map.Entry<String, Object> _entry : _map.entrySet()) {
             mWorkingHours.put(_entry.getKey(), _entry.getValue().toString());

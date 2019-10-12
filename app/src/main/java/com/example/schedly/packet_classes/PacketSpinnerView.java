@@ -90,7 +90,6 @@ public class PacketSpinnerView extends AppCompatSpinner {
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     counter = mIDsArray.get(parent.getId());
                     mStartHours[counter] = mAdapterHours.getItem(position).toString();
-                    Log.d("selectedStart", "" + view.getId()  + "");
                 }
 
                 @Override
@@ -104,7 +103,6 @@ public class PacketSpinnerView extends AppCompatSpinner {
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     counter = mIDsArray.get(parent.getId());
                     mEndHours[counter] = mAdapterHours.getItem(position).toString();
-                    Log.d("selectedEnd", "" + parent.getId() + "");
                 }
 
                 @Override
@@ -136,10 +134,12 @@ public class PacketSpinnerView extends AppCompatSpinner {
         }
         else {
             /* check if all day is null */
+            Log.d("WorkingHours", mStartHours[0] + "; " + mEndHours[0]);
             if (mStartHours[0] == null || mEndHours[0] == null) {
                 return true;
             }
             for(mDaysIterator = 6; mDaysIterator < 8; mDaysIterator++) {
+                Log.d("WorkingHours", mStartHours[mDaysIterator] + "; " + mEndHours[mDaysIterator]);
                 if (mStartHours[mDaysIterator] == null || mEndHours[mDaysIterator] == null) {
                     return true;
                 }

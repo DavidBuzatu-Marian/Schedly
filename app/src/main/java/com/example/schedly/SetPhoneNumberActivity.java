@@ -105,9 +105,7 @@ public class SetPhoneNumberActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
-        if (resultCode == SP_CANCEL) {
+        if (requestCode == SP_CANCEL) {
             mEditTextCarrierNumber.setText(mPhoneNumberReturn);
         } else {
             setResult(resultCode);

@@ -20,6 +20,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.example.schedly.CalendarActivity.LOG_OUT;
+import static com.example.schedly.MainActivity.CA_CANCEL;
 import static com.example.schedly.MainActivity.SWH_CANCEL;
 
 public class SetProfessionActivity extends AppCompatActivity implements View.OnClickListener {
@@ -150,8 +152,9 @@ public class SetProfessionActivity extends AppCompatActivity implements View.OnC
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         Log.d("Code", "" + requestCode + "");
-        setResult(resultCode);
-        this.finish();
-
+        if(resultCode == CA_CANCEL || resultCode == LOG_OUT) {
+            setResult(resultCode);
+            this.finish();
+        }
     }
 }
