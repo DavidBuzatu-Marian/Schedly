@@ -98,7 +98,7 @@ public class ChangePasswordFragment extends Fragment implements View.OnClickList
         _passwords[1] = mNewPasswordEditText.getText().toString();
         _passwords[2] = mNewPasswordConfirmEditText.getText().toString();
         boolean hasDigitTrue = false;
-        if (!_passwords[0].isEmpty()) {
+        if (_passwords[0].equals("")) {
             mTextInputLayoutCurrentPassword.setError("Field required!");
             return;
         }

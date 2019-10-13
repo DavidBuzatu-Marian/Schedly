@@ -47,7 +47,10 @@ public class ChangeEmailFragment extends Fragment {
         super.onStart();
 
         mTextInputLayoutEmail = mInflater.findViewById(R.id.frag_CEmail_TIL_email);
+        setUpButtonSave();
+    }
 
+    private void setUpButtonSave() {
         Button _saveChangesButton = mInflater.findViewById(R.id.frag_CEmail_BUT_saveChanges);
         _saveChangesButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,6 +81,7 @@ public class ChangeEmailFragment extends Fragment {
         _user.updateEmail(newEmail).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
+                Log.d("Err", "Error");
                 if (task.isSuccessful()) {
                     LogOut _logOut = new LogOut(mActivity);
                     _logOut.LogOutFromApp();
@@ -93,7 +97,6 @@ public class ChangeEmailFragment extends Fragment {
         try {
             throw task.getException();
         } catch (FirebaseAuthInvalidCredentialsException malformedEmail) {
-
             mTextInputLayoutEmail.setError("Invalid Email");
         } catch (FirebaseAuthUserCollisionException existEmail) {
             mTextInputLayoutEmail.setError("Email already in use");
