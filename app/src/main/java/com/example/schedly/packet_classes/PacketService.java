@@ -68,14 +68,14 @@ public class PacketService {
 
 
     private void sendMessage() {
-        ArrayList<String> _messageParts = new ArrayList<>(3);
-        _messageParts.add(mSMSBody.toString().substring(0, MAX_SMS_CHAR));
-        _messageParts.add(mSMSBody.toString().substring(MAX_SMS_CHAR + 1));
-
-        for (String _message : _messageParts) {
-            SmsManager.getDefault().sendTextMessage(mPhoneNumber, null, _message, null, null);
-        }
-
+//        ArrayList<String> _messageParts = new ArrayList<>(3);
+//        _messageParts.add(mSMSBody.toString().substring(0, MAX_SMS_CHAR));
+//        _messageParts.add(mSMSBody.toString().substring(MAX_SMS_CHAR + 1));
+//
+//        for (String _message : _messageParts) {
+//            SmsManager.getDefault().sendTextMessage(mPhoneNumber, null, _message, null, null);
+//        }
+        Log.d("SendMessage", mSMSBody.toString());
     }
 
 
@@ -88,7 +88,6 @@ public class PacketService {
     public void setUserWorkingHours(HashMap<String, String> workingHours) {
         mUserWorkingDays = workingHours;
         mWorkThread = new threadFindDaysForAppointment(mUserWorkingDays,
-                mFireStore,
                 mUserAppointmentDuration);
     }
 
@@ -210,7 +209,6 @@ public class PacketService {
          */
         mWorkThread.setUserAppointments(mUserAppointments);
         mWorkThread.setmPhoneNumber(mPhoneNumber);
-        mWorkThread.setmUserID(mUserID);
         mWorkThread.setmTimeToSchedule(mTimeToSchedule);
         mWorkThread.setmUserDaysWithSchedule(mUserDaysWithSchedule);
         mWorkThread.setmMessageType(messageType);
@@ -321,7 +319,9 @@ public class PacketService {
     private void checkExactTimeAndFindClosestHours(long _appointmentDuration, long _curTimeMil, long _closeTimeMil, long _scheduleTimeMil, String dateFromUser) {
         String _fixHour = checkExactTime(_curTimeMil, _closeTimeMil, _scheduleTimeMil, _appointmentDuration);
         if (_fixHour != null) {
-            mSMSBody.append(mResources.getString(R.string.resources_scheduled_final)).append(dateFromUser)
+            mSMSBody.append(mResources.getString(R.string.resources_scheduled_final))
+                    .append(" ")
+                    .append(dateFromUser)
                     .append(mResources.getString(R.string.resources_at)).append(_fixHour);
             sendMessage();
             saveAppointmentToDatabase(_fixHour);
@@ -359,7 +359,7 @@ public class PacketService {
                 boolean _freeAfter = !mCurrentDayAppointments.containsKey(_hourAfter);
                 if (_freeBefore || _freeAfter) {
                     mSMSBody.append(mResources.getString(R.string.resources_take))
-                            .append(_freeBefore ? ("" + _hourBefore) : "")
+                            .append(_freeBefore ? (" " + _hourBefore) : "")
                             .append(_freeAfter ? (" " + _hourAfter) : "")
                             .append(mResources.getString(R.string.resources_send_conf));
                     sendMessage();

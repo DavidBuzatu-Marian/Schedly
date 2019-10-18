@@ -221,5 +221,6 @@
     <string name="dialog_login_error_title">Something went wrong</string>
     <string name="dialog_login_error_message">Please check your internet connection or try another method for login</string>
     <string name="dialog_login_error_button">OK</string>
+    <string name="responses_out_of_schedule">I am sorry, but this hour is outside of my working hours. Try a different time.</string>
 
 </resources>

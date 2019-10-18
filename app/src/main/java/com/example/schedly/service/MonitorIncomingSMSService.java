@@ -91,6 +91,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
     private ListenerRegistration mRegistration;
     private int mNROfAppointmentsForThisDay;
     private Map<String, Object> mUserAppointments;
+    private Context mContext;
 
     public int onStartCommand(Intent intent, int flags, int startId) {
         Bundle _extras = null;
@@ -225,6 +226,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
     }
 
     private void setUpBeforeFirebase() {
+        Log.d("BeforeFire", "Before");
         try {
             loopThroughSMSQueue();
         } catch (Exception e) {
@@ -239,6 +241,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
             _sender = _currentMessage.getmSMSSender();
             _message = _currentMessage.getmSMSBody();
             mMessagePhoneNumber = _sender;
+            Log.d("TEST", mMessagePhoneNumber);
             if (!mUUID.containsKey(_sender)) {
                 mUUID.put(_sender, UUID.randomUUID().toString());
                 if (!mContactName.containsKey(mMessagePhoneNumber)) {
@@ -251,7 +254,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
 
     private void getContact(String mMessagePhoneNumber) {
         Uri lookupUriContacts = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(mMessagePhoneNumber));
-        Cursor cursor = this.getContentResolver().query(lookupUriContacts, new String[]{ContactsContract.Data.DISPLAY_NAME}, null, null, null);
+        Cursor cursor = mContext.getContentResolver().query(lookupUriContacts, new String[]{ContactsContract.Data.DISPLAY_NAME}, null, null, null);
         if (cursor != null) {
             if (cursor.moveToFirst()) {
                 mContactName.put(mMessagePhoneNumber, cursor.getString(0));
@@ -482,7 +485,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
         try {
             Object _values = maps.get(mMessagePhoneNumber);
             String _json = gson.toJson(_values);
-            Map<String, Object> _data = new ObjectMapper().readValue(_json.substring(1, _json.length() - 1), Map.class);
+            Map<String, Object> _data = new ObjectMapper().readValue(_json, Map.class);
             if (_data.containsKey(mDateFromUserInMillis.toString())) {
                 mNROfAppointmentsForThisDay = Integer.parseInt(_data.get(mDateFromUserInMillis.toString()).toString());
             }
@@ -517,12 +520,13 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
     }
 
 
-    public void setParams(String userID, String userAppointmentDuration, HashMap<String, String> workingHours, Map<String, Object> userAppointments) {
+    public void setParams(Context context, String userID, String userAppointmentDuration, HashMap<String, String> workingHours, Map<String, Object> userAppointments) {
         mUserID = userID;
         mUserAppointmentDuration = userAppointmentDuration;
         mWorkingHours = workingHours;
         mUserAppointments = userAppointments;
 
+        mContext = context;
         mSMSQueue = new ArrayDeque<>();
         mUUID = new HashMap<>();
         mContactName = new HashMap<>();

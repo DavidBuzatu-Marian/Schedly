@@ -25,6 +25,7 @@ import com.example.schedly.adapter.CalendarAdapter;
 import com.example.schedly.model.Appointment;
 import com.example.schedly.model.CustomCalendarView;
 import com.example.schedly.model.CustomEvent;
+import com.example.schedly.model.TSMSMessage;
 import com.example.schedly.packet_classes.PacketCalendar;
 import com.example.schedly.service.MonitorIncomingSMSService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -120,12 +121,12 @@ public class CalendarActivity extends AppCompatActivity {
         if (mArePermissionAccepted) {
             setUpUI();
         }
-//        findViewById(R.id.act_Calendar_BUT_test).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                testMessages();
-//            }
-//        });
+        findViewById(R.id.act_Calendar_BUT_test).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                testMessages();
+            }
+        });
     }
 
     private void setUpUI() {
@@ -147,14 +148,15 @@ public class CalendarActivity extends AppCompatActivity {
         });
     }
 
-//    private void testMessages() {
-//        MonitorIncomingSMSService _testMonitor = new MonitorIncomingSMSService();
-//        StringBuilder _smsBody = new StringBuilder("Hello! What are you doing?");
-//        TSMSMessage _testMessage = new TSMSMessage(_smsBody, "0724154387", 1570286399839L);
-//        _testMonitor.setParams(userID, mUserAppointmentDuration, mUserWorkingHoursID, mWorkingHours, mAppointmentsForThisMonth);
-//
-//        _testMonitor.messageReceived(_testMessage);
-//    }
+    private void testMessages() {
+        Log.d("Test", "Pressed");
+        MonitorIncomingSMSService _testMonitor = new MonitorIncomingSMSService();
+        StringBuilder _smsBody = new StringBuilder("Hello! I would like an appointment at 9:00AM");
+        TSMSMessage _testMessage = new TSMSMessage(_smsBody, "0724154387", 1570286399839L);
+        _testMonitor.setParams(this, mUserID, mUserAppointmentDuration, mWorkingHours, mAppointmentsForThisMonth);
+
+        _testMonitor.messageReceived(_testMessage);
+    }
 
 
     @Override
