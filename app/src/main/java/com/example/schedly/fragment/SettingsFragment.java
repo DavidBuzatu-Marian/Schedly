@@ -21,6 +21,7 @@ import androidx.preference.SwitchPreference;
 import com.example.schedly.R;
 import com.example.schedly.SettingsActivity;
 import com.example.schedly.model.LogOut;
+import com.example.schedly.model.NetworkChecker;
 import com.example.schedly.service.MonitorIncomingSMSService;
 import com.example.schedly.setting.AppointmentDuration;
 import com.example.schedly.setting.DisplayName;
@@ -129,13 +130,18 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         assert mDisableMonitorization != null;
         mDisableMonitorization.setChecked(MonitorIncomingSMSService.sServiceRunning);
         mDisableMonitorization.setSummary("Disable SMS monitoring");
+        if(!NetworkChecker.isNetworkAvailable(mActivity)) {
+            mDisableMonitorization.setEnabled(false);
+        }
         mDisableMonitorization.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(final Preference preference, Object newValue) {
                 if (!(Boolean) newValue) {
                     displayAlertMonitorization();
                 } else {
-                    startServiceMonitoring();
+                    if(NetworkChecker.isNetworkAvailable(mActivity)) {
+                        startServiceMonitoring();
+                    }
                 }
                 return true;
             }

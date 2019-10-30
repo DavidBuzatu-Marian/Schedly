@@ -1,18 +1,15 @@
 package com.example.schedly.service;
 
-import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
@@ -20,7 +17,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.ContactsContract;
 import android.telephony.SmsManager;
-import android.telephony.SmsMessage;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -28,7 +24,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
-import com.example.schedly.MainActivity;
 import com.example.schedly.R;
 import com.example.schedly.SettingsActivity;
 import com.example.schedly.StartSplashActivity;
@@ -40,7 +35,6 @@ import com.example.schedly.packet_classes.PacketService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -53,23 +47,14 @@ import com.google.firebase.functions.HttpsCallableResult;
 import com.google.gson.Gson;
 
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneId;
-import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.format.DateTimeFormatter;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayDeque;
-import java.util.Calendar;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Properties;
-import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -102,6 +87,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
         if (_extras != null) {
             getExtrasValues(_extras);
         }
+        registerReceiverAndBroadcast();
         monitorChanges();
         sServiceRunning = true;
         return START_STICKY;
@@ -122,7 +108,6 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
     @Override
     public void onCreate() {
         super.onCreate();
-        registerReceiverAndBroadcast();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             startOwnForeground();
         else
@@ -131,7 +116,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
 
     private void registerReceiverAndBroadcast() {
         SMSBroadcastReceiver.bindListener(this);
-        BroadcastReceiver _internetBroadcast = new InternetReceiver();
+        BroadcastReceiver _internetBroadcast = new InternetReceiver(this, mUserID, mUserAppointmentDuration, mWorkingHours);
         IntentFilter _intentFilter = new IntentFilter();
         _intentFilter.addAction("android.provider.Telephony.SMS_RECEIVED");
         IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
@@ -158,7 +143,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
         calendarIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         PendingIntent _intentDefault = PendingIntent.getActivity(this, 0, calendarIntent, 0);
         /* intent for stopping monitoring */
-        Intent _startSettingsIntent = getIntentForCalendar();
+        Intent _startSettingsIntent = getIntentForSettings();
         PendingIntent _intentSettings = PendingIntent.getActivity(this, SETTINGS_RETURN, _startSettingsIntent, 0);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
         return notificationBuilder.setOngoing(true)
@@ -167,11 +152,11 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
                 .setPriority(NotificationManager.IMPORTANCE_MIN)
                 .setCategory(Notification.CATEGORY_SERVICE)
                 .setContentIntent(_intentDefault)
-                .addAction(R.drawable.ic_close, "Disable monitoring", _intentSettings)
+                .addAction(R.drawable.ic_close, getString(R.string.notification_disable_monitoring), _intentSettings)
                 .build();
     }
 
-    private Intent getIntentForCalendar() {
+    private Intent getIntentForSettings() {
         Intent _intent = new Intent(this, SettingsActivity.class);
         _intent.putExtra("userID", mUserID);
         _intent.putExtra("userAppointmentDuration", mUserAppointmentDuration);

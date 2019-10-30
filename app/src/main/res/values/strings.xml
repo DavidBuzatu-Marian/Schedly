@@ -130,8 +130,6 @@
     <string name="act_main_TV_SignIn_Extra">SIGN IN</string>
     <string name="image">Background image</string>
     <string name="act_SUWEmail_ET_PhoneNumber">Phone number</string>
-    <string name="helpSMSExplained">Schedly will now monitor you SMS and make appointments automatically! Make sure you have numerous SMS to send without costs. A good format for a valid date (September the 3rd) is: 2019-09-03. An example message would be: I want an appointment on 2019-09-03 at 9:45AM</string>
-    <string name="notification_disable_monitoring">Disable monitoring</string>
     <string name="helpDateSelected">On a selected date, your appointments will be displayed one below another. You can manage them from there</string>
     <string name="helpAddExplained">You can still make appointments manually. You can find your phone numbers by simply typing the number in the fileds. The same goes for contact names. A message will be automatically sent to the client with the information</string>
     <string name="helpEditExplained">You can call directly your client, message him/ her, add to contacts and cancel appointment. By canceling appointment, a message will be sent to the client with the information.</string>
@@ -222,5 +220,14 @@
     <string name="dialog_login_error_message">Please check your internet connection or try another method for login</string>
     <string name="dialog_login_error_button">OK</string>
     <string name="responses_out_of_schedule">I am sorry, but this hour is outside of my working hours. Try a different time.</string>
+    <string name="dialog_FLHelper_Title">What does Schedly do?</string>
+    <string name="dialog_FLHelper_Body_Point1">Schedly will now begin monitoring your SMS and make appointments automatically! This means that you can forget about picking up your phone to respond to every client which wants an appointment. Schedly will do everything for you.</string>
+    <string name="dialog_FLHelperPage2_Body_Point1"> Schedly needs to get messages in a specific format for a fixed date, but it can understand notions like: this monday, next week, April the 2nd. An example for a valid date (September the 3rd) is: 2019–09–03. An example message for an appointment would be: I want a haircut on 2019–09–03 at 9:45AM</string>
+    <string name="dialog_FLHelperPage2_Body_Point2"> For messages which only have a date, the client will get back all the free hours from that date. For a message with an hour, the client will get the closest three days which are available around that time.</string>
+    <string name="dialog_FLHelper_Body_Point2">Of course, you can still add appointments manually using the \'+\' button and you can check your appointments by clicking on a specific date</string>
+    <string name="dialog_FLHelperPage2_Title">How does Schedly work?</string>
+    <string name="dialog_FLHelper_BUT_Close">Close</string>
+    <string name="notification_disable_monitoring">Disable monitoring</string>
+    <string name="notification_enable_monitoring">Enable monitoring</string>
 
 </resources>

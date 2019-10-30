@@ -363,6 +363,15 @@ public class MainActivity extends AppCompatActivity {
         createAlertDialog(_dialogLayout);
     }
 
+    private void createAlertDialog(View dialogLayout) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(dialogLayout);
+        mDialogError = builder.create();
+        mDialogError.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        mDialogError.show();
+    }
+
+
     private void googleLogin() {
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_ID))
@@ -564,15 +573,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
-    private void createAlertDialog(View dialogLayout) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setView(dialogLayout);
-        mDialogError = builder.create();
-        mDialogError.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        mDialogError.show();
-    }
-
     public void dismissDialogError(View view) {
         mDialogError.dismiss();
     }

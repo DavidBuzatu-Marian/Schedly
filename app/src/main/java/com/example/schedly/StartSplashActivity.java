@@ -4,22 +4,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
-import android.util.Log;
-import android.widget.Toast;
-
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
 import com.example.schedly.model.LogOut;
 import com.example.schedly.packet_classes.PacketMainLogin;
-import com.facebook.login.LoginManager;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 
 import static com.example.schedly.CalendarActivity.LOG_OUT;
@@ -32,9 +24,6 @@ import static com.example.schedly.MainActivity.SWH_CANCEL;
 import static com.example.schedly.MainActivity.WORKING_HOURS_CHANGED;
 
 public class StartSplashActivity extends AppCompatActivity {
-
-    FirebaseFirestore mFirebaseFirestore;
-    private GoogleSignInClient mGoogleSignInClient;
     private int mResultCode = 0, mRequestCode = 0;
 
     @Override
@@ -48,8 +37,7 @@ public class StartSplashActivity extends AppCompatActivity {
             redirectWithScreenSize();
             finish();
         }
-        boolean _isPreferenceSet = getFirstLoginPreference();
-        if(!_isPreferenceSet) {
+        if(!isFirstLoginPreferenceSet()) {
             setFirstLoginPreference();
         }
         checkLoggedIn();
@@ -57,7 +45,6 @@ public class StartSplashActivity extends AppCompatActivity {
 
     private void checkLoggedIn() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        mFirebaseFirestore = FirebaseFirestore.getInstance();
         if(currentUser != null) {
             PacketMainLogin _packetMainLogin = new PacketMainLogin(this, false);
             _packetMainLogin.getUserDetails(currentUser);
@@ -74,7 +61,7 @@ public class StartSplashActivity extends AppCompatActivity {
         _userEditor.apply();
     }
 
-    private boolean getFirstLoginPreference() {
+    private boolean isFirstLoginPreferenceSet() {
         SharedPreferences _userPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         return _userPreferences.contains("firstLogin");
     }

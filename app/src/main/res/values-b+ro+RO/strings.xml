@@ -129,7 +129,6 @@
     <string name="act_main_TV_SignIn_Extra">Logare</string>
     <string name="image">Background image</string>
     <string name="act_SUWEmail_ET_PhoneNumber">Număr de telefon</string>
-    <string name="helpSMSExplained">Schedly va începe acum să vă monitorizeze mesajele și să facă programări automat. Asigurați-vă că aveți mesaje la dispoziție, fără costuri. Un format bun pentru o dată validă (ex: 3 Septembrie) este: 2019-09-03. Un exemplu de mesaj ar fi: Doresc o programare pe 2019-09-03 la ora 9:45AM</string>
     <string name="notification_disable_monitoring">Opriți monitorizarea</string>
     <string name="helpDateSelected">Când selectați o zi, programările vă vor fi afișate mai jos. Le puteți accesa de acolo.</string>
     <string name="helpAddExplained">Puteți face și programări manual! Veți găsi numele și numărul de telefonul al contactelor dumneavoastră doar tastând începuturile acestora. Un mesaj va fi trimis automat clientului pentru a-l informa despre programare.</string>
@@ -221,4 +220,17 @@
     <string name="activity_main_snackbar_email_not_registered_action">Înregistrați-vă</string>
     <string name="activity_main_small_credentials">Folosiți datele cu care v-ați înregistrat</string>
     <string name="dialog_pnumber_change_success">Număr de telefon schimbat cu succes</string>
+
+    <string name="dialog_login_error_title">Ceva nu a funcționat</string>
+    <string name="dialog_login_error_message">Vă rugăm verificați conexiunea la internet sau încercați o altă metodă de logare</string>
+    <string name="dialog_login_error_button">OK</string>
+    <string name="responses_out_of_schedule">Îmi pare rău, dar ora aceasta e în afara orelor de lucru. Încercați o altă oră.</string>
+    <string name="dialog_FLHelper_Title">Ce face Schedly de fapt?</string>
+    <string name="dialog_FLHelper_Body_Point1">Schedly va începe să vă monitorizeze mesajele și va face programări în mod automat pentru clienții dvs. Asta înseamnă că puteți uita de grija telefonului în timpul seriviciului și nu trebuie să răspundeți clienților. Schedly va face totul pentru dumneavoastră.</string>
+    <string name="dialog_FLHelperPage2_Body_Point1"> Schedly are nevoie să primească mesajele într-un anumit format, acesta funționând după un sistem orar american. Un exemplu de dată corectă (3 septembrie) este: 2019–09–03. Un exemplu de mesaj pentru o programare ar fi: Vreau o programare la tuns pe data de 2019–09–03 la 9:45AM (9:45 dimineața)</string>
+    <string name="dialog_FLHelperPage2_Body_Point2"> Pentru mesajele care au doar o dată, clientul va primi înapoi toate orele libere din acea zi. Pentru un mesaj doar cu o oră, clientul va primi cele mai apropiate 3 zile libere în jurul acelei ore.</string>
+    <string name="dialog_FLHelper_Body_Point2">Desigur, puteți adăuga și programări în mod manual folosind butonul \'+\', și vă puteți verifica programările apăsând pe o dată din calendar</string>
+    <string name="dialog_FLHelperPage2_Title">Cum funcționează Schedly?</string>
+    <string name="dialog_FLHelper_BUT_Close">Închide</string>
+    <string name="notification_enable_monitoring">Pornește monitorizarea</string>
 </resources>

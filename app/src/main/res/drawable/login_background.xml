@@ -1,38 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!--<gradient
-    android:angle="45"
-    android:endColor="#9E8DC2"
-    android:startColor="#4527A0"
-    android:type="linear" />
--->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <!--<item android:gravity="top|right" android:top="-140dp" android:right="-40dp">-->
-        <!--<shape xmlns:android="http://schemas.android.com/apk/res/android"-->
-            <!--android:shape="oval">-->
-            <!--<gradient-->
-                <!--android:angle="90"-->
-                <!--android:endColor="#FF7043"-->
-                <!--android:startColor="#BF360C"-->
-                <!--android:type="linear"-->
-                <!--/>-->
-            <!--<corners android:radius="0dp" />-->
-            <!--<size android:height="350dp" android:width="350dp"/>-->
-        <!--</shape>-->
-    <!--</item>-->
-    <!--<item  android:gravity="top|left" android:top="-70dp" android:left="-10dp">-->
-        <!--<shape xmlns:android="http://schemas.android.com/apk/res/android"-->
-            <!--android:shape="oval">-->
-            <!--<gradient-->
-                <!--android:angle="90"-->
-                <!--android:endColor="#FF3D00"-->
-                <!--android:startColor="#FFCC80"-->
-                <!--android:type="linear"-->
-                <!--/>-->
-            <!--<corners android:radius="0dp" />-->
-            <!--<size android:height="200dp" android:width="200dp"/>-->
-        <!--</shape>-->
-    <!--</item>-->
+
     <item  android:gravity="bottom|left" android:bottom="-60dp" android:left="-50dp">
         <shape
             android:shape="oval">

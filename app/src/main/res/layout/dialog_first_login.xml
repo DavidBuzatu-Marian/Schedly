@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/dialog_round"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/dialog_FLogin_VP"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="8dp" />
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/dialog_FLogin_TL"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_width="100dip"
+        android:layout_height="100dip"
+        app:tabBackground="@drawable/tab_selector"
+        android:padding="24dp"
+        app:tabGravity="center"
+        app:tabIndicatorHeight="0dp"
+        app:tabPaddingEnd="2dp"
+        app:tabPaddingStart="2dp"
+
+        android:layout_marginBottom="12dp"/>
+</RelativeLayout>

@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import com.example.schedly.fragment.SettingsFragment;
@@ -20,15 +21,15 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_settings);
+        getExtrasValues();
         mToolBar = findViewById(R.id.frag_Settings_Toolbar);
         initSettingsFrament();
         setToolBarNavClick();
-
-        Bundle _extras = getIntent().getExtras();
-        getExtrasValues(_extras);
     }
 
-    private void getExtrasValues(Bundle extras) {
+    private void getExtrasValues() {
+        Bundle extras = getIntent().getExtras();
+        Log.d("Details", extras.getString("userID"));
         if (extras != null) {
             mUserID = extras.getString("userID");
             mUserAppointmentDuration = extras.getString("userAppointmentDuration");
