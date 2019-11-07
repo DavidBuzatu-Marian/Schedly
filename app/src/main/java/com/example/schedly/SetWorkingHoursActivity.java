@@ -84,13 +84,6 @@ public class SetWorkingHoursActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(Void aVoid) {
                         startScheduleDuration();
-                        Log.d(TAG, "DocumentSnapshot successfully written!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error writing document", e);
                     }
                 });
 
@@ -108,7 +101,7 @@ public class SetWorkingHoursActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d("request", requestCode + "");
+
         if(resultCode == CA_CANCEL || resultCode == LOG_OUT) {
             setResult(resultCode);
             this.finish();

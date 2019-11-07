@@ -62,7 +62,6 @@ public class PacketCardView extends CardView {
             addSpinnerEnd(_layoutParamsSPE, _relativeLayoutInCard, _day);
             addSpinnerStart(_layoutParamsSPS, _relativeLayoutInCard, _day);
 
-            Log.d(TAG, _cardView.toString());
             _previousDay = _day;
         }
 
@@ -135,7 +134,6 @@ public class PacketCardView extends CardView {
         int _counter = 0;
         for(DaysOfWeek _day: DaysOfWeek.values()) {
             if(_counter < 6 && _counter > 0) {
-                Log.d("FAILED", _day.geteDisplayName() + "; " + _day.getCardViewId());
                 mActivity.findViewById(_day.getCardViewId()).setVisibility(View.GONE);
             }
             _counter++;

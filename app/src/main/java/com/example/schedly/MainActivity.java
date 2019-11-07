@@ -306,20 +306,17 @@ public class MainActivity extends AppCompatActivity {
         loginButtonFacebook.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                Log.d(TAG, "facebook:onSuccess:" + loginResult);
                 mPacketMainLogin.showProgressBar(true);
                 handleFacebookAccessToken(loginResult.getAccessToken());
             }
 
             @Override
             public void onCancel() {
-                Log.d(TAG, "facebook:onCancel");
-                // ...
+                loginErrorDialog();
             }
 
             @Override
             public void onError(FacebookException error) {
-                Log.d(TAG, "facebook:onError", error);
                 loginErrorDialog();
             }
 
@@ -338,21 +335,18 @@ public class MainActivity extends AppCompatActivity {
         loginButtonFacebook.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                Log.d(TAG, "facebook:onSuccess:" + loginResult);
                 mPacketMainLogin.showProgressBar(true);
                 handleFacebookAccessToken(loginResult.getAccessToken());
             }
 
             @Override
             public void onCancel() {
-                Log.d(TAG, "facebook:onCancel");
-                // ...
+                loginErrorDialog();
             }
 
             @Override
             public void onError(FacebookException error) {
                 loginErrorDialog();
-                Log.d(TAG, "facebook:onError", error);
             }
         });
     }
@@ -389,7 +383,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void handleFacebookAccessToken(AccessToken token) {
-        Log.d("token_handler", "handleFacebookAccessToken:" + token.getToken());
         AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -397,12 +390,10 @@ public class MainActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
-                            Log.d("successWithCredential", "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
                             mPacketMainLogin.getUserDetails(user);
                         } else {
                             // If sign in fails, display a message to the user.
-                            Log.d("successWithCredential", "signInWithCredential:failure", task.getException());
                             loginErrorDialog();
                             mPacketMainLogin.showProgressBar(false);
                         }
@@ -435,12 +426,10 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            Log.d(TAG, "signInWithCredential:success GOOGLE");
                             @NonNull FirebaseUser user = mAuth.getCurrentUser();
                             mPacketMainLogin.getUserDetails(user);
                         } else {
                             loginErrorDialog();
-                            Log.w(TAG, "signInWithCredential:failure", task.getException());
                             mPacketMainLogin.showProgressBar(false);
                         }
                     }
@@ -454,12 +443,10 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            Log.d(TAG, "signInWithEmail:success");
                             @NonNull FirebaseUser user = mAuth.getCurrentUser();
                             mPacketMainLogin.getUserDetails(user);
                         } else {
                             mPacketMainLogin.showProgressBar(false);
-                            Log.w(TAG, "signInWithEmail:failure", task.getException());
                             throwExceptions(task);
                         }
                     }
@@ -587,7 +574,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void responseToResult(int requestCode, int resultCode, Intent data) {
-        Log.d("REQUEST", requestCode + ";" + resultCode);
         // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);

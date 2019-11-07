@@ -134,12 +134,10 @@ public class PacketSpinnerView extends AppCompatSpinner {
         }
         else {
             /* check if all day is null */
-            Log.d("WorkingHours", mStartHours[0] + "; " + mEndHours[0]);
             if (mStartHours[0] == null || mEndHours[0] == null) {
                 return true;
             }
             for(mDaysIterator = 6; mDaysIterator < 8; mDaysIterator++) {
-                Log.d("WorkingHours", mStartHours[mDaysIterator] + "; " + mEndHours[mDaysIterator]);
                 if (mStartHours[mDaysIterator] == null || mEndHours[mDaysIterator] == null) {
                     return true;
                 }

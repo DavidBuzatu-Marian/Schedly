@@ -65,7 +65,6 @@ public class InternetReceiver extends BroadcastReceiver {
     }
 
     private Intent getIntentForSettings(Context context) {
-        Log.d("Details", context.toString());
         Intent _intent = new Intent(context, SettingsActivity.class);
         _intent.putExtra("userID", mUserID);
         _intent.putExtra("userAppointmentDuration", mUserAppointmentDuration);

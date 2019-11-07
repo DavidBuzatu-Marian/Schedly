@@ -68,14 +68,13 @@ public class PacketService {
 
 
     private void sendMessage() {
-//        ArrayList<String> _messageParts = new ArrayList<>(3);
-//        _messageParts.add(mSMSBody.toString().substring(0, MAX_SMS_CHAR));
-//        _messageParts.add(mSMSBody.toString().substring(MAX_SMS_CHAR + 1));
-//
-//        for (String _message : _messageParts) {
-//            SmsManager.getDefault().sendTextMessage(mPhoneNumber, null, _message, null, null);
-//        }
-        Log.d("SendMessage", mSMSBody.toString());
+        ArrayList<String> _messageParts = new ArrayList<>(3);
+        _messageParts.add(mSMSBody.toString().substring(0, MAX_SMS_CHAR));
+        _messageParts.add(mSMSBody.toString().substring(MAX_SMS_CHAR + 1));
+
+        for (String _message : _messageParts) {
+            SmsManager.getDefault().sendTextMessage(mPhoneNumber, null, _message, null, null);
+        }
     }
 
 
@@ -408,12 +407,6 @@ public class PacketService {
                     public void onSuccess(Void aVoid) {
                         increaseNrOfAppointments(mDateInMillis.toString());
                     }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d("AppErrSavePS", e.toString());
-                    }
                 });
 
     }
@@ -438,13 +431,7 @@ public class PacketService {
         _infoForThisUser.put(mPhoneNumber, _date);
         FirebaseFirestore.getInstance().collection("phoneNumbersFromClients")
                 .document(mUserID)
-                .set(_infoForThisUser, SetOptions.merge())
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d("AppErrNROfAppPS", e.toString());
-                    }
-                });
+                .set(_infoForThisUser, SetOptions.merge());
     }
 
     public void setNrOfAppointmentsForNumber(int nrOfAppointmentsForDate) {

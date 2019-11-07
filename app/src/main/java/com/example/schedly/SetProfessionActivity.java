@@ -90,13 +90,6 @@ public class SetProfessionActivity extends AppCompatActivity implements View.OnC
                     @Override
                     public void onSuccess(Void aVoid) {
                         startSetWorkingHours(userID);
-                        Log.d(TAG, "DocumentSnapshot successfully written!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error writing document", e);
                     }
                 });
     }
@@ -111,7 +104,6 @@ public class SetProfessionActivity extends AppCompatActivity implements View.OnC
     @Override
     public void onClick(View v) {
         mSelectedProfession = v.getId();
-        Log.d("Select", v.toString());
         switch (mSelectedProfession) {
             case R.id.act_SProfession_BUT_Dentist:
                 mSelectedProfessionName = "Dentist";
@@ -151,7 +143,6 @@ public class SetProfessionActivity extends AppCompatActivity implements View.OnC
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d("Code", "" + requestCode + "");
         if(resultCode == CA_CANCEL || resultCode == LOG_OUT) {
             setResult(resultCode);
             this.finish();

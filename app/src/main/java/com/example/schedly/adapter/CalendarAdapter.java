@@ -246,7 +246,6 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
                             + hour 
                             + mActivity.getString(R.string.edit_appointment_message_end),
                     null, null);
-            Log.d("MESSAGE_ON_CANCEL_app", "CANCELED");
         }
 
         private void setInformationInPopup(View inflatedView) {
@@ -278,7 +277,6 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
             mCompleteDate = appointment.getmDate();
             mDateInMillis = appointment.getmDateInMillis();
             mAppointmentType = appointment.getmAppointmentType();
-            Log.d("DETECT", _name + ": " + appointment.getmPhoneNumber());
             if (_name != null) {
                 mTextViewName.setText(_name);
                 mTextViewPhoneNumber.setVisibility(View.GONE);

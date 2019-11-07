@@ -87,13 +87,6 @@ public class DisplayName {
                         Toast.makeText(mActivity, mActivity.getString(R.string.dialog_display_name_success), Toast.LENGTH_SHORT).show();
                         mPreference.setSummary(newDisplayName);
                         mSettingsFragment.setmUserDisplayName(newDisplayName);
-                        Log.d("Change", "DocumentSnapshot successfully written!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w("Change", "Error writing document", e);
                     }
                 });
     }

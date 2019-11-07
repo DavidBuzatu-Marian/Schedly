@@ -29,7 +29,6 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void getExtrasValues() {
         Bundle extras = getIntent().getExtras();
-        Log.d("Details", extras.getString("userID"));
         if (extras != null) {
             mUserID = extras.getString("userID");
             mUserAppointmentDuration = extras.getString("userAppointmentDuration");

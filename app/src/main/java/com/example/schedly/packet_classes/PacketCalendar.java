@@ -306,7 +306,6 @@ public class PacketCalendar {
                         + mSelectedAppointmentHour
                         + mActivity.getString(R.string.add_appointment_manual_success_end),
                 null, null);
-        Log.d("MESSAGE_ON_CANCEL_app", "CANCELED");
     }
 
     private void setInformationInPopup(View inflatedView, String dateFormat, String dayOfWeekDisplay) {

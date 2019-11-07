@@ -80,13 +80,6 @@ public class AppointmentDuration {
                         Toast.makeText(mActivity, mActivity.getString(R.string.dialog_app_change_success), Toast.LENGTH_SHORT).show();
                         mPreference.setSummary(duration);
                         mSettingsFragment.setmUserAppointmentDuration(duration);
-                        Log.d("ChangeAP", "DocumentSnapshot successfully written!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w("ChangeAP", "Error writing document", e);
                     }
                 });
     }

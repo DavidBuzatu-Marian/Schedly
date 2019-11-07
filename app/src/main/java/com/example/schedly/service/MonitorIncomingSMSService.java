@@ -198,8 +198,6 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
         if (!phoneBlocked()) {
             mSMSQueue.add(newSMSMessage);
             setUpBeforeFirebase();
-        } else {
-            Log.d("MonitorSMS", "Blocked!");
         }
 
     }
@@ -211,7 +209,6 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
     }
 
     private void setUpBeforeFirebase() {
-        Log.d("BeforeFire", "Before");
         try {
             loopThroughSMSQueue();
         } catch (Exception e) {
@@ -226,7 +223,6 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
             _sender = _currentMessage.getmSMSSender();
             _message = _currentMessage.getmSMSBody();
             mMessagePhoneNumber = _sender;
-            Log.d("TEST", mMessagePhoneNumber);
             if (!mUUID.containsKey(_sender)) {
                 mUUID.put(_sender, UUID.randomUUID().toString());
                 if (!mContactName.containsKey(mMessagePhoneNumber)) {
@@ -271,15 +267,13 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
             public void onComplete(@NonNull Task<String> task) {
                 if (task.isSuccessful()) {
                     getParametersAndRedirect(task, message);
-                } else {
-                    Log.d("MonitorSMS", task.getException().toString());
                 }
             }
         });
     }
 
     private void getParametersAndRedirect(Task<String> task, String message) {
-        Log.d("Succes", mResultFromDialogFlow.get("parameters").toString());
+
         Gson _gson = new Gson();
         Properties data = _gson.fromJson(mResultFromDialogFlow.get("parameters").toString(), Properties.class);
         mTime = getLocaleTimeString(data.getProperty("time"));
@@ -290,8 +284,6 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
             responseOptions(_keyWord, message);
         } else if (isMessageForAppointment(mDateFromUser, mTime, mAppointmentType, _keyWord)) {
             responseOptions(_keyWord, message);
-        } else {
-            Log.d("MonitorSMS", "Ignored message");
         }
     }
 
@@ -303,7 +295,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
 
     private void responseOptions(String keyWord, String message) {
         if (keyWord == null && mAppointmentType == null && (mTime == null || mDateFromUser == null)) {
-            Log.d("Monitor", "Ignored message from user: " + message);
+            // Ignored message
         } else {
             if (dateFromUserIsNotPast(mDateFromUser)) {
 //                markMessageRead(MonitorIncomingSMSService.this, mMessagePhoneNumber, message);
@@ -411,7 +403,6 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
                     @Override
                     public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
                         mResultFromDialogFlow = (HashMap<String, Object>) task.getResult().getData();
-                        Log.d("Succes", mResultFromDialogFlow.get("response").toString() + ";" + mResultFromDialogFlow.get("parameters").toString());
                         return mResultFromDialogFlow.get("parameters") != null ? mResultFromDialogFlow.get("parameters").toString() : null;
                     }
                 });

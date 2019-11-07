@@ -371,7 +371,6 @@ public class CalendarActivity extends AppCompatActivity {
 
     private Intent getServiceIntent() {
         Intent _serviceIntent = new Intent(CalendarActivity.this, MonitorIncomingSMSService.class);
-        Log.d("Logged", mUserID);
         _serviceIntent.putExtra("userID", mUserID);
         _serviceIntent.putExtra("userAppointmentDuration", mUserAppointmentDuration);
         _serviceIntent.putExtra("userWorkingHours", mWorkingHours);

@@ -144,7 +144,6 @@ public class threadFindDaysForAppointment extends Thread {
                 try {
                     Date _closeOrOpenHour = _sDFormat.parse(_schedule.getValue());
                     Date _appHour = _sDFormat.parse(mTimeToSchedule);
-                    Log.d("TEST", _closeOrOpenHour + "; " + _appHour);
                     long elapsedTime = _closeOrOpenHour.getTime() - _appHour.getTime();
                     if (elapsedTime > 0) {
                         return true;
@@ -158,24 +157,20 @@ public class threadFindDaysForAppointment extends Thread {
     }
 
     private void sendMessage() {
-//        ArrayList<String> _messageParts = new ArrayList<>(2);
-//        int _indexOfComma = mSMSBody.toString().indexOf(":");
-//        _messageParts.add(mSMSBody.toString().substring(0, _indexOfComma + 1));
-//        _messageParts.add(mSMSBody.toString().substring(_indexOfComma + 2));
-//
-//        for (String _message : _messageParts) {
-//            Log.d("MESSAGE", _message);
-//            SmsManager.getDefault().sendTextMessage(mPhoneNumber, null, _message, null, null);
-//        }
-        Log.d("MESSAGE", mSMSBody.toString());
-        Log.d("NUMBER", mPhoneNumber);
+        ArrayList<String> _messageParts = new ArrayList<>(2);
+        int _indexOfComma = mSMSBody.toString().indexOf(":");
+        _messageParts.add(mSMSBody.toString().substring(0, _indexOfComma + 1));
+        _messageParts.add(mSMSBody.toString().substring(_indexOfComma + 2));
+
+        for (String _message : _messageParts) {
+            SmsManager.getDefault().sendTextMessage(mPhoneNumber, null, _message, null, null);
+        }
     }
 
     private void sendMessageOutOfHours() {
         mSMSBody.delete(0, mSMSBody.length());
-//        mSMSBody.append(mResources.getString(R.string.responses_out_of_schedule));
-//        SmsManager.getDefault().sendTextMessage(mPhoneNumber, null, mSMSBody.toString(), null, null);
-        Log.d("TEST", "Sent" + mSMSBody.toString());
+        mSMSBody.append(mResources.getString(R.string.responses_out_of_schedule));
+        SmsManager.getDefault().sendTextMessage(mPhoneNumber, null, mSMSBody.toString(), null, null);
     }
 
     private synchronized boolean checkDayFree(long calendarTimeInMillis) {
@@ -200,7 +195,6 @@ public class threadFindDaysForAppointment extends Thread {
              * if return is false
              * we need to try the next date
              */
-            Log.d("TEST", "USER HAS APP FOR " + _dateInMillis + mDayOfTheWeek);
             mDaySchedule = new String[2];
             mDaySchedule[0] = mUserWorkingDays.get(mDayOfTheWeek + "Start");
             mDaySchedule[1] = mUserWorkingDays.get(mDayOfTheWeek + "End");
@@ -224,7 +218,6 @@ public class threadFindDaysForAppointment extends Thread {
          */
         else {
             getDayOfTheWeek(_dateInMillisLong);
-            Log.d("TEST", "USER DOES NOT HAVE APP FOR " + _dateInMillis + mDayOfTheWeek);
             mDaySchedule = new String[2];
             mDaySchedule[0] = mUserWorkingDays.get(mDayOfTheWeek + "Start");
             mDaySchedule[1] = mUserWorkingDays.get(mDayOfTheWeek + "End");
@@ -253,7 +246,6 @@ public class threadFindDaysForAppointment extends Thread {
         Date _date = _sDFormat.parse(_hour);
 
         long _elapsedTime = _date.getTime() - _dateAppointmentHour.getTime();
-        Log.d("TEST TIME", _elapsedTime + "");
         if (_elapsedTime > 0) {
             return false;
         }
@@ -324,7 +316,6 @@ public class threadFindDaysForAppointment extends Thread {
         if (_values != null) {
             Gson _gson = new Gson();
             String _json = _gson.toJson(_values);
-            Log.d("TEST", _json);
             try {
                 mCurrentDayAppointments = new ObjectMapper().readValue(_json, Map.class);
             } catch (IOException e) {

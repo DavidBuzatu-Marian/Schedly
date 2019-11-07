@@ -81,7 +81,6 @@ public class ChangeEmailFragment extends Fragment {
         _user.updateEmail(newEmail).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                Log.d("Err", "Error");
                 if (task.isSuccessful()) {
                     LogOut _logOut = new LogOut(mActivity);
                     _logOut.LogOutFromApp();
@@ -101,7 +100,6 @@ public class ChangeEmailFragment extends Fragment {
         } catch (FirebaseAuthUserCollisionException existEmail) {
             mTextInputLayoutEmail.setError("Email already in use");
         } catch (Exception e) {
-            Log.d("ErrorOnEmailChange", "onComplete: " + e.getMessage());
         }
     }
 

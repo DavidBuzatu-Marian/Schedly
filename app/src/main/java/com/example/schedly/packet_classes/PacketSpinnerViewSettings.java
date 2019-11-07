@@ -114,7 +114,6 @@ public class PacketSpinnerViewSettings extends AppCompatSpinner {
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                         counter = mIDsArray.get(parent.getId());
                         mStartHours[counter] = mAdapterHours.getItem(position).toString();
-                        Log.d("selectedStart", "" + view.getId() + "");
                     }
 
                     @Override
@@ -129,7 +128,6 @@ public class PacketSpinnerViewSettings extends AppCompatSpinner {
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                         counter = mIDsArray.get(parent.getId());
                         mEndHours[counter] = mAdapterHours.getItem(position).toString();
-                        Log.d("selectedEnd", "" + parent.getId() + "");
                     }
 
                     @Override

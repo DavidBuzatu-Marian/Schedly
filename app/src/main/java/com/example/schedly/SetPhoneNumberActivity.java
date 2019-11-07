@@ -85,13 +85,6 @@ public class SetPhoneNumberActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(Void aVoid) {
                         startSetProfessionActivity(userID);
-                        Log.d(TAG, "DocumentSnapshot successfully written!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error writing document", e);
                     }
                 });
     }

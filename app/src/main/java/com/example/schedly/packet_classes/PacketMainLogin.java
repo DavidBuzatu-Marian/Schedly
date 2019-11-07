@@ -2,7 +2,6 @@ package com.example.schedly.packet_classes;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
@@ -17,7 +16,6 @@ import com.example.schedly.SetPhoneNumberActivity;
 import com.example.schedly.SetProfessionActivity;
 import com.example.schedly.SetWorkingHoursActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
@@ -75,7 +73,6 @@ public class PacketMainLogin {
                     }
                 } else {
                     setDetailsNull(currentUser);
-                    Log.d(TAG, "get failed with ", task.getException());
                 }
             }
         });
@@ -94,7 +91,6 @@ public class PacketMainLogin {
     }
 
     private void addUserToDatabase(final FirebaseUser currentUser) {
-        Log.d("TESTTEST", "TEST");
         Map<String, Object> userToAdd = new HashMap<>();
         userToAdd.put("phoneNumber", null);
         userToAdd.put("profession", null);
@@ -118,12 +114,6 @@ public class PacketMainLogin {
                     @Override
                     public void onSuccess(Void aVoid) {
                         redirectUser(currentUser);
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, "Failed to save Working Days");
                     }
                 });
     }
@@ -156,7 +146,6 @@ public class PacketMainLogin {
     }
 
     private void redirectUser(final FirebaseUser localUser) {
-        Log.d("TESTTEST", "TESTREDIRECT");
         if (mUserPhoneNumber == null || mUserProfession == null) {
             getToInitActivity(localUser);
         } else {

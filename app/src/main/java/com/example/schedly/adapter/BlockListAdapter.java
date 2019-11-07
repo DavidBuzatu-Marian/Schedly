@@ -6,7 +6,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -16,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.schedly.R;
 import com.example.schedly.fragment.BlockListFragment;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -101,12 +99,6 @@ public class BlockListAdapter extends RecyclerView.Adapter<BlockListAdapter.Bloc
                             mDataSet.remove(mPosition);
                             BlockListFragment.setCounter(getItemCount());
                             BlockListAdapter.this.notifyDataSetChanged();
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.d("ErrBlockList", e.toString());
                         }
                     });
         }

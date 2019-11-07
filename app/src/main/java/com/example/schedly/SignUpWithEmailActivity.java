@@ -117,7 +117,6 @@ public class SignUpWithEmailActivity extends AppCompatActivity {
                 final EditText editTextPass = findViewById(R.id.act_SUWEmail_TIET_password);
                 if (inputValidation(editTextEmail.getText().toString(), editTextPass.getText().toString())) {
                     showProgressBar(true);
-                    Log.d("RESULT", "OKAY");
                     signUpWithEmailAndPassword(editTextEmail.getText().toString(), editTextPass.getText().toString());
                 }
             }
@@ -191,7 +190,6 @@ public class SignUpWithEmailActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            Log.d(TAG, "createUserWithEmail:success");
                             FirebaseUser _user = mAuth.getCurrentUser();
                             addUserDataDatabase(_user);
                         } else {
@@ -205,15 +203,12 @@ public class SignUpWithEmailActivity extends AppCompatActivity {
         try {
             throw task.getException();
         } catch (FirebaseAuthInvalidCredentialsException malformedEmail) {
-            Log.d(TAG, "onComplete: malformed_email");
             mTextInputLayoutEmail.setError("Invalid Email");
             showProgressBar(false);
         } catch (FirebaseAuthUserCollisionException existEmail) {
-            Log.d(TAG, "onComplete: exist_email");
             mTextInputLayoutEmail.setError("Email already in use");
             showProgressBar(false);
         } catch (Exception e) {
-            Log.d(TAG, "onComplete: " + e.getMessage());
         }
     }
 
@@ -240,15 +235,8 @@ public class SignUpWithEmailActivity extends AppCompatActivity {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "CREATED");
                         setResult(SUWEmailSuccess);
                         SignUpWithEmailActivity.this.finish();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, "Failed to save Working Days");
                     }
                 });
     }
