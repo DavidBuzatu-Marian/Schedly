@@ -8,6 +8,39 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:125094146390:android:a01c7bfccfae8e4ceaa6f7",
+        "android_client_info": {
+          "package_name": "com.davidbuzatu.schedly"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "125094146390-rq8jenm698vf45dc1nh2e3h4ftuul0vr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.davidbuzatu.schedly",
+            "certificate_hash": "917e69d2fd61e97fb08c475710d5d11e33c42a56"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAa7aDBdca379F93O4YCNWMmuXI3hm-gUE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "125094146390-bqg33me43n0hs39b36jnjl33vip19520.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:125094146390:android:b681bdae79c0d773",
         "android_client_info": {
           "package_name": "com.example.schedly"
@@ -21,10 +54,6 @@
             "package_name": "com.example.schedly",
             "certificate_hash": "48653c03f3d0abc465de0ecda1e66ce1c7c1c706"
           }
-        },
-        {
-          "client_id": "125094146390-fr01v2t3dl946mj4be36d4h5svj798sv.apps.googleusercontent.com",
-          "client_type": 3
         }
       ],
       "api_key": [
@@ -36,7 +65,7 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "125094146390-m0fk6oqclr1edebu3gdaldiq3r52cika.apps.googleusercontent.com",
+              "client_id": "125094146390-bqg33me43n0hs39b36jnjl33vip19520.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

@@ -51,12 +51,12 @@
 
                     card_view:cardElevation="12dp">
 
-                    <com.example.schedly.model.CustomCalendarView
+                    <com.davidbuzatu.schedly.model.CustomCalendarView
                         android:id="@+id/act_Calendar_CalendarV"
                         android:layout_width="wrap_content"
                         android:layout_height="420dp">
 
-                    </com.example.schedly.model.CustomCalendarView>
+                    </com.davidbuzatu.schedly.model.CustomCalendarView>
 
                 </androidx.cardview.widget.CardView>
 
