@@ -5,11 +5,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.provider.Telephony;
 import android.telephony.SmsMessage;
+import android.util.Log;
 
 
 public class SMSBroadcastReceiver extends BroadcastReceiver {
     private static final String ACTION_INTERNET = "android.net.conn.CONNECTIVITY_CHANGE";
-    private static final String ACTION_SMS = "Telephony.Sms.Intents.SMS_RECEIVED_ACTION";
+    private static final String ACTION_SMS = "android.provider.Telephony.SMS_RECEIVED";
     private static final String TAG = "SMSBroadcastReceiver";
     private final String serviceProviderNumber;
     private final String serviceProviderSmsCondition;

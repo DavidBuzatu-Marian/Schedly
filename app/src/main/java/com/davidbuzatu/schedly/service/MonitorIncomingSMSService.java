@@ -76,7 +76,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
     private ListenerRegistration mRegistration;
     private int mNROfAppointmentsForThisDay;
     private Map<String, Object> mUserAppointments;
-    private Context mContext;
+    private BroadcastReceiver mInternetBroadcast;
 
     public int onStartCommand(Intent intent, int flags, int startId) {
         Bundle _extras = null;
@@ -87,7 +87,6 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
         if (_extras != null) {
             getExtrasValues(_extras);
         }
-        registerReceiverAndBroadcast();
         monitorChanges();
         sServiceRunning = true;
         return START_STICKY;
@@ -108,6 +107,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
     @Override
     public void onCreate() {
         super.onCreate();
+        registerReceiverAndBroadcast();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             startOwnForeground();
         else
@@ -116,12 +116,12 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
 
     private void registerReceiverAndBroadcast() {
         SMSBroadcastReceiver.bindListener(this);
-        BroadcastReceiver _internetBroadcast = new InternetReceiver(this, mUserID, mUserAppointmentDuration, mWorkingHours);
+        mInternetBroadcast = new InternetReceiver(this, mUserID, mUserAppointmentDuration, mWorkingHours);
         IntentFilter _intentFilter = new IntentFilter();
         _intentFilter.addAction("android.provider.Telephony.SMS_RECEIVED");
         IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         filter.addAction(Intent.ACTION_AIRPLANE_MODE_CHANGED);
-        this.registerReceiver(_internetBroadcast, filter);
+        this.registerReceiver(mInternetBroadcast, filter);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -147,7 +147,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
         PendingIntent _intentSettings = PendingIntent.getActivity(this, SETTINGS_RETURN, _startSettingsIntent, 0);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
         return notificationBuilder.setOngoing(true)
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.drawable.ic_notification_small)
                 .setContentTitle(this.getString(R.string.notification_monitor_sms))
                 .setPriority(NotificationManager.IMPORTANCE_MIN)
                 .setCategory(Notification.CATEGORY_SERVICE)
@@ -172,7 +172,6 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
             public void onEvent(@Nullable DocumentSnapshot snapshot,
                                 @Nullable FirebaseFirestoreException e) {
                 if (e != null) {
-                    Log.w("ERR", "Listen failed.", e);
                     return;
                 }
                 if (snapshot != null && snapshot.exists()) {
@@ -235,7 +234,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
 
     private void getContact(String mMessagePhoneNumber) {
         Uri lookupUriContacts = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(mMessagePhoneNumber));
-        Cursor cursor = mContext.getContentResolver().query(lookupUriContacts, new String[]{ContactsContract.Data.DISPLAY_NAME}, null, null, null);
+        Cursor cursor = getContentResolver().query(lookupUriContacts, new String[]{ContactsContract.Data.DISPLAY_NAME}, null, null, null);
         if (cursor != null) {
             if (cursor.moveToFirst()) {
                 mContactName.put(mMessagePhoneNumber, cursor.getString(0));
@@ -246,9 +245,11 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
         }
     }
 
+
     @Override
     public void onDestroy() {
         sServiceRunning = false;
+        unregisterReceiver(mInternetBroadcast);
         mRegistration.remove();
         super.onDestroy();
     }
@@ -267,13 +268,13 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
             public void onComplete(@NonNull Task<String> task) {
                 if (task.isSuccessful()) {
                     getParametersAndRedirect(task, message);
+                    mUUID.remove(mMessagePhoneNumber);
                 }
             }
         });
     }
 
     private void getParametersAndRedirect(Task<String> task, String message) {
-
         Gson _gson = new Gson();
         Properties data = _gson.fromJson(mResultFromDialogFlow.get("parameters").toString(), Properties.class);
         mTime = getLocaleTimeString(data.getProperty("time"));
@@ -295,13 +296,20 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
 
     private void responseOptions(String keyWord, String message) {
         if (keyWord == null && mAppointmentType == null && (mTime == null || mDateFromUser == null)) {
-            // Ignored message
+            mUUID.remove(mMessagePhoneNumber);
+            resetParams();
         } else {
             if (dateFromUserIsNotPast(mDateFromUser)) {
 //                markMessageRead(MonitorIncomingSMSService.this, mMessagePhoneNumber, message);
                 selectOptions();
             }
         }
+    }
+
+    private void resetParams() {
+        mDateFromUser = null;
+        mTime = null;
+        mAppointmentType = null;
     }
 
     private void selectOptions() {
@@ -314,8 +322,8 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
         } else {
             sendMessageForFixedParameters();
         }
-        mDateFromUser = null;
-        mTime = null;
+
+        resetParams();
     }
 
     private void sendMessageForFixedParameters() {
@@ -323,7 +331,6 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
             mPacketService.setAppointmentType(mAppointmentType);
         }
         mPacketService.makeAppointmentForFixedParameters(mDateFromUser, mDateFromUserInMillis, mTime, mMessagePhoneNumber, mContactName.get(mMessagePhoneNumber));
-        mUUID.remove(mMessagePhoneNumber);
     }
 
 //    private void markMessageRead(Context context, String number, String body) {
@@ -495,16 +502,4 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
         return false;
     }
 
-
-    public void setParams(Context context, String userID, String userAppointmentDuration, HashMap<String, String> workingHours, Map<String, Object> userAppointments) {
-        mUserID = userID;
-        mUserAppointmentDuration = userAppointmentDuration;
-        mWorkingHours = workingHours;
-        mUserAppointments = userAppointments;
-
-        mContext = context;
-        mSMSQueue = new ArrayDeque<>();
-        mUUID = new HashMap<>();
-        mContactName = new HashMap<>();
-    }
 }

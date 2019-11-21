@@ -33,6 +33,7 @@ public class InternetReceiver extends BroadcastReceiver {
         mWorkingHours = workingHours;
     }
 
+
     @Override
     public void onReceive(Context context, Intent intent) {
         mContext = context;
@@ -83,7 +84,7 @@ public class InternetReceiver extends BroadcastReceiver {
     private NotificationCompat.Builder buildNotification(Context context, PendingIntent intentSettings) {
         NotificationCompat.Builder _builder = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
                 .setContentTitle("Schedly")  // required
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.drawable.ic_notification_small)
                 .setContentText(context.getString(R.string.notification_monitor_internet))
                 .setDefaults(Notification.DEFAULT_ALL)
                 .setContentIntent(intentSettings)

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.res.Resources;
 import android.telephony.SmsManager;
 
+
 import com.davidbuzatu.schedly.R;
 import com.davidbuzatu.schedly.model.ContextForStrings;
 import com.davidbuzatu.schedly.thread.threadFindDaysForAppointment;
@@ -30,11 +31,9 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class PacketService {
-    private final String TAG = "PacketService";
     private static final int MAX_SMS_CHAR = 141;
     private Long mDateInMillis;
     private String mUserID, mUserAppointmentDuration, mContactName;
-    private FirebaseFirestore mFireStore;
     private threadFindDaysForAppointment mWorkThread;
     // get the appointments for a given date
     private Map<String, Object> mCurrentDayAppointments;
@@ -58,14 +57,17 @@ public class PacketService {
     public PacketService(String userID, String userAppointmentDuration) {
         mUserID = userID;
         mUserAppointmentDuration = userAppointmentDuration;
-        mFireStore = FirebaseFirestore.getInstance();
     }
 
 
     private void sendMessage() {
         ArrayList<String> _messageParts = new ArrayList<>(3);
-        _messageParts.add(mSMSBody.toString().substring(0, MAX_SMS_CHAR));
-        _messageParts.add(mSMSBody.toString().substring(MAX_SMS_CHAR + 1));
+        if(mSMSBody.length() > MAX_SMS_CHAR) {
+            _messageParts.add(mSMSBody.toString().substring(0, MAX_SMS_CHAR));
+            _messageParts.add(mSMSBody.toString().substring(MAX_SMS_CHAR + 1));
+        } else {
+            _messageParts.add(mSMSBody.toString());
+        }
 
         for (String _message : _messageParts) {
             SmsManager.getDefault().sendTextMessage(mPhoneNumber, null, _message, null, null);
@@ -268,9 +270,12 @@ public class PacketService {
 
     private void sendSmsForTimePassed(String dayOfWeek) {
         mSMSBody = new StringBuilder(mResources.getString(R.string.responses_hour_out) +
+                " " +
                 dayOfWeek +
-                mResources.getString(R.string.responses_from)
-                + mDaySchedule[0] +
+                " " +
+                mResources.getString(R.string.responses_from) +
+                " " +
+                mDaySchedule[0] +
                 mResources.getString(R.string.responses_to) +
                 mDaySchedule[1]);
         SmsManager.getDefault().sendTextMessage(mPhoneNumber, null, mSMSBody.toString(), null, null);

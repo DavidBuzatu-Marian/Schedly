@@ -1,5 +1,7 @@
 package com.davidbuzatu.schedly.model;
 
+import androidx.annotation.NonNull;
+
 public class TSMSMessage {
     private StringBuilder mSMSBody;
     private String mSMSSender;
@@ -35,5 +37,11 @@ public class TSMSMessage {
 
     public void setmNROfAppointments(int mNROfAppointments) {
         this.mNROfAppointments = mNROfAppointments;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return mSMSSender + mSMSBody;
     }
 }
