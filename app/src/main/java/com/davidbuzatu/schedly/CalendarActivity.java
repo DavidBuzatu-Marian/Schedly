@@ -100,7 +100,7 @@ public class CalendarActivity extends AppCompatActivity {
     private void checkFirstLogin() {
         if(isFirstLogin()) {
             showHelperDialog();
-            setPreference(false);
+            //setPreference(true);
         }
     }
 

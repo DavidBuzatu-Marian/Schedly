@@ -166,7 +166,6 @@ public class threadFindDaysForAppointment extends Thread {
         _dateInMillisLong = (calendarTimeInMillis + (mCounterNextDay * DAY_LENGTH_MILLIS));
         _dateInMillis = _dateInMillisLong.toString();
         mCounterNextDay++;
-        // get the data, wait until process finishes
         /* we already have appointments on this day
          * we need extra checking for each time
          * already appointed
