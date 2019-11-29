@@ -27,6 +27,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.davidbuzatu.schedly.R;
+import com.davidbuzatu.schedly.model.ScheduledHours;
+import com.davidbuzatu.schedly.model.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -55,20 +57,16 @@ public class PacketCalendar {
 
     private Activity mActivity;
     private Long mDate;
-    private HashMap<String, String> mWorkingHours;
-    private String mUserAppointmentDuration;
     private String mSelectedAppointmentHour;
     private PopupWindow mPopWindow;
-    private String mCompleteDate, mUserID;
+    private String mCompleteDate;
     private HashMap<String, String> mCallLogDetails;
     private ArrayList<String> mCallLogPNumbers;
     private ArrayList<String> mCallLogNames;
+    private User user = User.getInstance();
 
-    public PacketCalendar(Activity activity, HashMap<String, String> workingHours, String userAppointmentDuration, String userID) {
+    public PacketCalendar(Activity activity) {
         mActivity = activity;
-        mWorkingHours = workingHours;
-        mUserID = userID;
-        mUserAppointmentDuration = userAppointmentDuration;
         getNamesAndPhoneNumbers();
     }
 
@@ -137,31 +135,39 @@ public class PacketCalendar {
 
     private void setSpinnerAdapter(final View inflatedView, final String dayOfWeek) {
         final ArrayList<String> _hours = getHoursForDate(dayOfWeek);
-        FirebaseFirestore.getInstance().collection("scheduledHours")
-                .document(mUserID)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        getTaskValues(task, _hours, inflatedView);
-                    }
-                });
-    }
-
-    private void getTaskValues(Task<DocumentSnapshot> task, ArrayList<String> _hours, View inflatedView) {
-        DocumentSnapshot _document = task.getResult();
-        assert _document != null;
-        if (task.isSuccessful() && _document.exists()) {
-            setUpHoursInSpinner(task, _hours, inflatedView);
+        if(ScheduledHours.getInstance().getScheduledHoursSnapshot() == null) {
+            ScheduledHours.getInstance().getScheduledHours(user.getUid())
+                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            getTaskValues(task, _hours, inflatedView);
+                        }
+                    });
         } else {
-            setUpSpinner(inflatedView, _hours);
+            getDocumentValues(ScheduledHours.getInstance().getScheduledHoursSnapshot(), _hours, inflatedView);
         }
     }
 
-    private void setUpHoursInSpinner(Task<DocumentSnapshot> task, ArrayList<String> _hours, View inflatedView) {
-        Map<String, Object> _map = task.getResult().getData();
-        assert _map != null;
-        Object _values = _map.containsKey(mDate.toString()) ? _map.get(mDate.toString()) : null;
+    private void getDocumentValues(DocumentSnapshot scheduledHoursSnapshot, ArrayList<String> hours, View inflatedView) {
+        if (scheduledHoursSnapshot.exists()) {
+            setUpHoursInSpinner(scheduledHoursSnapshot.getData(), hours, inflatedView);
+        } else {
+            setUpSpinner(inflatedView, hours);
+        }
+    }
+
+    private void getTaskValues(Task<DocumentSnapshot> task, ArrayList<String> hours, View inflatedView) {
+        DocumentSnapshot _document = task.getResult();
+        assert _document != null;
+        if (task.isSuccessful() && _document.exists()) {
+            setUpHoursInSpinner(task.getResult().getData(), hours, inflatedView);
+        } else {
+            setUpSpinner(inflatedView, hours);
+        }
+    }
+
+    private void setUpHoursInSpinner(Map<String, Object> data, ArrayList<String> _hours, View inflatedView) {
+        Object _values = data.containsKey(mDate.toString()) ? data.get(mDate.toString()) : null;
         if (_values != null) {
             removeScheduledHours(_hours, _values);
         }
@@ -184,8 +190,8 @@ public class PacketCalendar {
     @SuppressLint("DefaultLocale")
     private ArrayList<String> getHoursForDate(String dayOfWeek) {
         ArrayList<String> _hours = new ArrayList<>();
-        String _timeStart = mWorkingHours.get(dayOfWeek + "Start");
-        String _timeEnd = mWorkingHours.get(dayOfWeek + "End");
+        String _timeStart = user.getUserWorkingHours().get(dayOfWeek + "Start");
+        String _timeEnd = user.getUserWorkingHours().get(dayOfWeek + "End");
         String[] _timeStartSplitted = _timeStart.split(":");
         String[] _timeEndSplitted = _timeEnd.split(":");
         int _hourStart = Integer.parseInt(_timeStartSplitted[0]),
@@ -196,7 +202,7 @@ public class PacketCalendar {
         LocalTime _limitTime = LocalTime.of(_hourEnd, _minuteEnd);
         while (_time.isBefore(_limitTime)) {
             _hours.add(String.format("%02d", _time.getHour()) + ":" + String.format("%02d", _time.getMinute()));
-            _time = _time.plusMinutes(Long.parseLong(mUserAppointmentDuration));
+            _time = _time.plusMinutes(Long.parseLong(user.getUserAppointmentsDuration()));
         }
         return _hours;
     }
@@ -262,10 +268,7 @@ public class PacketCalendar {
         if (phoneNumber.equals("")) {
             Toast.makeText(mActivity, mActivity.getString(R.string.toast_add_appointment_phone_number), Toast.LENGTH_LONG).show();
         } else {
-            Map<String, Object> _appointment = setDataForAppointmentSave(name, phoneNumber);
-            FirebaseFirestore.getInstance().collection("scheduledHours")
-                    .document(mUserID)
-                    .set(_appointment, SetOptions.merge())
+                ScheduledHours.getInstance().saveScheduledHour(name, phoneNumber, null, mSelectedAppointmentHour, mDate.toString(), user.getUid())
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
@@ -280,17 +283,6 @@ public class PacketCalendar {
                         }
                     });
         }
-    }
-
-    private Map<String, Object> setDataForAppointmentSave(String name, String phoneNumber) {
-        Map<String, String> _detailsOfAppointment = new HashMap<>();
-        _detailsOfAppointment.put("PhoneNumber", phoneNumber);
-        _detailsOfAppointment.put("Name", name.equals("") ? null : name);
-        Map<String, Object> _hourAndInfo = new HashMap<>();
-        _hourAndInfo.put(mSelectedAppointmentHour, _detailsOfAppointment);
-        Map<String, Object> _appointment = new HashMap<>();
-        _appointment.put(mDate.toString(), _hourAndInfo);
-        return _appointment;
     }
 
     private void sendMessage(String phoneNumber) {
@@ -478,7 +470,7 @@ public class PacketCalendar {
         _dateFormat = _date.format(_DTFDate);
         _tvDayInfo.setText(capitalize(_dayOfWeekDisplay));
         _tvDayDate.setText(_dateFormat);
-        if (mWorkingHours.get(_dayOfWeek + "Start").equals("Free")) {
+        if (user.getUserWorkingHours().get(_dayOfWeek + "Start").equals("Free")) {
             setTVAndIVAdd();
             addFreeDayImage(true);
 

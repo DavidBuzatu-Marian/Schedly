@@ -1,4 +1,4 @@
-package com.davidbuzatu.schedly.model;
+package com.davidbuzatu.schedly.component;
 
 import android.content.Context;
 import android.util.AttributeSet;

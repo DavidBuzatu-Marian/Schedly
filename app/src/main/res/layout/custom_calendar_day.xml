@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.davidbuzatu.schedly.model.CircularTextView
+<com.davidbuzatu.schedly.component.CircularTextView
     android:id="@+id/textView"
     android:layout_width="48dp"
     android:layout_height="48dp"

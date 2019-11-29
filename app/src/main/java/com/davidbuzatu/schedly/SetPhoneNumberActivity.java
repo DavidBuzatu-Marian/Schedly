@@ -1,5 +1,6 @@
 package com.davidbuzatu.schedly;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -9,14 +10,18 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.davidbuzatu.schedly.model.AnimationTransitionOnActivity;
+import com.davidbuzatu.schedly.model.User;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.hbb20.CountryCodePicker;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import static com.davidbuzatu.schedly.MainActivity.SP_CANCEL;
 
 public class SetPhoneNumberActivity extends AppCompatActivity {
@@ -48,7 +53,19 @@ public class SetPhoneNumberActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (mValidNumber) {
                     mAnimationTransitionOnActivity = new AnimationTransitionOnActivity(findViewById(R.id.act_SPNumber_V_AnimationFill), (int) view.getX(), (int) view.getY());
-                    addUserDataToDatabase(mUserID);
+                    User.getInstance().setUserPhoneNumber(mCCP.getFullNumberWithPlus())
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    startSetProfessionActivity();
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    showToastError();
+                                }
+                            });
                 } else {
                     Toast.makeText(SetPhoneNumberActivity.this, "Phone number is invalid!", Toast.LENGTH_SHORT).show();
                 }
@@ -70,37 +87,36 @@ public class SetPhoneNumberActivity extends AppCompatActivity {
     }
 
 
-    private void addUserDataToDatabase(final String userID) {
-        mPhoneNumberReturn = mEditTextCarrierNumber.getText().toString();
-        Map<String, Object> userToAdd = new HashMap<>();
-        userToAdd.put("phoneNumber", mCCP.getFullNumberWithPlus());
-        userToAdd.put("profession", null);
-        FirebaseFirestore.getInstance().collection("users")
-                .document(userID)
-                .set(userToAdd, SetOptions.merge())
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        startSetProfessionActivity(userID);
-                    }
-                });
+//    private void addUserDataToDatabase(final String userID) {
+//        mPhoneNumberReturn = mEditTextCarrierNumber.getText().toString();
+//        Map<String, Object> userToAdd = new HashMap<>();
+//        userToAdd.put("phoneNumber", mCCP.getFullNumberWithPlus());
+//        userToAdd.put("profession", null);
+//        FirebaseFirestore.getInstance().collection("users")
+//                .document(userID)
+//                .set(userToAdd, SetOptions.merge())
+//                .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                    @Override
+//                    public void onSuccess(Void aVoid) {
+//                        startSetProfessionActivity(userID);
+//                    }
+//                });
+//    }
+
+    public void startSetProfessionActivity() {
+        Intent _setProfessionIntent = new Intent(SetPhoneNumberActivity.this, SetProfessionActivity.class);
+        startActivity(_setProfessionIntent);
+        this.finish();
     }
 
-    private void startSetProfessionActivity(String userID) {
-        Intent _setProfessionIntent = new Intent(SetPhoneNumberActivity.this, SetProfessionActivity.class);
-        _setProfessionIntent.putExtra("userID", userID);
-        startActivityForResult(_setProfessionIntent, SP_CANCEL);
-    }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == SP_CANCEL) {
-            mEditTextCarrierNumber.setText(mPhoneNumberReturn);
-        } else {
-            setResult(resultCode);
-            this.finish();
-        }
+    public void onBackPressed() {
+        super.onBackPressed();
+        this.finishAffinity();
     }
 
+    public void showToastError() {
+        Toast.makeText(this, "Something went wrong! Please check your internet connection!", Toast.LENGTH_LONG).show();
+    }
 }

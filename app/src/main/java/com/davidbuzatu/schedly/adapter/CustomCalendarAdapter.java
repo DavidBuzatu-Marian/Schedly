@@ -10,9 +10,9 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 
 import com.davidbuzatu.schedly.R;
-import com.davidbuzatu.schedly.model.CircularTextView;
-import com.davidbuzatu.schedly.model.CustomCalendarView;
-import com.davidbuzatu.schedly.model.CustomEvent;
+import com.davidbuzatu.schedly.component.CircularTextView;
+import com.davidbuzatu.schedly.component.CustomCalendarView;
+import com.davidbuzatu.schedly.component.CustomEvent;
 
 import java.util.ArrayList;
 import java.util.Calendar;

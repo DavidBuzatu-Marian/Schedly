@@ -1,5 +1,6 @@
 package com.davidbuzatu.schedly.fragment;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -7,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
@@ -21,6 +23,7 @@ import com.davidbuzatu.schedly.R;
 import com.davidbuzatu.schedly.SettingsActivity;
 import com.davidbuzatu.schedly.model.LogOut;
 import com.davidbuzatu.schedly.model.NetworkChecker;
+import com.davidbuzatu.schedly.model.User;
 import com.davidbuzatu.schedly.service.MonitorIncomingSMSService;
 import com.davidbuzatu.schedly.setting.AppointmentDuration;
 import com.davidbuzatu.schedly.setting.DisplayName;
@@ -41,15 +44,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private Preference mChangeEmailPreference;
     private Preference mChangePasswordPreference, mChangeWorkingHours;
     private Preference mChangePhoneNumber, mChangeDisplayName, mChangeAppointmentsDuration;
-    private String mUserID, mUserPhoneNumber, mUserDisplayName;
-    private String mUserAppointmentsDuration;
     private Preference mFeedback;
     private SwitchPreference mDisableMonitorization;
     private FragmentActivity mActivity = getActivity();
     private boolean mPreferencesCreated = false;
     private Map<String, Object> mBlockedNumbers;
+    private User user = User.getInstance();
     private Preference mBlockList;
-    private ListenerRegistration mRegistration;
     private ListenerRegistration mRegistrationBlock;
 
     @Override
@@ -57,8 +58,16 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         setPreferencesFromResource(R.xml.preferences, rootKey);
         mPreferencesCreated = true;
         enablePasswordEmailChange();
-        mUserID = FirebaseAuth.getInstance().getUid();
-        getDataFromDataBase();
+        setPreferencesForCurrentUser();
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+
+        if(context instanceof SettingsActivity) {
+            mActivity = (SettingsActivity) context;
+        }
     }
 
     private void enablePasswordEmailChange() {
@@ -87,7 +96,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
         mActivity = getActivity();
         ((SettingsActivity) mActivity).setActionBarTitle(mActivity.getString(R.string.settings_bar_title));
-        getDataFromDataBase();
         getUserBlockedList();
     }
 
@@ -95,7 +103,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public void onStop() {
         super.onStop();
 
-        mRegistration.remove();
         mRegistrationBlock.remove();
     }
 
@@ -148,7 +155,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     }
 
     private void startServiceMonitoring() {
-        Intent serviceIntent = getIntentForService();
+        Intent serviceIntent = new Intent(mActivity, MonitorIncomingSMSService.class);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             mActivity.startForegroundService(serviceIntent);
         } else {
@@ -164,13 +171,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         _userEditor.apply();
     }
 
-    private Intent getIntentForService() {
-        Intent _intent = new Intent(mActivity, MonitorIncomingSMSService.class);
-        _intent.putExtra("userID", ((SettingsActivity) mActivity).getmUserID());
-        _intent.putExtra("userAppointmentDuration", ((SettingsActivity) mActivity).getmUserAppointmentDuration());
-        _intent.putExtra("userWorkingHours", ((SettingsActivity) mActivity).getmWorkingHours());
-        return _intent;
-    }
 
     private void displayAlertMonitorization() {
         new AlertDialog.Builder(mActivity)
@@ -201,7 +201,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         mBlockList.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                startFragment(new BlockListFragment(mUserID));
+                startFragment(new BlockListFragment(User.getInstance().getUid()));
                 return false;
             }
         });
@@ -238,7 +238,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private void setDurationPreference() {
         mChangeAppointmentsDuration = findPreference("appointmentDuration_change");
         assert mChangeAppointmentsDuration != null;
-        mChangeAppointmentsDuration.setSummary(mUserAppointmentsDuration);
+        mChangeAppointmentsDuration.setSummary(User.getInstance().getUserAppointmentsDuration());
         mChangeAppointmentsDuration.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -264,11 +264,11 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private void setDisplayNamePreference() {
         mChangeDisplayName = findPreference("displayName_change");
         assert mChangeDisplayName != null;
-        mChangeDisplayName.setSummary(mUserDisplayName);
+        mChangeDisplayName.setSummary(user.getUserDisplayName());
         mChangeDisplayName.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                new DisplayName(mActivity, mUserDisplayName, mChangeDisplayName, SettingsFragment.this);
+                new DisplayName(mActivity, user.getUserDisplayName(), mChangeDisplayName, SettingsFragment.this);
                 return true;
             }
         });
@@ -298,46 +298,20 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     private void setPhoneNumberPreference() {
         mChangePhoneNumber = findPreference("phoneNumber_change");
-        mChangePhoneNumber.setSummary(mUserPhoneNumber);
+        mChangePhoneNumber.setSummary(user.getUserPhoneNumber());
         mChangePhoneNumber.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                new PhoneNumber(mActivity, mUserPhoneNumber, mChangePhoneNumber, SettingsFragment.this);
+                new PhoneNumber(mActivity, user.getUserPhoneNumber(), mChangePhoneNumber, SettingsFragment.this);
                 return true;
             }
         });
     }
 
-    private void getDataFromDataBase() {
-        final DocumentReference _docRef = FirebaseFirestore.getInstance()
-                .collection("users")
-                .document(mUserID);
-        mRegistration = _docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot snapshot, @Nullable FirebaseFirestoreException e) {
-                if (e != null) {
-                    Log.w("ERR", "Listen failed.", e);
-                    return;
-                }
-                if (snapshot != null && snapshot.exists()) {
-                    getSnapshotValues(snapshot);
-                }
-            }
-        });
-    }
-
-    private void getSnapshotValues(DocumentSnapshot snapshot) {
-        mUserPhoneNumber = snapshot.get("phoneNumber").toString();
-        mUserDisplayName = snapshot.get("displayName").toString();
-        mUserAppointmentsDuration = snapshot.get("appointmentsDuration").toString();
-        if (mPreferencesCreated) {
-            setPreferencesForCurrentUser();
-        }
-    }
 
     private void getUserBlockedList() {
         final DocumentReference _docRef = FirebaseFirestore.getInstance().collection("blockLists")
-                .document(mUserID);
+                .document(user.getUid());
         mRegistrationBlock = _docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot snapshot, @Nullable FirebaseFirestoreException e) {
@@ -350,17 +324,5 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 }
             }
         });
-    }
-
-    public void setmUserDisplayName(String name) {
-        mUserDisplayName = name;
-    }
-
-    public void setmUserAppointmentDuration(String duration) {
-        mUserAppointmentsDuration = duration;
-    }
-
-    public void setmUserPhoneNumber(String phoneNumber) {
-        mUserPhoneNumber = phoneNumber;
     }
 }

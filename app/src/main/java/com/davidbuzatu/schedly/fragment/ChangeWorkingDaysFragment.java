@@ -17,6 +17,7 @@ import com.davidbuzatu.schedly.R;
 import com.davidbuzatu.schedly.SettingsActivity;
 import com.davidbuzatu.schedly.model.DaysOfWeek;
 import com.davidbuzatu.schedly.model.LogOut;
+import com.davidbuzatu.schedly.model.User;
 import com.davidbuzatu.schedly.packet_classes.PacketCardViewSettings;
 import com.davidbuzatu.schedly.packet_classes.PacketSpinnerViewSettings;
 import com.facebook.login.LoginManager;
@@ -74,9 +75,7 @@ public class ChangeWorkingDaysFragment extends Fragment {
 
     private void saveNewWorkingDaysInDatabase() {
         Map<String, Object> daysToAdd = mPacketSpinnerViewSettings.getDaysToAdd();
-        FirebaseFirestore.getInstance().collection("workingDays")
-                .document(FirebaseAuth.getInstance().getUid())
-                .update(daysToAdd)
+        User.getInstance().setUserWorkingHours(daysToAdd)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {

@@ -14,7 +14,10 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.davidbuzatu.schedly.model.User;
+import com.davidbuzatu.schedly.packet_classes.PacketMainLogin;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -186,13 +189,27 @@ public class SignUpWithEmailActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            FirebaseUser _user = mAuth.getCurrentUser();
-                            addUserDataDatabase(_user);
+                            User.getInstance().setUserPhoneNumber(mCCP.getFullNumberWithPlus())
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            PacketMainLogin.redirectUser(SignUpWithEmailActivity.this);
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                                showToastError();
+                                        }
+                                    });
                         } else {
                             throwExceptions(task);
                         }
                     }
                 });
+    }
+    public void showToastError() {
+        Toast.makeText(this, "Something went wrong! Please check your internet connection!", Toast.LENGTH_LONG).show();
     }
 
     private void throwExceptions(Task<AuthResult> task) {
@@ -208,53 +225,6 @@ public class SignUpWithEmailActivity extends AppCompatActivity {
         }
     }
 
-    private void addUserDataDatabase(final FirebaseUser user) {
-        Map<String, Object> userToAdd = new HashMap<>();
-        userToAdd.put("phoneNumber", mCCP.getFullNumberWithPlus());
-        userToAdd.put("profession", null);
-        FirebaseFirestore.getInstance().collection("users")
-                .document(user.getUid())
-                .set(userToAdd)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        addUserWorkingDaysInDB(user);
-                    }
-                });
-    }
-
-    private void addUserWorkingDaysInDB(FirebaseUser user) {
-        Map<String, Object> daysOfTheWeek = getInitMap();
-        FirebaseFirestore.getInstance().collection("workingDays")
-                .document(user.getUid())
-                .set(daysOfTheWeek)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        setResult(SUWEmailSuccess);
-                        SignUpWithEmailActivity.this.finish();
-                    }
-                });
-    }
-
-    private Map<String, Object> getInitMap() {
-        Map<String, Object> _data = new HashMap<>();
-        _data.put("MondayStart", null);
-        _data.put("MondayEnd", null);
-        _data.put("TuesdayStart", null);
-        _data.put("TuesdayEnd", null);
-        _data.put("WednesdayStart", null);
-        _data.put("WednesdayEnd", null);
-        _data.put("ThursdayStart", null);
-        _data.put("ThursdayEnd", null);
-        _data.put("FridayStart", null);
-        _data.put("FridayEnd", null);
-        _data.put("SaturdayStart", null);
-        _data.put("SaturdayEnd", null);
-        _data.put("SundayStart", null);
-        _data.put("SundayEnd", null);
-        return _data;
-    }
 
     private void showProgressBar(boolean show) {
         if (show) {

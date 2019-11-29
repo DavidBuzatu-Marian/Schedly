@@ -4,14 +4,24 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
 import com.davidbuzatu.schedly.model.LogOut;
+import com.davidbuzatu.schedly.model.User;
 import com.davidbuzatu.schedly.packet_classes.PacketMainLogin;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 
 import static com.davidbuzatu.schedly.CalendarActivity.LOG_OUT;
@@ -25,12 +35,12 @@ import static com.davidbuzatu.schedly.MainActivity.WORKING_HOURS_CHANGED;
 
 public class StartSplashActivity extends AppCompatActivity {
     private int mResultCode = 0, mRequestCode = 0;
+    private boolean[] fetched = new boolean[2];
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         AndroidThreeTen.init(this);
-
         Bundle _extras = getIntent().getExtras();
         if(_extras != null && _extras.getBoolean("LoggedOut")) {
             mResultCode = LOG_OUT;
@@ -45,13 +55,48 @@ public class StartSplashActivity extends AppCompatActivity {
 
     private void checkLoggedIn() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if(currentUser != null) {
-            PacketMainLogin _packetMainLogin = new PacketMainLogin(this, false);
-            _packetMainLogin.getUserDetails(currentUser);
-        }
-        else {
+        if(currentUser == null) {
             redirectWithScreenSize();
+            return;
         }
+
+        final ProgressBar progressBar = new ProgressBar(this);
+        progressBar.setIndeterminate(true);
+        progressBar.setVisibility(View.VISIBLE);
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(100,100);
+        params.addRule(RelativeLayout.CENTER_IN_PARENT);
+        this.addContentView(progressBar, params);
+
+        User user = User.getInstance();
+        user.getUserInfo(currentUser).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                fetched[0] = true;
+                if(isFinishedFetching()) {
+                    progressBar.setVisibility(View.GONE);
+                    PacketMainLogin.redirectUser(StartSplashActivity.this);
+                }
+            }
+        });
+        user.getUserWorkingHoursFromDB(currentUser).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                fetched[1] = true;
+                if(isFinishedFetching()) {
+                    progressBar.setVisibility(View.GONE);
+                    PacketMainLogin.redirectUser(StartSplashActivity.this);
+                }
+            }
+        });
+    }
+
+    private boolean isFinishedFetching() {
+        for(Boolean b : fetched) {
+            if(!b) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private void setFirstLoginPreference() {

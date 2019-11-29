@@ -50,6 +50,7 @@ public class LogOut {
         mGoogleSignInClient.signOut();
         LoginManager.getInstance().logOut();
         FirebaseAuth.getInstance().signOut();
+        User.getInstance().deleteInstance();
     }
 
     private void stopService() {

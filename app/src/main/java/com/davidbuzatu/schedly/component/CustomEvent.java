@@ -1,4 +1,4 @@
-package com.davidbuzatu.schedly.model;
+package com.davidbuzatu.schedly.component;
 
 import com.davidbuzatu.schedly.R;
 

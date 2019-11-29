@@ -5,6 +5,7 @@ import android.telephony.SmsManager;
 
 import com.davidbuzatu.schedly.R;
 import com.davidbuzatu.schedly.model.ContextForStrings;
+import com.davidbuzatu.schedly.model.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 
@@ -41,16 +42,13 @@ public class threadFindDaysForAppointment extends Thread {
     private String[] mDaySchedule;
     private StringBuilder mSMSBody;
     private String mPhoneNumber;
-    private Map<String, String> mUserWorkingDays;
     private String mMessageType;
     private Long mDateInMillisFromService = 0L;
     private Map<String, Object> mUserAppointments;
     private Resources mResources = ContextForStrings.getContext().getResources();
+    private User user = User.getInstance();
 
-    public threadFindDaysForAppointment(Map<String, String> userWorkingDays,
-                                        String userAppointmentDuration) {
-        mUserWorkingDays = userWorkingDays;
-        mUserAppointmentDuration = userAppointmentDuration;
+    public threadFindDaysForAppointment() {
         mSMSBody = new StringBuilder();
     }
 
@@ -124,7 +122,7 @@ public class threadFindDaysForAppointment extends Thread {
 
     private boolean timeToScheduleNotOutside() {
         SimpleDateFormat _sDFormat = new SimpleDateFormat("HH:mm");
-        for (Map.Entry<String, String> _schedule : mUserWorkingDays.entrySet()) {
+        for (Map.Entry<String, String> _schedule : user.getUserWorkingHours().entrySet()) {
             if(!_schedule.getValue().equals("Free")) {
                 try {
                     Date _closeOrOpenHour = _sDFormat.parse(_schedule.getValue());
@@ -180,8 +178,8 @@ public class threadFindDaysForAppointment extends Thread {
              * we need to try the next date
              */
             mDaySchedule = new String[2];
-            mDaySchedule[0] = mUserWorkingDays.get(mDayOfTheWeek + "Start");
-            mDaySchedule[1] = mUserWorkingDays.get(mDayOfTheWeek + "End");
+            mDaySchedule[0] = user.getUserWorkingHours().get(mDayOfTheWeek + "Start");
+            mDaySchedule[1] = user.getUserWorkingHours().get(mDayOfTheWeek + "End");
 
             if (mDaySchedule[0].equals("Free")) {
                 mResult = false;
@@ -203,8 +201,8 @@ public class threadFindDaysForAppointment extends Thread {
         else {
             getDayOfTheWeek(_dateInMillisLong);
             mDaySchedule = new String[2];
-            mDaySchedule[0] = mUserWorkingDays.get(mDayOfTheWeek + "Start");
-            mDaySchedule[1] = mUserWorkingDays.get(mDayOfTheWeek + "End");
+            mDaySchedule[0] = user.getUserWorkingHours().get(mDayOfTheWeek + "Start");
+            mDaySchedule[1] = user.getUserWorkingHours().get(mDayOfTheWeek + "End");
 
             if (mDaySchedule[0].equals("Free")) {
                 mResult = false;

@@ -7,6 +7,8 @@ import android.telephony.SmsManager;
 
 import com.davidbuzatu.schedly.R;
 import com.davidbuzatu.schedly.model.ContextForStrings;
+import com.davidbuzatu.schedly.model.ScheduledHours;
+import com.davidbuzatu.schedly.model.User;
 import com.davidbuzatu.schedly.thread.threadFindDaysForAppointment;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -33,7 +35,7 @@ import java.util.concurrent.TimeUnit;
 public class PacketService {
     private static final int MAX_SMS_CHAR = 141;
     private Long mDateInMillis;
-    private String mUserID, mUserAppointmentDuration, mContactName;
+    private String mContactName;
     private threadFindDaysForAppointment mWorkThread;
     // get the appointments for a given date
     private Map<String, Object> mCurrentDayAppointments;
@@ -50,14 +52,9 @@ public class PacketService {
     private String[] mDaySchedule;
     // building the sms body
     private StringBuilder mSMSBody;
-    private volatile Map<String, String> mUserWorkingDays;
     private Integer mNrOfAppointmentsForDate;
     private Resources mResources = ContextForStrings.getContext().getResources();
-
-    public PacketService(String userID, String userAppointmentDuration) {
-        mUserID = userID;
-        mUserAppointmentDuration = userAppointmentDuration;
-    }
+    private User user = User.getInstance();
 
 
     private void sendMessage() {
@@ -81,10 +78,8 @@ public class PacketService {
         mDayOfTheWeek = _date.format(_DTF);
     }
 
-    public void setUserWorkingHours(HashMap<String, String> workingHours) {
-        mUserWorkingDays = workingHours;
-        mWorkThread = new threadFindDaysForAppointment(mUserWorkingDays,
-                mUserAppointmentDuration);
+    public void setThreadInstance() {
+        mWorkThread = new threadFindDaysForAppointment();
     }
 
     /* used to get hours for a day
@@ -123,8 +118,8 @@ public class PacketService {
     private void sendScheduleOptionsWrapper(Long dateInMillis) {
         getDayOfTheWeek(dateInMillis);
         mDaySchedule = new String[2];
-        mDaySchedule[0] = mUserWorkingDays.get(mDayOfTheWeek + "Start");
-        mDaySchedule[1] = mUserWorkingDays.get(mDayOfTheWeek + "End");
+        mDaySchedule[0] = user.getUserWorkingHours().get(mDayOfTheWeek + "Start");
+        mDaySchedule[1] = user.getUserWorkingHours().get(mDayOfTheWeek + "End");
 
         if (mDaySchedule[0].equals("Free")) {
             mSMSBody = new StringBuilder(mResources.getString(R.string.resources_not_working));
@@ -166,7 +161,7 @@ public class PacketService {
             }
             _date = sDFormat.parse(hour);
             calendar.setTime(_date);
-            calendar.add(Calendar.MINUTE, Integer.parseInt(mUserAppointmentDuration));
+            calendar.add(Calendar.MINUTE, Integer.parseInt(user.getUserAppointmentsDuration()));
             hour = sDFormat.format(calendar.getTime());
         }
     }
@@ -232,8 +227,8 @@ public class PacketService {
     private void checkIfAppointmentCanBeMade(String dateFromUser) {
         getDayOfTheWeek(mDateInMillis);
         mDaySchedule = new String[2];
-        mDaySchedule[0] = mUserWorkingDays.get(mDayOfTheWeek + "Start");
-        mDaySchedule[1] = mUserWorkingDays.get(mDayOfTheWeek + "End");
+        mDaySchedule[0] = user.getUserWorkingHours().get(mDayOfTheWeek + "Start");
+        mDaySchedule[1] = user.getUserWorkingHours().get(mDayOfTheWeek + "End");
 
         if (mDaySchedule[0].equals("Free")) {
             setUpForFreeDay(dateFromUser);
@@ -298,7 +293,7 @@ public class PacketService {
 
     /* *********************** make this one smoother!!!! *************************************** */
     private void getClosestHour(String currentTime, String scheduleTime, String dateFromUser) {
-        int _appointmentInMinutes = Integer.parseInt(mUserAppointmentDuration);
+        int _appointmentInMinutes = Integer.parseInt(user.getUserAppointmentsDuration());
         long _appointmentDuration = TimeUnit.HOURS.toMillis(_appointmentInMinutes / 60) + TimeUnit.MINUTES.toMillis(_appointmentInMinutes % 60);
         String[] _curTimeHm = currentTime.split(":");
         String[] _scheduleTimeHm = scheduleTime.split(":");
@@ -398,10 +393,7 @@ public class PacketService {
     /* ************************************************************************************* */
     /* save the appointment in the database */
     private void saveAppointmentToDatabase(String hour) {
-        Map<String, Object> _appointment = getAppointmentMap(hour);
-        FirebaseFirestore.getInstance().collection("scheduledHours")
-                .document(mUserID)
-                .set(_appointment, SetOptions.merge())
+        ScheduledHours.getInstance().saveScheduledHour(mContactName.equals("") ? null : mContactName, mPhoneNumber, mAppointmentType, hour, mDateInMillis.toString(), user.getUid())
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -411,18 +403,6 @@ public class PacketService {
 
     }
 
-    private Map<String, Object> getAppointmentMap(String hour) {
-        Map<String, String> _detailsOfAppointment = new HashMap<>();
-        _detailsOfAppointment.put("PhoneNumber", mPhoneNumber);
-        _detailsOfAppointment.put("Name", mContactName.equals("") ? null : mContactName);
-        _detailsOfAppointment.put("AppointmentType", mAppointmentType);
-        Map<String, Object> _hourAndInfo = new HashMap<>();
-        _hourAndInfo.put(hour, _detailsOfAppointment);
-        Map<String, Object> _appointment = new HashMap<>();
-        _appointment.put(mDateInMillis.toString(), _hourAndInfo);
-        return _appointment;
-    }
-
     private void increaseNrOfAppointments(String date) {
         mNrOfAppointmentsForDate++;
         Map<String, String> _date = new HashMap<>();
@@ -430,7 +410,7 @@ public class PacketService {
         Map<String, Object> _infoForThisUser = new HashMap<>();
         _infoForThisUser.put(mPhoneNumber, _date);
         FirebaseFirestore.getInstance().collection("phoneNumbersFromClients")
-                .document(mUserID)
+                .document(user.getUid())
                 .set(_infoForThisUser, SetOptions.merge());
     }
 

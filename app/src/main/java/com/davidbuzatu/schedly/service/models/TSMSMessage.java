@@ -1,4 +1,4 @@
-package com.davidbuzatu.schedly.model;
+package com.davidbuzatu.schedly.service.models;
 
 import androidx.annotation.NonNull;
 

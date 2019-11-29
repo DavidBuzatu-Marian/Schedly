@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import com.davidbuzatu.schedly.R;
 import com.davidbuzatu.schedly.fragment.SettingsFragment;
+import com.davidbuzatu.schedly.model.User;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -71,19 +72,12 @@ public class DisplayName {
     }
 
     private void saveDisplayName(final String newDisplayName) {
-        FirebaseFirestore mFireStore = FirebaseFirestore.getInstance();
-        String _userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        Map<String, Object> userToAdd = new HashMap<>();
-        userToAdd.put("displayName", newDisplayName);
-        mFireStore.collection("users")
-                .document(_userID)
-                .update(userToAdd)
+        User.getInstance().updateUserDisplayName(newDisplayName)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Toast.makeText(mActivity, mActivity.getString(R.string.dialog_display_name_success), Toast.LENGTH_SHORT).show();
                         mPreference.setSummary(newDisplayName);
-                        mSettingsFragment.setmUserDisplayName(newDisplayName);
                     }
                 });
     }

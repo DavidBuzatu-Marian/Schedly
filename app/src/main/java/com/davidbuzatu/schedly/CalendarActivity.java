@@ -30,8 +30,9 @@ import android.widget.ImageView;
 import com.davidbuzatu.schedly.adapter.CalendarAdapter;
 import com.davidbuzatu.schedly.adapter.HelperPagerAdapter;
 import com.davidbuzatu.schedly.model.Appointment;
-import com.davidbuzatu.schedly.model.CustomCalendarView;
-import com.davidbuzatu.schedly.model.CustomEvent;
+import com.davidbuzatu.schedly.component.CustomCalendarView;
+import com.davidbuzatu.schedly.component.CustomEvent;
+import com.davidbuzatu.schedly.model.User;
 import com.davidbuzatu.schedly.packet_classes.PacketCalendar;
 import com.davidbuzatu.schedly.service.MonitorIncomingSMSService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -72,21 +73,19 @@ public class CalendarActivity extends AppCompatActivity {
     private final int CALL_LOG_PERMISSION_CODE = 9002;
     public static final int LOG_OUT = 4001;
     public static final int SETTINGS_RETURN = 4000;
-    private String mUserID;
     private CustomCalendarView mCalendarView;
     private Long mDate = 0L;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private int mCounter = 0;
-    private String mUserAppointmentDuration;
     private ArrayList<Appointment> mDataSet = new ArrayList<>();
-    private HashMap<String, String> mWorkingHours = new HashMap<>();
     private PacketCalendar mPacketCalendar;
     private String mCompleteDate;
     private Map<String, Object> mAppointmentsForThisMonth;
     private ListenerRegistration mRegistration;
     private boolean mArePermissionAccepted = true;
     private boolean[] mPermissions = new boolean[3];
+    private User user = User.getInstance();
 
 
     @Override
@@ -94,24 +93,15 @@ public class CalendarActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calendar);
         checkEachPermission();
-        getExtrasValues();
     }
 
     private void checkFirstLogin() {
         if(isFirstLogin()) {
-            showHelperDialog();
-            //setPreference(true);
+//            showHelperDialog();
+            setPreference(true);
         }
     }
 
-    private void getExtrasValues() {
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            mUserID = extras.getString("userID");
-            mWorkingHours = (HashMap<String, String>) extras.getSerializable("userWorkingHours");
-            mUserAppointmentDuration = extras.getString("userAppointmentDuration");
-        }
-    }
 
     private void checkEachPermission() {
         if (!isSmsPermissionGranted()) {
@@ -176,7 +166,7 @@ public class CalendarActivity extends AppCompatActivity {
     }
 
     private void setUpUI() {
-        mPacketCalendar = new PacketCalendar(this, mWorkingHours, mUserAppointmentDuration, mUserID);
+        mPacketCalendar = new PacketCalendar(this);
         setCalendarViewOnClick();
         startServiceSMSMonitoring();
         setUpSettings();
@@ -260,7 +250,7 @@ public class CalendarActivity extends AppCompatActivity {
     }
 
     private void setEvents(long startMonth, long endMonth) {
-        CustomEvent.setUserAppointmentDuration(Long.parseLong(mUserAppointmentDuration));
+        CustomEvent.setUserAppointmentDuration(Long.parseLong(user.getUserAppointmentsDuration()));
         @SuppressLint("UseSparseArrays") final HashMap<Long, CustomEvent> _events = new HashMap<>();
         for (Map.Entry<String, Object> _appointment : mAppointmentsForThisMonth.entrySet()) {
             long _dateInMillis = Long.parseLong(_appointment.getKey());
@@ -269,7 +259,7 @@ public class CalendarActivity extends AppCompatActivity {
                 LocalDate _date = Instant.ofEpochMilli(_dateInMillis).atZone(ZoneId.systemDefault()).toLocalDate();
                 String _dayOfWeek = _date.format(_DTF);
                 CustomEvent _CEvent = new CustomEvent(_dateInMillis);
-                if(!mWorkingHours.get(_dayOfWeek + "Start").equals("Free")) {
+                if(!user.getUserWorkingHours().get(_dayOfWeek + "Start").equals("Free")) {
                     _events.put(_dateInMillis, putDateInEvents(_CEvent, _dateInMillis, _dayOfWeek));
                 }
             }
@@ -281,8 +271,8 @@ public class CalendarActivity extends AppCompatActivity {
         long _numberOfAppointments;
         _numberOfAppointments = countAppointmentsForThisDay(_dateInMillis);
         _CEvent.setUserNumberOfAppointments(_numberOfAppointments);
-        String[] _timeStart = mWorkingHours.get(_dayOfWeek + "Start").split(":");
-        String[] _timeEnd = mWorkingHours.get(_dayOfWeek + "End").split(":");
+        String[] _timeStart = user.getUserWorkingHours().get(_dayOfWeek + "Start").split(":");
+        String[] _timeEnd = user.getUserWorkingHours().get(_dayOfWeek + "End").split(":");
         LocalDateTime _dateTimeStart = getTimeInMillis(_timeStart);
         LocalDateTime _dateTimeEnd = getTimeInMillis(_timeEnd);
         Long _timeStartMillis = getDateInMillis(_dateTimeStart);
@@ -330,7 +320,7 @@ public class CalendarActivity extends AppCompatActivity {
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mAdapter = new CalendarAdapter(CalendarActivity.this, mDataSet, mUserID);
+        mAdapter = new CalendarAdapter(CalendarActivity.this, mDataSet, user.getUid());
         mRecyclerView.setAdapter(mAdapter);
     }
 
@@ -369,9 +359,6 @@ public class CalendarActivity extends AppCompatActivity {
 
     private Intent getServiceIntent() {
         Intent _serviceIntent = new Intent(CalendarActivity.this, MonitorIncomingSMSService.class);
-        _serviceIntent.putExtra("userID", mUserID);
-        _serviceIntent.putExtra("userAppointmentDuration", mUserAppointmentDuration);
-        _serviceIntent.putExtra("userWorkingHours", mWorkingHours);
 //        _serviceIntent.setAction("ACTION.STARTSERVICE_ACTION");
         return _serviceIntent;
     }
@@ -382,9 +369,6 @@ public class CalendarActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent startSettingsActivity = new Intent(CalendarActivity.this, SettingsActivity.class);
-                startSettingsActivity.putExtra("userID", mUserID);
-                startSettingsActivity.putExtra("userAppointmentDuration", mUserAppointmentDuration);
-                startSettingsActivity.putExtra("userWorkingHours", mWorkingHours);
                 startActivityForResult(startSettingsActivity, SETTINGS_RETURN);
             }
         });
@@ -392,7 +376,7 @@ public class CalendarActivity extends AppCompatActivity {
 
 
     private void monitorChanges() {
-        final DocumentReference docRef = FirebaseFirestore.getInstance().collection("scheduledHours").document(mUserID);
+        final DocumentReference docRef = FirebaseFirestore.getInstance().collection("scheduledHours").document(user.getUid());
         mRegistration = docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot snapshot, @Nullable FirebaseFirestoreException e) {

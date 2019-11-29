@@ -14,6 +14,7 @@ import androidx.preference.Preference;
 
 import com.davidbuzatu.schedly.R;
 import com.davidbuzatu.schedly.fragment.SettingsFragment;
+import com.davidbuzatu.schedly.model.User;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -72,20 +73,12 @@ public class PhoneNumber {
     }
 
     private void savePhoneNumber(String fullNumber) {
-        mPhoneNumber = fullNumber;
-        FirebaseFirestore mFireStore = FirebaseFirestore.getInstance();
-        String _userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        Map<String, Object> userToAdd = new HashMap<>();
-        userToAdd.put("phoneNumber", fullNumber);
-        mFireStore.collection("users")
-                .document(_userID)
-                .update(userToAdd)
+        User.getInstance().updateUserPhoneNumber(fullNumber)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Toast.makeText(mActivity, mActivity.getString(R.string.dialog_pnumber_change_success), Toast.LENGTH_SHORT).show();
                         mPreference.setSummary(mPhoneNumber);
-                        mSettingsFragment.setmUserPhoneNumber(mPhoneNumber);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {

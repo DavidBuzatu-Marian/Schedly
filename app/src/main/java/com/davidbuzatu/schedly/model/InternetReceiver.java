@@ -24,13 +24,8 @@ public class InternetReceiver extends BroadcastReceiver {
     private static final String NOTIFICATION_CHANNEL_ID = "channel_internet";
     private Context mContext;
     private NotificationManager mNotificationManager;
-    private String mUserID, mUserAppointmentDuration;
-    private HashMap<String, String> mWorkingHours;
-    public InternetReceiver(MonitorIncomingSMSService monitorIncomingSMSService, String userID, String userAppointmentDuration, HashMap<String, String> workingHours) {
+    public InternetReceiver(MonitorIncomingSMSService monitorIncomingSMSService) {
         mContext = monitorIncomingSMSService;
-        mUserID = userID;
-        mUserAppointmentDuration = userAppointmentDuration;
-        mWorkingHours = workingHours;
     }
 
 
@@ -60,9 +55,6 @@ public class InternetReceiver extends BroadcastReceiver {
 
     private Intent getIntentForSettings(Context context) {
         Intent _intent = new Intent(context, SettingsActivity.class);
-        _intent.putExtra("userID", mUserID);
-        _intent.putExtra("userAppointmentDuration", mUserAppointmentDuration);
-        _intent.putExtra("userWorkingHours", mWorkingHours);
         _intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         return _intent;
     }

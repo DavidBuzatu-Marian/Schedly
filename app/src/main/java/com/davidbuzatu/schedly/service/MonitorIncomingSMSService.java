@@ -13,11 +13,9 @@ import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.ContactsContract;
 import android.telephony.SmsManager;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -28,10 +26,11 @@ import com.davidbuzatu.schedly.R;
 import com.davidbuzatu.schedly.SettingsActivity;
 import com.davidbuzatu.schedly.StartSplashActivity;
 import com.davidbuzatu.schedly.model.InternetReceiver;
-import com.davidbuzatu.schedly.model.MessageListener;
-import com.davidbuzatu.schedly.model.SMSBroadcastReceiver;
-import com.davidbuzatu.schedly.model.TSMSMessage;
+import com.davidbuzatu.schedly.model.User;
 import com.davidbuzatu.schedly.packet_classes.PacketService;
+import com.davidbuzatu.schedly.service.models.MessageListener;
+import com.davidbuzatu.schedly.service.models.SMSBroadcastReceiver;
+import com.davidbuzatu.schedly.service.models.TSMSMessage;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -67,36 +66,24 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
     private HashMap<String, Object> mResultFromDialogFlow;
     private String mTime, mDateFromUser, mAppointmentType;
     private Long mDateFromUserInMillis;
-    private String mUserID, mUserAppointmentDuration, mMessagePhoneNumber;
+    private String mMessagePhoneNumber;
     private HashMap<String, String> mContactName;
     private PacketService mPacketService;
     public static final int SERVICE_ID = 4000;
     public static boolean sServiceRunning = false;
-    private HashMap<String, String> mWorkingHours = new HashMap<>();
     private ListenerRegistration mRegistration;
     private int mNROfAppointmentsForThisDay;
-    private Map<String, Object> mUserAppointments;
     private BroadcastReceiver mInternetBroadcast;
+    private Map<String, Object> mUserAppointments;
+    private User user = User.getInstance();
 
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Bundle _extras = null;
-        if (intent != null) {
-            _extras = intent.getExtras();
-        }
         initObjects();
-        if (_extras != null) {
-            getExtrasValues(_extras);
-        }
         monitorChanges();
         sServiceRunning = true;
         return START_STICKY;
     }
 
-    private void getExtrasValues(Bundle extras) {
-        mUserID = extras.getString("userID");
-        mUserAppointmentDuration = extras.getString("userAppointmentDuration");
-        mWorkingHours = (HashMap<String, String>) extras.getSerializable("userWorkingHours");
-    }
 
     private void initObjects() {
         mSMSQueue = new ArrayDeque<>();
@@ -116,7 +103,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
 
     private void registerReceiverAndBroadcast() {
         SMSBroadcastReceiver.bindListener(this);
-        mInternetBroadcast = new InternetReceiver(this, mUserID, mUserAppointmentDuration, mWorkingHours);
+        mInternetBroadcast = new InternetReceiver(this);
         IntentFilter _intentFilter = new IntentFilter();
         _intentFilter.addAction("android.provider.Telephony.SMS_RECEIVED");
         IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
@@ -158,15 +145,12 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
 
     private Intent getIntentForSettings() {
         Intent _intent = new Intent(this, SettingsActivity.class);
-        _intent.putExtra("userID", mUserID);
-        _intent.putExtra("userAppointmentDuration", mUserAppointmentDuration);
-        _intent.putExtra("userWorkingHours", mWorkingHours);
         _intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         return _intent;
     }
 
     private void monitorChanges() {
-        final DocumentReference docRef = FirebaseFirestore.getInstance().collection("scheduledHours").document(mUserID);
+        final DocumentReference docRef = FirebaseFirestore.getInstance().collection("scheduledHours").document(user.getUid());
         mRegistration = docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot snapshot,
@@ -202,8 +186,8 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
     }
 
     private void initNewPacketService() {
-        mPacketService = new PacketService(mUserID, mUserAppointmentDuration);
-        mPacketService.setUserWorkingHours(mWorkingHours);
+        mPacketService = new PacketService();
+        mPacketService.setThreadInstance();
         mPacketService.setmUserAppointments(mUserAppointments);
     }
 
@@ -439,7 +423,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
         final AtomicBoolean _phoneNumberBlocked = new AtomicBoolean(false);
         FirebaseFirestore.getInstance()
                 .collection("phoneNumbersFromClients")
-                .document(mUserID)
+                .document(user.getUid())
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
@@ -482,7 +466,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
         final AtomicBoolean _phoneNumberBlocked = new AtomicBoolean(false);
         FirebaseFirestore.getInstance()
                 .collection("blockLists")
-                .document(mUserID)
+                .document(user.getUid())
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override

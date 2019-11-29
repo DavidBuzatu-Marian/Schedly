@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.davidbuzatu.schedly.model.User;
 import com.davidbuzatu.schedly.packet_classes.PacketMainLogin;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -46,6 +47,7 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import static com.davidbuzatu.schedly.CalendarActivity.LOG_OUT;
@@ -87,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
     private View mDialogView = null;
     private int mResultCode, mRequestCode;
     private AlertDialog mDialogError;
+    private boolean[] fetched = new boolean[2];
 
     @Override
     public void onStart() {
@@ -113,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
         }
         setUpTVMain();
 
-        mPacketMainLogin = new PacketMainLogin(this, true);
+        mPacketMainLogin = new PacketMainLogin();
     }
 
     private void setUpTVMain() {
@@ -139,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
         buttonSignInMain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mPacketMainLogin.showProgressBar(true);
+                mPacketMainLogin.showProgressBar(true, MainActivity.this);
                 EditText editTextEmail = view.findViewById(R.id.act_main_TIET_email);
                 EditText editTextPass = view.findViewById(R.id.act_main_TIET_password);
                 TextInputLayout textInputLayoutEmail = view.findViewById(R.id.act_main_TIL_email);
@@ -207,7 +210,7 @@ public class MainActivity extends AppCompatActivity {
         _buttonSignInMain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mPacketMainLogin.showProgressBar(true);
+                mPacketMainLogin.showProgressBar(true, MainActivity.this);
                 EditText _editTextEmail = findViewById(R.id.act_main_TIET_email);
                 EditText _editTextPass = findViewById(R.id.act_main_TIET_password);
                 TextInputLayout _textInputLayoutEmail = findViewById(R.id.act_main_TIL_email);
@@ -224,14 +227,14 @@ public class MainActivity extends AppCompatActivity {
         if (ET_Email.isEmpty()) {
             errorFoundTrue = true;
             textInputLayoutEmail.setError("Field required!");
-            mPacketMainLogin.showProgressBar(false);
+            mPacketMainLogin.showProgressBar(false, MainActivity.this);
         } else {
             textInputLayoutEmail.setErrorEnabled(false);
         }
         if (ET_Password.isEmpty()) {
             errorFoundTrue = true;
             textInputLayoutPass.setError("Filed required!");
-            mPacketMainLogin.showProgressBar(false);
+            mPacketMainLogin.showProgressBar(false, MainActivity.this);
         } else {
             textInputLayoutPass.setErrorEnabled(false);
         }
@@ -290,7 +293,7 @@ public class MainActivity extends AppCompatActivity {
         view.findViewById(R.id.act_main_BUT_Google).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mPacketMainLogin.showProgressBar(true);
+                mPacketMainLogin.showProgressBar(true, MainActivity.this);
                 signIn();
             }
         });
@@ -301,7 +304,7 @@ public class MainActivity extends AppCompatActivity {
         loginButtonFacebook.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                mPacketMainLogin.showProgressBar(true);
+                mPacketMainLogin.showProgressBar(true, MainActivity.this);
                 handleFacebookAccessToken(loginResult.getAccessToken());
             }
 
@@ -330,7 +333,7 @@ public class MainActivity extends AppCompatActivity {
         loginButtonFacebook.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                mPacketMainLogin.showProgressBar(true);
+                mPacketMainLogin.showProgressBar(true, MainActivity.this);
                 handleFacebookAccessToken(loginResult.getAccessToken());
             }
 
@@ -371,7 +374,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.act_main_BUT_Google).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mPacketMainLogin.showProgressBar(true);
+                mPacketMainLogin.showProgressBar(true, MainActivity.this);
                 signIn();
             }
         });
@@ -385,15 +388,47 @@ public class MainActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            mPacketMainLogin.getUserDetails(user);
+                            initUser();
                         } else {
                             // If sign in fails, display a message to the user.
                             loginErrorDialog();
-                            mPacketMainLogin.showProgressBar(false);
+                            mPacketMainLogin.showProgressBar(false, MainActivity.this);
                         }
                     }
                 });
+    }
+
+    private void initUser() {
+        User user = User.getInstance();
+        user.getUserInfo(FirebaseAuth.getInstance().getCurrentUser()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                fetched[0] = true;
+                if(isFinishedFetching()) {
+                    mPacketMainLogin.showProgressBar(false, MainActivity.this);
+                    PacketMainLogin.redirectUser(MainActivity.this);
+                }
+            }
+        });
+        user.getUserWorkingHoursFromDB(FirebaseAuth.getInstance().getCurrentUser()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                fetched[1] = true;
+                if(isFinishedFetching()) {
+                    mPacketMainLogin.showProgressBar(false, MainActivity.this);
+                    PacketMainLogin.redirectUser(MainActivity.this);
+                }
+            }
+        });
+    }
+
+    private boolean isFinishedFetching() {
+        for(Boolean b : fetched) {
+            if(!b) {
+                return false;
+            }
+        }
+        return true;
     }
 
 
@@ -410,7 +445,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (ApiException e) {
             loginErrorDialog();
             Log.w(TAG, "handleSignInResult:error", e);
-            mPacketMainLogin.showProgressBar(false);
+            mPacketMainLogin.showProgressBar(false, MainActivity.this);
         }
     }
 
@@ -421,11 +456,10 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            @NonNull FirebaseUser user = mAuth.getCurrentUser();
-                            mPacketMainLogin.getUserDetails(user);
+                            initUser();
                         } else {
                             loginErrorDialog();
-                            mPacketMainLogin.showProgressBar(false);
+                            mPacketMainLogin.showProgressBar(false, MainActivity.this);
                         }
                     }
                 });
@@ -438,10 +472,10 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            @NonNull FirebaseUser user = mAuth.getCurrentUser();
-                            mPacketMainLogin.getUserDetails(user);
+
+                            initUser();
                         } else {
-                            mPacketMainLogin.showProgressBar(false);
+                            mPacketMainLogin.showProgressBar(false, MainActivity.this);
                             throwExceptions(task);
                         }
                     }
@@ -575,7 +609,7 @@ public class MainActivity extends AppCompatActivity {
             handleSignInResult(task);
         }
         if (requestCode == SPN_CANCEL || requestCode == SP_CANCEL || requestCode == SWH_CANCEL || requestCode == SD_CANCEL) {
-            mPacketMainLogin.showProgressBar(false);
+            mPacketMainLogin.showProgressBar(false, MainActivity.this);
             mGoogleSignInClient.signOut();
             LoginManager.getInstance().logOut();
             FirebaseAuth.getInstance().signOut();
@@ -589,8 +623,8 @@ public class MainActivity extends AppCompatActivity {
         switch (resultCode) {
             case SUWEmailSuccess:
                 Toast.makeText(MainActivity.this, "Account created successfully!", Toast.LENGTH_LONG).show();
-                PacketMainLogin _packetMainLogin = new PacketMainLogin(this, false);
-                _packetMainLogin.getUserDetails(mAuth.getCurrentUser());
+                PacketMainLogin _packetMainLogin = new PacketMainLogin();
+                _packetMainLogin.redirectUser(this);
                 break;
             case EMAIL_CHANGED:
                 Toast.makeText(MainActivity.this, "Email changed. Please login again.", Toast.LENGTH_LONG).show();
@@ -605,7 +639,7 @@ public class MainActivity extends AppCompatActivity {
                 Snackbar.make(findViewById(R.id.act_main_CL_Root), "An email with instructions for your password reset was sent", Snackbar.LENGTH_LONG).show();
                 break;
             case LOG_OUT:
-                mPacketMainLogin.showProgressBar(false);
+                mPacketMainLogin.showProgressBar(false, MainActivity.this);
                 break;
         }
     }
@@ -613,6 +647,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        mPacketMainLogin.showProgressBar(false);
+        mPacketMainLogin.showProgressBar(false, MainActivity.this);
     }
 }

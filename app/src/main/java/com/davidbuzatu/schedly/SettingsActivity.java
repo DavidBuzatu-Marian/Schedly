@@ -12,28 +12,16 @@ import java.util.HashMap;
 
 public class SettingsActivity extends AppCompatActivity {
     private Toolbar mToolBar;
-    private String mUserID;
-    private String mUserAppointmentDuration;
-    private HashMap<String, String> mWorkingHours;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_settings);
-        getExtrasValues();
         mToolBar = findViewById(R.id.frag_Settings_Toolbar);
         initSettingsFrament();
         setToolBarNavClick();
     }
 
-    private void getExtrasValues() {
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            mUserID = extras.getString("userID");
-            mUserAppointmentDuration = extras.getString("userAppointmentDuration");
-            mWorkingHours = (HashMap<String, String>) extras.getSerializable("userWorkingHours");
-        }
-    }
 
     private void initSettingsFrament() {
         getSupportFragmentManager()
@@ -59,17 +47,5 @@ public class SettingsActivity extends AppCompatActivity {
 
     public void setActionBarTitle(String _title) {
         mToolBar.setTitle(_title);
-    }
-
-    public String getmUserID() {
-        return mUserID;
-    }
-
-    public String getmUserAppointmentDuration() {
-        return mUserAppointmentDuration;
-    }
-
-    public HashMap<String, String> getmWorkingHours() {
-        return mWorkingHours;
     }
 }

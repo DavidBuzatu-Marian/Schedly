@@ -1,5 +1,6 @@
 package com.davidbuzatu.schedly;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
@@ -10,6 +11,8 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.davidbuzatu.schedly.model.AnimationTransitionOnActivity;
+import com.davidbuzatu.schedly.model.User;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -22,24 +25,14 @@ import static com.davidbuzatu.schedly.MainActivity.CA_CANCEL;
 import static com.davidbuzatu.schedly.MainActivity.SWH_CANCEL;
 
 public class SetProfessionActivity extends AppCompatActivity implements View.OnClickListener {
-    private String userID;
-    private String TAG = "SetProfession";
     private int mSelectedProfession;
     private String mSelectedProfessionName;
-    private String mUserPhoneNumber;
     AnimationTransitionOnActivity mAnimationTransitionOnActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_set_proffesion);
-        Bundle extras = getIntent().getExtras();
-
-        if (extras != null) {
-            ;
-            mUserPhoneNumber = extras.getString("userPhoneNumber");
-            userID = extras.getString("userID");
-        }
         /* set buttons on click listeners */
         setButtonsClick();
         setUpFloatingButton();
@@ -53,7 +46,19 @@ public class SetProfessionActivity extends AppCompatActivity implements View.OnC
                 // Write profession to database
                 if (mSelectedProfessionName != null) {
                     mAnimationTransitionOnActivity = new AnimationTransitionOnActivity(findViewById(R.id.act_SProfession_V_AnimationFill), (int) view.getX(), (int) view.getY());
-                    addUserDataToDatabase(userID);
+                    User.getInstance().setUserProfession(mSelectedProfessionName)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    startSetWorkingHours();
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    showToastError();
+                                }
+                            });
                 } else {
                     Toast.makeText(SetProfessionActivity.this, "A profession is required!", Toast.LENGTH_SHORT).show();
                 }
@@ -76,26 +81,10 @@ public class SetProfessionActivity extends AppCompatActivity implements View.OnC
         _otherButton.setOnClickListener(this);
     }
 
-    private void addUserDataToDatabase(final String userID) {
-        FirebaseFirestore mFireStore = FirebaseFirestore.getInstance();
-        Map<String, Object> userToAdd = new HashMap<>();
-        userToAdd.put("profession", mSelectedProfessionName);
-        mFireStore.collection("users")
-                .document(userID)
-                .update(userToAdd)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        startSetWorkingHours(userID);
-                    }
-                });
-    }
-
-    private void startSetWorkingHours(String userID) {
+    public void startSetWorkingHours() {
         Intent _workingHoursIntent = new Intent(SetProfessionActivity.this, SetWorkingHoursActivity.class);
-        _workingHoursIntent.putExtra("userID", userID);
-        _workingHoursIntent.putExtra("userPhoneNumber", mUserPhoneNumber);
-        startActivityForResult(_workingHoursIntent, SWH_CANCEL);
+        startActivity(_workingHoursIntent);
+        this.finish();
     }
 
     @Override
@@ -137,12 +126,13 @@ public class SetProfessionActivity extends AppCompatActivity implements View.OnC
         currentButton.setBackground(ContextCompat.getDrawable(this, R.drawable.button_selected_profession));
     }
 
+    public void showToastError() {
+        Toast.makeText(this, "Please select a profession and check your internet connection!", Toast.LENGTH_LONG).show();
+    }
+
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if(resultCode == CA_CANCEL || resultCode == LOG_OUT) {
-            setResult(resultCode);
-            this.finish();
-        }
+    public void onBackPressed() {
+        super.onBackPressed();
+        this.finishAffinity();
     }
 }

@@ -15,45 +15,24 @@
       },
       "oauth_client": [
         {
-          "client_id": "125094146390-rq8jenm698vf45dc1nh2e3h4ftuul0vr.apps.googleusercontent.com",
+          "client_id": "125094146390-ou3mcihd55vlutc99sgp3e34g2gld54g.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.davidbuzatu.schedly",
-            "certificate_hash": "917e69d2fd61e97fb08c475710d5d11e33c42a56"
+            "certificate_hash": "786d6e7309057d3cecec97b1e1f647da8b8d9b8a"
           }
-        }
-      ],
-      "api_key": [
+        },
         {
-          "current_key": "AIzaSyAa7aDBdca379F93O4YCNWMmuXI3hm-gUE"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "125094146390-bqg33me43n0hs39b36jnjl33vip19520.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:125094146390:android:b681bdae79c0d773",
-        "android_client_info": {
-          "package_name": "com.example.schedly"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "125094146390-ribh33ms6l9quvt4omibrlkdktphhq5b.apps.googleusercontent.com",
+          "client_id": "125094146390-6b4a41sru1vj16ilnq3ui6pdeb1rl258.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.schedly",
-            "certificate_hash": "48653c03f3d0abc465de0ecda1e66ce1c7c1c706"
+            "package_name": "com.davidbuzatu.schedly",
+            "certificate_hash": "f4c3814ffdd9a4eff0c334e643e5f99390da5596"
           }
+        },
+        {
+          "client_id": "125094146390-htaonr2jinqn6p806rr16frde0qta1mh.apps.googleusercontent.com",
+          "client_type": 3
         }
       ],
       "api_key": [
@@ -65,7 +44,7 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "125094146390-bqg33me43n0hs39b36jnjl33vip19520.apps.googleusercontent.com",
+              "client_id": "125094146390-htaonr2jinqn6p806rr16frde0qta1mh.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

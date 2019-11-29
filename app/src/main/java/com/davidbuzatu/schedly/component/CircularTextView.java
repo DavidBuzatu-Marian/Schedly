@@ -1,4 +1,4 @@
-package com.davidbuzatu.schedly.model;
+package com.davidbuzatu.schedly.component;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
