@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -81,13 +82,13 @@ public class ChangeWorkingDaysFragment extends Fragment {
                     public void onSuccess(Void aVoid) {
                         getFragmentManager().popBackStack();
                         LogOut _logOut = new LogOut(mActivity);
-                        _logOut.LogOutFromApp();
+                        _logOut.LogOutFromApp(true);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w("Settings", "Error writing document", e);
+                        Toast.makeText(mActivity,  "Please check your internet connection", Toast.LENGTH_LONG).show();
                     }
                 });
     }

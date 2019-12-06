@@ -1,9 +1,11 @@
 package com.davidbuzatu.schedly;
 
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
@@ -19,6 +21,11 @@ import com.davidbuzatu.schedly.model.User;
 import com.davidbuzatu.schedly.packet_classes.PacketMainLogin;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.play.core.appupdate.AppUpdateInfo;
+import com.google.android.play.core.appupdate.AppUpdateManager;
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
+import com.google.android.play.core.install.model.UpdateAvailability;
+import com.google.android.play.core.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -27,23 +34,25 @@ import com.jakewharton.threetenabp.AndroidThreeTen;
 import static com.davidbuzatu.schedly.CalendarActivity.LOG_OUT;
 import static com.davidbuzatu.schedly.MainActivity.EMAIL_CHANGED;
 import static com.davidbuzatu.schedly.MainActivity.PASSWORD_CHANGED;
-import static com.davidbuzatu.schedly.MainActivity.SD_CANCEL;
-import static com.davidbuzatu.schedly.MainActivity.SPN_CANCEL;
-import static com.davidbuzatu.schedly.MainActivity.SP_CANCEL;
-import static com.davidbuzatu.schedly.MainActivity.SWH_CANCEL;
 import static com.davidbuzatu.schedly.MainActivity.WORKING_HOURS_CHANGED;
+import static com.google.android.play.core.install.model.AppUpdateType.IMMEDIATE;
 
 public class StartSplashActivity extends AppCompatActivity {
     private int mResultCode = 0, mRequestCode = 0;
+    private boolean preferenceChanged;
     private boolean[] fetched = new boolean[2];
+    private final int UPDATE_REQUEST_CODE = 100001;
+    private AppUpdateManager appUpdateManager;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        checkForUpdate();
         AndroidThreeTen.init(this);
         Bundle _extras = getIntent().getExtras();
         if(_extras != null && _extras.getBoolean("LoggedOut")) {
             mResultCode = LOG_OUT;
+            preferenceChanged = _extras.getBoolean("PreferenceChanged");
             redirectWithScreenSize();
             finish();
         }
@@ -51,6 +60,53 @@ public class StartSplashActivity extends AppCompatActivity {
             setFirstLoginPreference();
         }
         checkLoggedIn();
+    }
+
+    private void checkForUpdate() {
+        appUpdateManager = AppUpdateManagerFactory.create(this);
+        com.google.android.play.core.tasks.Task<AppUpdateInfo> appUpdateInfoTask = appUpdateManager.getAppUpdateInfo();
+        appUpdateInfoTask.addOnSuccessListener(new OnSuccessListener<AppUpdateInfo>() {
+            @Override
+            public void onSuccess(AppUpdateInfo appUpdateInfo) {
+                if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
+                        && appUpdateInfo.isUpdateTypeAllowed(IMMEDIATE)) {
+                    try {
+                        appUpdateManager.startUpdateFlowForResult(
+                                appUpdateInfo,
+                                IMMEDIATE,
+                                StartSplashActivity.this,
+                                UPDATE_REQUEST_CODE);
+                    } catch (IntentSender.SendIntentException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        appUpdateManager
+                .getAppUpdateInfo()
+                .addOnSuccessListener(
+                        new OnSuccessListener<AppUpdateInfo>() {
+                            @Override
+                            public void onSuccess(AppUpdateInfo appUpdateInfo) {
+                                if (appUpdateInfo.updateAvailability()
+                                        == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS) {
+                                    try {
+                                        appUpdateManager.startUpdateFlowForResult(
+                                                appUpdateInfo,
+                                                IMMEDIATE,
+                                                StartSplashActivity.this,
+                                                UPDATE_REQUEST_CODE);
+                                    } catch (IntentSender.SendIntentException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                        });
     }
 
     private void checkLoggedIn() {
@@ -67,18 +123,21 @@ public class StartSplashActivity extends AppCompatActivity {
         params.addRule(RelativeLayout.CENTER_IN_PARENT);
         this.addContentView(progressBar, params);
 
-        User user = User.getInstance();
-        user.getUserInfo(currentUser).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        final User user = User.getInstance();
+        user.getUserInfo().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    user.setUserInfo(task.getResult());
+                }
                 fetched[0] = true;
-                if(isFinishedFetching()) {
+                if (isFinishedFetching()) {
                     progressBar.setVisibility(View.GONE);
                     PacketMainLogin.redirectUser(StartSplashActivity.this);
                 }
             }
         });
-        user.getUserWorkingHoursFromDB(currentUser).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        user.getUserWorkingHoursFromDB().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 fetched[1] = true;
@@ -124,6 +183,7 @@ public class StartSplashActivity extends AppCompatActivity {
         Intent _intentMainActivity = new Intent(this, MainActivity.class);
         _intentMainActivity.putExtra("resultCode", mResultCode);
         _intentMainActivity.putExtra("requestCode", mRequestCode);
+        _intentMainActivity.putExtra("PreferenceChanged", preferenceChanged);
         _intentMainActivity.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         if(height < 1350) {
             _intentMainActivity.putExtra("SmallHeight", R.layout.activity_login_xsmall_devices);
@@ -135,13 +195,6 @@ public class StartSplashActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == SPN_CANCEL || requestCode == SP_CANCEL || requestCode == SWH_CANCEL || requestCode == SD_CANCEL) {
-            LogOut _logOut = new LogOut(this);
-            _logOut.LogOutSetUp();
-            mRequestCode = requestCode;
-            redirectWithScreenSize();
-            finish();
-        }
         switch (resultCode) {
             case LOG_OUT:
             case EMAIL_CHANGED:

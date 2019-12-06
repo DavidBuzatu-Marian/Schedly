@@ -15,14 +15,7 @@ import com.davidbuzatu.schedly.model.User;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static com.davidbuzatu.schedly.CalendarActivity.LOG_OUT;
-import static com.davidbuzatu.schedly.MainActivity.CA_CANCEL;
-import static com.davidbuzatu.schedly.MainActivity.SWH_CANCEL;
 
 public class SetProfessionActivity extends AppCompatActivity implements View.OnClickListener {
     private int mSelectedProfession;

@@ -3,11 +3,14 @@ package com.davidbuzatu.schedly;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Patterns;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -27,15 +30,12 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.hbb20.CountryCodePicker;
 
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.davidbuzatu.schedly.MainActivity.SUWEmailFail;
-import static com.davidbuzatu.schedly.MainActivity.SUWEmailSuccess;
+
 
 public class SignUpWithEmailActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
@@ -48,6 +48,7 @@ public class SignUpWithEmailActivity extends AppCompatActivity {
     private TextInputLayout mTextInputLayoutPass;
     private boolean mShowPasswordTrue = false;
     ProgressBar mProgressBar;
+    private AlertDialog mDialogError;
 
     @Override
     public void onStart() {
@@ -193,7 +194,12 @@ public class SignUpWithEmailActivity extends AppCompatActivity {
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
-                                            PacketMainLogin.redirectUser(SignUpWithEmailActivity.this);
+                                            User.getInstance().getUserInfo().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                    PacketMainLogin.redirectUser(SignUpWithEmailActivity.this);
+                                                }
+                                            });
                                         }
                                     })
                                     .addOnFailureListener(new OnFailureListener() {
@@ -222,9 +228,26 @@ public class SignUpWithEmailActivity extends AppCompatActivity {
             mTextInputLayoutEmail.setError("Email already in use");
             showProgressBar(false);
         } catch (Exception e) {
+            showProgressBar(false);
+            loginErrorDialog();
         }
     }
+    private void loginErrorDialog() {
+        LayoutInflater inflater = getLayoutInflater();
+        View _dialogLayout = inflater.inflate(R.layout.dialog_login_error, null);
+        createAlertDialog(_dialogLayout);
+    }
 
+    private void createAlertDialog(View dialogLayout) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(dialogLayout);
+        mDialogError = builder.create();
+        mDialogError.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        mDialogError.show();
+    }
+    public void dismissDialogError(View view) {
+        mDialogError.dismiss();
+    }
 
     private void showProgressBar(boolean show) {
         if (show) {

@@ -28,8 +28,8 @@ import java.util.Map;
 
 public class User {
     private static User user = null;
-    private DocumentSnapshot userInfo;
-    private DocumentSnapshot userWorkingHours;
+    private static DocumentSnapshot userInfo;
+    private static DocumentSnapshot userWorkingHours;
     private FirebaseUser firebaseUser;
     private HashMap<String, String> userWorkingHoursMap;
 
@@ -39,20 +39,15 @@ public class User {
 //        getUserInfo(user);
     }
 
-    public Task<DocumentSnapshot> getUserInfo(FirebaseUser user) {
-        DocumentReference documentReference = FirebaseFirestore.getInstance().collection("users").document(user.getUid());
-        Task<DocumentSnapshot> Task = documentReference.get();
-        Task.addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+    public Task<DocumentSnapshot> getUserInfo() {
+        Task<DocumentSnapshot> task = FirebaseFirestore.getInstance().collection("users").document(firebaseUser.getUid()).get();
+        task.addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
-            public void onComplete(@NonNull com.google.android.gms.tasks.Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    userInfo = task.getResult();
-                } else {
-                    userInfo = null;
-                }
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                userInfo = task.getResult();
             }
         });
-        return Task;
+        return task;
     }
 
     public String toString() {
@@ -77,19 +72,25 @@ public class User {
     }
 
     public String getUserPhoneNumber() {
-        Object phoneNumber = userInfo.get(ContextForStrings.getContext().getString(R.string.user_phone_number));
+        Object phoneNumber = null;
+        if(userInfo != null) {
+            phoneNumber = userInfo.get(ContextForStrings.getContext().getString(R.string.user_phone_number));
+        }
         return phoneNumber == null ? null : phoneNumber.toString();
     }
 
     public String getUserProfession() {
-        Object profession = userInfo.get(ContextForStrings.getContext().getString(R.string.user_profession));
+        Object profession = null;
+        if(userInfo != null) {
+            profession = userInfo.get(ContextForStrings.getContext().getString(R.string.user_profession));
+        }
         return profession == null ? null : profession.toString();
     }
 
 
-    public Task<DocumentSnapshot> getUserWorkingHoursFromDB(FirebaseUser user) {
+    public Task<DocumentSnapshot> getUserWorkingHoursFromDB() {
         Task<DocumentSnapshot> task = FirebaseFirestore.getInstance().collection("workingDays")
-                .document(user.getUid())
+                .document(firebaseUser.getUid())
                 .get();
 
         task.addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -184,5 +185,9 @@ public class User {
         return FirebaseFirestore.getInstance().collection("users")
                 .document(getUid())
                 .update(durationAndName);
+    }
+
+    public void setUserInfo(DocumentSnapshot result) {
+        userInfo = result;
     }
 }

@@ -16,14 +16,6 @@ import com.davidbuzatu.schedly.packet_classes.PacketSpinnerView;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import static com.davidbuzatu.schedly.CalendarActivity.LOG_OUT;
-import static com.davidbuzatu.schedly.MainActivity.CA_CANCEL;
-import static com.davidbuzatu.schedly.MainActivity.SD_CANCEL;
 
 public class SetWorkingHoursActivity extends AppCompatActivity {
     private ArrayAdapter<CharSequence> mAdapterHours;
@@ -85,5 +77,12 @@ public class SetWorkingHoursActivity extends AppCompatActivity {
 
     public void showToastError() {
         Toast.makeText(this, "Something went wrong! Please check your internet connection!", Toast.LENGTH_LONG).show();
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        this.finishAffinity();
     }
 }

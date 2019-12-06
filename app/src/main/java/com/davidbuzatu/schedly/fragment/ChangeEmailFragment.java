@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -82,7 +83,7 @@ public class ChangeEmailFragment extends Fragment {
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
                     LogOut _logOut = new LogOut(mActivity);
-                    _logOut.LogOutFromApp();
+                    _logOut.LogOutFromApp(true);
                 } else {
                     throwExceptions(task);
                 }
@@ -99,6 +100,7 @@ public class ChangeEmailFragment extends Fragment {
         } catch (FirebaseAuthUserCollisionException existEmail) {
             mTextInputLayoutEmail.setError("Email already in use");
         } catch (Exception e) {
+            Toast.makeText(mActivity,  "Please check your internet connection", Toast.LENGTH_LONG).show();
         }
     }
 

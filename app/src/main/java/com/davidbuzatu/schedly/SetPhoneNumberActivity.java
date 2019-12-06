@@ -19,10 +19,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.hbb20.CountryCodePicker;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static com.davidbuzatu.schedly.MainActivity.SP_CANCEL;
 
 public class SetPhoneNumberActivity extends AppCompatActivity {
 

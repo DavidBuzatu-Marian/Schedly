@@ -125,7 +125,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 LogOut _logOut = new LogOut(mActivity);
-                _logOut.LogOutFromApp();
+                _logOut.LogOutFromApp(false);
                 return false;
             }
         });

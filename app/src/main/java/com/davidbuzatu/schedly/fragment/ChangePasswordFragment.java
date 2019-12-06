@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -155,7 +156,9 @@ public class ChangePasswordFragment extends Fragment implements View.OnClickList
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
                     LogOut _logOut = new LogOut(mActivity);
-                    _logOut.LogOutFromApp();
+                    _logOut.LogOutFromApp(true);
+                } else {
+                    Toast.makeText(mActivity,  "Please check your internet connection", Toast.LENGTH_LONG).show();
                 }
             }
         });

@@ -26,17 +26,18 @@ public class LogOut {
         mActivity = activity;
     }
 
-    public void LogOutFromApp() {
+    public void LogOutFromApp(boolean preferenceChanged) {
         logOutFromFirebase();
         stopService();
-        Intent _loginIntent = getIntentForLogOut();
+        Intent _loginIntent = getIntentForLogOut(preferenceChanged);
         mContext.startActivity(_loginIntent);
         mActivity.finishAffinity();
     }
 
-    private Intent getIntentForLogOut() {
+    private Intent getIntentForLogOut(boolean preferenceChanged) {
         Intent _loginIntent = new Intent(mActivity, StartSplashActivity.class);
         _loginIntent.putExtra("LoggedOut", true);
+        _loginIntent.putExtra("PreferenceChanged", preferenceChanged);
         _loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         return _loginIntent;
     }
@@ -58,7 +59,4 @@ public class LogOut {
         mActivity.stopService(_stopServiceIntent);
     }
 
-    public void LogOutSetUp() {
-        logOutFromFirebase();
-    }
 }

@@ -27,7 +27,6 @@ import java.util.Map;
 public class threadFindDaysForAppointment extends Thread {
 
     private final int HOUR_AND_HALF = 5400000, TWO_HOURS = 7200000;
-    private String mUserAppointmentDuration;
     private int mCounterNextDay, mCounterDaysForAppointment;
     private boolean mResult;
     /* variable used to know when getting the
@@ -252,7 +251,7 @@ public class threadFindDaysForAppointment extends Thread {
     }
 
     private String[] findAppointmentsBefOrAfter(boolean dayHasAppointments, Long dateInMillis, String hour, Date dateAppointmentHour, Date date) throws ParseException {
-        int _appointmentDurationInteger = Integer.parseInt(mUserAppointmentDuration);
+        int _appointmentDurationInteger = Integer.parseInt(User.getInstance().getUserAppointmentsDuration());
         SimpleDateFormat _sDFormat = new SimpleDateFormat("HH:mm");
         Calendar _calendar = Calendar.getInstance();
         Calendar _calendarToPrint = Calendar.getInstance();

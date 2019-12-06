@@ -19,16 +19,13 @@ import com.davidbuzatu.schedly.model.User;
 
 
 import static com.davidbuzatu.schedly.MainActivity.CA_CANCEL;
-import static com.davidbuzatu.schedly.MainActivity.SPN_CANCEL;
-import static com.davidbuzatu.schedly.MainActivity.SD_CANCEL;
-import static com.davidbuzatu.schedly.MainActivity.SP_CANCEL;
-import static com.davidbuzatu.schedly.MainActivity.SWH_CANCEL;
 
 public class PacketMainLogin {
     private boolean mDialogExists;
 
     public static void redirectUser(Activity activity) {
         User currentUser = User.getInstance();
+
         if(currentUser.getUserPhoneNumber() == null) {
             startPhoneNumberActivity(activity);
             return;
@@ -52,17 +49,17 @@ public class PacketMainLogin {
 
     private static void startWorkingHoursActivity(Activity activity) {
         Intent _workingDaysIntent = new Intent(activity, SetWorkingHoursActivity.class);
-        activity.startActivityForResult(_workingDaysIntent, SWH_CANCEL);
+        activity.startActivity(_workingDaysIntent);
     }
 
     private static void startPhoneNumberActivity(Activity activity) {
         Intent _phoneNumberIntent = new Intent(activity, SetPhoneNumberActivity.class);
-        activity.startActivityForResult(_phoneNumberIntent, SPN_CANCEL);
+        activity.startActivity(_phoneNumberIntent);
     }
 
     private static void startProfessionActivity(Activity activity) {
         Intent _professionIntent = new Intent(activity, SetProfessionActivity.class);
-        activity.startActivityForResult(_professionIntent, SP_CANCEL);
+        activity.startActivity(_professionIntent);
     }
     private static void startCalendarActivity(Activity activity) {
         Intent _calendarIntent = new Intent(activity, CalendarActivity.class);
@@ -72,7 +69,7 @@ public class PacketMainLogin {
 
     private static void startScheduleDurationActivity(Activity activity) {
         Intent _scheduleDurationIntent = new Intent(activity, ScheduleDurationActivity.class);
-        activity.startActivityForResult(_scheduleDurationIntent, SD_CANCEL);
+        activity.startActivity(_scheduleDurationIntent);
     }
 
 

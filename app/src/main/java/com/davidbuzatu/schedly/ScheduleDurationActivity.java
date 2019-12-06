@@ -81,7 +81,7 @@ public class ScheduleDurationActivity extends AppCompatActivity {
     }
 
     public void updateUserInfo() {
-        User.getInstance().getUserInfo(FirebaseAuth.getInstance().getCurrentUser()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        User.getInstance().getUserInfo().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 fetched[0] = true;
@@ -90,7 +90,7 @@ public class ScheduleDurationActivity extends AppCompatActivity {
                 }
             }
         });
-        User.getInstance().getUserWorkingHoursFromDB(FirebaseAuth.getInstance().getCurrentUser()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        User.getInstance().getUserWorkingHoursFromDB().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 fetched[1] = true;
@@ -118,15 +118,14 @@ public class ScheduleDurationActivity extends AppCompatActivity {
         return true;
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        setResult(resultCode);
-        this.finish();
-    }
-
     public void showToastError() {
         Toast.makeText(this, "Something went wrong! Please check your internet connection!", Toast.LENGTH_LONG).show();
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        this.finishAffinity();
     }
 }

@@ -63,14 +63,6 @@ public class MainActivity extends AppCompatActivity {
     public static final int SUWEmailFail = 2100;
     /* google sign in code */
     public static final int RC_SIGN_IN = 1001;
-    /* first step back code */
-    public static final int SPN_CANCEL = 2001;
-    /* second step back code */
-    public static final int SP_CANCEL = 2002;
-    /* third step back code */
-    public static final int SWH_CANCEL = 2003;
-    /* last step back code */
-    public static final int SD_CANCEL = 2004;
     /* calendar back press */
     public static final int CA_CANCEL = 2005;
     /* email changed */
@@ -81,8 +73,6 @@ public class MainActivity extends AppCompatActivity {
     public static final int WORKING_HOURS_CHANGED = 4004;
     /* password reset */
     public static final int PR_SUCCESS = 4010;
-    /* firestore */
-    private FirebaseFirestore mFirebaseFirestore;
     private GoogleSignInClient mGoogleSignInClient;
     private boolean mShowPasswordTrue = false;
     private PacketMainLogin mPacketMainLogin;
@@ -94,7 +84,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-        mFirebaseFirestore = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
     }
 
@@ -106,10 +95,16 @@ public class MainActivity extends AppCompatActivity {
             setContentView(_extras.getInt("SmallHeight"));
             mRequestCode = _extras.getInt("requestCode");
             mResultCode = _extras.getInt("resultCode");
+            if(_extras.getBoolean("PreferenceChanged")) {
+                Toast.makeText(this, "Changed saved. Please log in again!", Toast.LENGTH_LONG).show();
+            }
             responseToResult(mRequestCode, mResultCode, null);
             setButtonsOnClick();
             /* for sign up */
         } else {
+            if(_extras != null && _extras.getBoolean("PreferenceChanged")) {
+                Toast.makeText(this, "Changed saved. Please log in again!", Toast.LENGTH_LONG).show();
+            }
             setContentView(R.layout.activity_login);
             setUpSocialsLogin();
             setUpEmailLogin();
@@ -400,7 +395,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initUser() {
         User user = User.getInstance();
-        user.getUserInfo(FirebaseAuth.getInstance().getCurrentUser()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        user.getUserInfo().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 fetched[0] = true;
@@ -410,7 +405,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-        user.getUserWorkingHoursFromDB(FirebaseAuth.getInstance().getCurrentUser()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        user.getUserWorkingHoursFromDB().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 fetched[1] = true;
@@ -608,23 +603,15 @@ public class MainActivity extends AppCompatActivity {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             handleSignInResult(task);
         }
-        if (requestCode == SPN_CANCEL || requestCode == SP_CANCEL || requestCode == SWH_CANCEL || requestCode == SD_CANCEL) {
-            mPacketMainLogin.showProgressBar(false, MainActivity.this);
-            mGoogleSignInClient.signOut();
-            LoginManager.getInstance().logOut();
-            FirebaseAuth.getInstance().signOut();
-            Toast.makeText(MainActivity.this, "All fields are required!", Toast.LENGTH_LONG).show();
-        } else {
-            switchOnResult(resultCode);
-        }
+        switchOnResult(resultCode);
+
     }
 
     private void switchOnResult(int resultCode) {
         switch (resultCode) {
             case SUWEmailSuccess:
                 Toast.makeText(MainActivity.this, "Account created successfully!", Toast.LENGTH_LONG).show();
-                PacketMainLogin _packetMainLogin = new PacketMainLogin();
-                _packetMainLogin.redirectUser(this);
+                PacketMainLogin.redirectUser(this);
                 break;
             case EMAIL_CHANGED:
                 Toast.makeText(MainActivity.this, "Email changed. Please login again.", Toast.LENGTH_LONG).show();

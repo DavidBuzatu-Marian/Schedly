@@ -25,9 +25,12 @@ import androidx.core.app.NotificationCompat;
 import com.davidbuzatu.schedly.R;
 import com.davidbuzatu.schedly.SettingsActivity;
 import com.davidbuzatu.schedly.StartSplashActivity;
+import com.davidbuzatu.schedly.model.BlockedNumbers;
 import com.davidbuzatu.schedly.model.InternetReceiver;
+import com.davidbuzatu.schedly.model.PhoneNumbersFromClients;
 import com.davidbuzatu.schedly.model.User;
 import com.davidbuzatu.schedly.packet_classes.PacketService;
+import com.davidbuzatu.schedly.service.models.MessageChecker;
 import com.davidbuzatu.schedly.service.models.MessageListener;
 import com.davidbuzatu.schedly.service.models.SMSBroadcastReceiver;
 import com.davidbuzatu.schedly.service.models.TSMSMessage;
@@ -178,7 +181,8 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
     public void messageReceived(TSMSMessage newSMSMessage) {
         mNROfAppointmentsForThisDay = 0;
         initNewPacketService();
-        if (!phoneBlocked()) {
+        MessageChecker messageChecker = new MessageChecker(newSMSMessage);
+        if (messageChecker.isMessageForAppointment() && !phoneBlocked()) {
             mSMSQueue.add(newSMSMessage);
             setUpBeforeFirebase();
         }
@@ -399,6 +403,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
                 });
 
     }
+
     private String getLocaleTimeString(String time) {
         if (time != null && !time.equals("")) {
             String[] splitTTime = time.split("T");
@@ -408,6 +413,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
             return null;
         }
     }
+
     private String getLocaleDateString(String date) {
         if (date != null && !date.equals("")) {
             String[] splitTDate = date.split("T");
@@ -416,15 +422,13 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
             return null;
         }
     }
+
     private boolean checkPhoneNumberNrAppointments(String phoneNumber, String dateFromUser) {
         /* get date in millis */
         LocalDate _localDate = LocalDate.parse(dateFromUser);
         mDateFromUserInMillis = _localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
         final AtomicBoolean _phoneNumberBlocked = new AtomicBoolean(false);
-        FirebaseFirestore.getInstance()
-                .collection("phoneNumbersFromClients")
-                .document(user.getUid())
-                .get()
+        PhoneNumbersFromClients.getInstance().getPhoneNumbers()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -442,7 +446,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
             Map<String, Object> _maps = task.getResult().getData();
             Gson _gson = new Gson();
             assert _maps != null;
-            if(_maps.containsKey(mMessagePhoneNumber)) {
+            if (_maps.containsKey(mMessagePhoneNumber)) {
                 getAppointmentsNumber(_maps, _gson);
             }
         }
@@ -464,10 +468,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
 
     private boolean phoneBlocked() {
         final AtomicBoolean _phoneNumberBlocked = new AtomicBoolean(false);
-        FirebaseFirestore.getInstance()
-                .collection("blockLists")
-                .document(user.getUid())
-                .get()
+        BlockedNumbers.getInstance().getBlockedNumbers()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {

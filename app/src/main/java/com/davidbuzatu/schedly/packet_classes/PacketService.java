@@ -7,6 +7,7 @@ import android.telephony.SmsManager;
 
 import com.davidbuzatu.schedly.R;
 import com.davidbuzatu.schedly.model.ContextForStrings;
+import com.davidbuzatu.schedly.model.PhoneNumbersFromClients;
 import com.davidbuzatu.schedly.model.ScheduledHours;
 import com.davidbuzatu.schedly.model.User;
 import com.davidbuzatu.schedly.thread.threadFindDaysForAppointment;
@@ -397,21 +398,19 @@ public class PacketService {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        increaseNrOfAppointments(mDateInMillis.toString());
+                        increaseNrOfAppointmentsForNumber(mDateInMillis.toString());
                     }
                 });
 
     }
 
-    private void increaseNrOfAppointments(String date) {
+    private void increaseNrOfAppointmentsForNumber(String date) {
         mNrOfAppointmentsForDate++;
         Map<String, String> _date = new HashMap<>();
         _date.put(date, mNrOfAppointmentsForDate.toString());
         Map<String, Object> _infoForThisUser = new HashMap<>();
         _infoForThisUser.put(mPhoneNumber, _date);
-        FirebaseFirestore.getInstance().collection("phoneNumbersFromClients")
-                .document(user.getUid())
-                .set(_infoForThisUser, SetOptions.merge());
+        PhoneNumbersFromClients.getInstance().increaseNrOfApp(_infoForThisUser);
     }
 
     public void setNrOfAppointmentsForNumber(int nrOfAppointmentsForDate) {
