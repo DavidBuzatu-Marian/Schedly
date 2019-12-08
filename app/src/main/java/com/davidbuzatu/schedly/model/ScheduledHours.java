@@ -14,8 +14,8 @@ import java.util.Map;
 
 public class ScheduledHours {
 
-    private static ScheduledHours scheduledHours = null;
-    private DocumentSnapshot scheduledHoursSnapshot = null;
+    private static ScheduledHours scheduledHours;
+    private DocumentSnapshot scheduledHoursSnapshot;
 
     public static ScheduledHours getInstance() {
         if(scheduledHours == null) {
@@ -29,7 +29,7 @@ public class ScheduledHours {
         Task<DocumentSnapshot> task = FirebaseFirestore.getInstance().collection("scheduledHours")
                 .document(userID)
                 .get();
-
+        scheduledHoursSnapshot = task.isSuccessful() ? task.getResult() : null;
         return task;
     }
 

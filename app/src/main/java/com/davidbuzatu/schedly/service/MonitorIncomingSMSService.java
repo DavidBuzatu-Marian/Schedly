@@ -16,6 +16,7 @@ import android.os.Build;
 import android.os.IBinder;
 import android.provider.ContactsContract;
 import android.telephony.SmsManager;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -64,7 +65,7 @@ import static com.davidbuzatu.schedly.CalendarActivity.SETTINGS_RETURN;
 
 public class MonitorIncomingSMSService extends Service implements MessageListener {
 
-    private ArrayDeque<TSMSMessage> mSMSQueue;
+    private ArrayDeque<TSMSMessage> mSMSQueue = new ArrayDeque<>();
     private HashMap<String, String> mUUID;
     private HashMap<String, Object> mResultFromDialogFlow;
     private String mTime, mDateFromUser, mAppointmentType;
@@ -269,17 +270,9 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
         mDateFromUser = getLocaleDateString(data.getProperty("date"));
         mAppointmentType = data.getProperty("Appointment-type");
         String _keyWord = data.getProperty("Key-word");
-        if (mDateFromUser != null && !checkPhoneNumberNrAppointments(mMessagePhoneNumber, mDateFromUser)) {
-            responseOptions(_keyWord, message);
-        } else if (isMessageForAppointment(mDateFromUser, mTime, mAppointmentType, _keyWord)) {
+        if ((mDateFromUser != null || mTime != null)) {
             responseOptions(_keyWord, message);
         }
-    }
-
-    private boolean isMessageForAppointment(String dateFromUser, String time, String appointmentType, String keyWord) {
-        if (dateFromUser == null && time == null && (appointmentType == null || keyWord == null)) {
-            return false;
-        } else return appointmentType != null || keyWord != null;
     }
 
     private void responseOptions(String keyWord, String message) {
@@ -301,14 +294,16 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
     }
 
     private void selectOptions() {
-        if (mTime == null && mDateFromUser != null) {
+        if (mTime == null && mDateFromUser != null && !checkPhoneNumberNrAppointments(mMessagePhoneNumber, mDateFromUser)) {
             sendMessageForTime();
         } else if (mDateFromUser == null && mTime != null) {
             sendMessageForDate();
         } else if (mDateFromUser == null && mTime == null) {
             sendMessageForAppointment(mResultFromDialogFlow.get("response").toString());
         } else {
-            sendMessageForFixedParameters();
+            if(!checkPhoneNumberNrAppointments(mMessagePhoneNumber, mDateFromUser)) {
+                sendMessageForFixedParameters();
+            }
         }
 
         resetParams();

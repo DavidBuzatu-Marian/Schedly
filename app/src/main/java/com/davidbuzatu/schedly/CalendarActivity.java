@@ -36,6 +36,7 @@ import com.davidbuzatu.schedly.component.CustomEvent;
 import com.davidbuzatu.schedly.model.User;
 import com.davidbuzatu.schedly.packet_classes.PacketCalendar;
 import com.davidbuzatu.schedly.service.MonitorIncomingSMSService;
+import com.davidbuzatu.schedly.service.models.TestMessages;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -129,12 +130,7 @@ public class CalendarActivity extends AppCompatActivity {
             setUpUI();
         }
         checkFirstLogin();
-//        findViewById(R.id.act_Calendar_BUT_test).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                testMessages();
-//            }
-//        });
+//        TestMessages.getInstance().test(new StringBuilder("Hello. How are you, David? Can you appoint me at 7:30AM?"));
     }
 
     private void setPreference(boolean b) {
@@ -188,16 +184,7 @@ public class CalendarActivity extends AppCompatActivity {
             }
         });
     }
-//
-//    private void testMessages() {
-//        Log.d("Test", "Pressed");
-//        MonitorIncomingSMSService _testMonitor = new MonitorIncomingSMSService();
-//        StringBuilder _smsBody = new StringBuilder("Hello! I would like an appointment at 9:00AM");
-//        TSMSMessage _testMessage = new TSMSMessage(_smsBody, "0724154387", 1570286399839L);
-//        _testMonitor.setParams(this, mUserID, mUserAppointmentDuration, mWorkingHours, mAppointmentsForThisMonth);
-//
-//        _testMonitor.messageReceived(_testMessage);
-//    }
+
 
 
     @Override
