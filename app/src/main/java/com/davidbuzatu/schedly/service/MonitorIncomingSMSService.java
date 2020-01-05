@@ -256,44 +256,40 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
             @Override
             public void onComplete(@NonNull Task<String> task) {
                 if (task.isSuccessful()) {
-                    getParametersAndRedirect(task, message);
-                    mUUID.remove(mMessagePhoneNumber);
+                    getParametersAndRedirect();
                 }
             }
         });
     }
 
-    private void getParametersAndRedirect(Task<String> task, String message) {
+    private void getParametersAndRedirect() {
         Gson _gson = new Gson();
         Properties data = _gson.fromJson(mResultFromDialogFlow.get("parameters").toString(), Properties.class);
         mTime = getLocaleTimeString(data.getProperty("time"));
         mDateFromUser = getLocaleDateString(data.getProperty("date"));
         mAppointmentType = data.getProperty("Appointment-type");
         String _keyWord = data.getProperty("Key-word");
+        String _deleteWord = data.getProperty("Delete-word");
         if ((mDateFromUser != null || mTime != null)) {
-            responseOptions(_keyWord, message);
+            responseOptions(_keyWord, _deleteWord);
         }
     }
 
-    private void responseOptions(String keyWord, String message) {
-        if (keyWord == null && mAppointmentType == null && (mTime == null || mDateFromUser == null)) {
+    private void responseOptions(String keyWord, String deleteWord) {
+        if (keyWord == null && deleteWord == null && mAppointmentType == null && (mTime == null || mDateFromUser == null)) {
             mUUID.remove(mMessagePhoneNumber);
             resetParams();
         } else {
             if (dateFromUserIsNotPast(mDateFromUser)) {
 //                markMessageRead(MonitorIncomingSMSService.this, mMessagePhoneNumber, message);
-                selectOptions();
+                selectOptions(deleteWord);
             }
         }
     }
 
-    private void resetParams() {
-        mDateFromUser = null;
-        mTime = null;
-        mAppointmentType = null;
-    }
 
-    private void selectOptions() {
+
+    private void selectOptions(String deleteWord) {
         if (mTime == null && mDateFromUser != null && !checkPhoneNumberNrAppointments(mMessagePhoneNumber, mDateFromUser)) {
             sendMessageForTime();
         } else if (mDateFromUser == null && mTime != null) {
@@ -302,18 +298,35 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
             sendMessageForAppointment(mResultFromDialogFlow.get("response").toString());
         } else {
             if(!checkPhoneNumberNrAppointments(mMessagePhoneNumber, mDateFromUser)) {
-                sendMessageForFixedParameters();
+                if(deleteWord != null) {
+                    sendMessageForCancel();
+                } else {
+                    sendMessageForFixedParameters();
+                }
             }
         }
 
         resetParams();
     }
 
+    private void resetParams() {
+        mDateFromUser = null;
+        mTime = null;
+        mAppointmentType = null;
+    }
+    private void sendMessageForCancel() {
+        if (mAppointmentType != null) {
+            mPacketService.setAppointmentType(mAppointmentType);
+        }
+        mPacketService.cancelAppointment(mDateFromUser, mDateFromUserInMillis, mTime, mMessagePhoneNumber);
+        mUUID.remove(mMessagePhoneNumber);
+    }
     private void sendMessageForFixedParameters() {
         if (mAppointmentType != null) {
             mPacketService.setAppointmentType(mAppointmentType);
         }
         mPacketService.makeAppointmentForFixedParameters(mDateFromUser, mDateFromUserInMillis, mTime, mMessagePhoneNumber, mContactName.get(mMessagePhoneNumber));
+        mUUID.remove(mMessagePhoneNumber);
     }
 
 //    private void markMessageRead(Context context, String number, String body) {

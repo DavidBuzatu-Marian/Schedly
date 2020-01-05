@@ -3,6 +3,7 @@ package com.davidbuzatu.schedly.model;
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -54,5 +55,13 @@ public class ScheduledHours {
 
     public DocumentSnapshot getScheduledHoursSnapshot() {
         return scheduledHoursSnapshot;
+    }
+
+    public Task<Void> removeAppointment(Map<String, Object> details, Long mDateInMillis) {
+        Map<String, Object> _appointmentMap = new HashMap<>();
+        _appointmentMap.put(mDateInMillis.toString(), details);
+        return FirebaseFirestore.getInstance().collection("scheduledHours")
+                .document(User.getInstance().getUid())
+                .set(_appointmentMap, SetOptions.merge());
     }
 }

@@ -234,4 +234,9 @@
     <string name="dialog_FLHelperPage2_Title">Cum funcționează Schedly?</string>
     <string name="dialog_FLHelper_BUT_Close">Închide</string>
     <string name="notification_enable_monitoring">Pornește monitorizarea</string>
+
+    <string name="user_phone_number">phoneNumber</string>
+    <string name="user_profession">profession</string>
+    <string name="user_appointments_duration">appointmentsDuration</string>
+    <string name="user_display_name">displayName</string>
 </resources>

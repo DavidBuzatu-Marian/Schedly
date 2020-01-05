@@ -233,5 +233,9 @@
     <string name="user_profession">profession</string>
     <string name="user_appointments_duration">appointmentsDuration</string>
     <string name="user_display_name">displayName</string>
+    <string name="responses_cancel_beginning">Alright! Your appointment on</string>
+    <string name="resources_cancel_end">has been canceled</string>
+    <string name="resources_cancel_no_appointment">I am sorry, but you do not have an appointment on this date.</string>
+
 
 </resources>

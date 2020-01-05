@@ -3,7 +3,10 @@ package com.davidbuzatu.schedly.packet_classes;
 import android.annotation.SuppressLint;
 import android.content.res.Resources;
 import android.telephony.SmsManager;
+import android.util.Log;
 
+
+import androidx.annotation.NonNull;
 
 import com.davidbuzatu.schedly.R;
 import com.davidbuzatu.schedly.model.ContextForStrings;
@@ -12,7 +15,9 @@ import com.davidbuzatu.schedly.model.ScheduledHours;
 import com.davidbuzatu.schedly.model.User;
 import com.davidbuzatu.schedly.thread.threadFindDaysForAppointment;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.google.gson.Gson;
@@ -423,5 +428,42 @@ public class PacketService {
 
     public void setmUserAppointments(Map<String, Object> mUserAppointments) {
         this.mUserAppointments = mUserAppointments;
+    }
+
+    public void cancelAppointment(String dateFromUser, Long dateFromUserInMillis, String time, String messagePhoneNumber) {
+        mTimeToSchedule = time;
+        mPhoneNumber = messagePhoneNumber;
+        mDateInMillis = dateFromUserInMillis;
+        Object _values = mUserAppointments.containsKey(mDateInMillis.toString()) ? mUserAppointments.get(mDateInMillis.toString()) : null;
+        if (_values != null) {
+            getCurrentDateAppointments(_values);
+            removeAppointment(dateFromUser);
+        } else {
+            mCurrentDayAppointments = null;
+            mSMSBody.append(R.string.resources_cancel_no_appointment);
+            sendMessage();
+        }
+
+
+    }
+
+    private void removeAppointment(final String dateFromUser) {
+        if (mCurrentDayAppointments != null && mCurrentDayAppointments.containsKey(mTimeToSchedule)) {
+            mCurrentDayAppointments.remove(mTimeToSchedule);
+            ScheduledHours.getInstance().removeAppointment(mCurrentDayAppointments, mDateInMillis).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    mSMSBody.append(R.string.responses_cancel_beginning)
+                            .append(dateFromUser)
+                            .append(R.string.resources_at)
+                            .append(mTimeToSchedule)
+                            .append(R.string.resources_cancel_end);
+                    sendMessage();
+                }
+            });
+        } else {
+            mSMSBody.append(R.string.resources_cancel_no_appointment);
+            sendMessage();
+        }
     }
 }
