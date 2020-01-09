@@ -448,7 +448,7 @@ public class PacketService {
     }
 
     private void removeAppointment(final String dateFromUser) {
-        if (mCurrentDayAppointments != null && mCurrentDayAppointments.containsKey(mTimeToSchedule)) {
+        if (mCurrentDayAppointments != null && mCurrentDayAppointments.containsKey(mTimeToSchedule) && isAppointmentOfNumber(mPhoneNumber)) {
             mCurrentDayAppointments.remove(mTimeToSchedule);
             ScheduledHours.getInstance().removeAppointment(mCurrentDayAppointments, mDateInMillis).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
@@ -465,5 +465,18 @@ public class PacketService {
             mSMSBody.append(R.string.resources_cancel_no_appointment);
             sendMessage();
         }
+    }
+
+    private boolean isAppointmentOfNumber(String mPhoneNumber) {
+        Gson _gson = new Gson();
+        String _json = _gson.toJson(mCurrentDayAppointments.get(mTimeToSchedule));
+
+        try {
+            Map<String, Object> _appointmentInfo = new ObjectMapper().readValue(_json, Map.class);
+            return _appointmentInfo.get("PhoneNumber").equals(mPhoneNumber);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }
