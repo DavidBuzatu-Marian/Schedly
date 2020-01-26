@@ -181,9 +181,11 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
     @Override
     public void messageReceived(TSMSMessage newSMSMessage) {
         mNROfAppointmentsForThisDay = 0;
+        initObjects();
+        monitorChanges();
         initNewPacketService();
         MessageChecker messageChecker = new MessageChecker(newSMSMessage);
-        Log.d("SMS", "Got message" + newSMSMessage.getmSMSBody() + "; " + messageChecker.isMessageForAppointment());
+        Log.d("Testing", "Got message" + newSMSMessage.getmSMSBody() + "; " + messageChecker.isMessageForAppointment());
         if (messageChecker.isMessageForAppointment() && !phoneBlocked()) {
             mSMSQueue.add(newSMSMessage);
             setUpBeforeFirebase();
@@ -268,9 +270,10 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
         Properties data = _gson.fromJson(mResultFromDialogFlow.get("parameters").toString(), Properties.class);
         mTime = getLocaleTimeString(data.getProperty("time"));
         mDateFromUser = getLocaleDateString(data.getProperty("date"));
-        mAppointmentType = data.getProperty("Appointment-type");
-        String _keyWord = data.getProperty("Key-word");
-        String _deleteWord = data.getProperty("Delete-word");
+        mAppointmentType = data.getProperty("Appointment-type").equals("") ? null : data.getProperty("Appointment-type");
+        String _keyWord = data.getProperty("Key-word").equals("") ? null : data.getProperty("Key-word");
+        String _deleteWord = data.getProperty("Delete-word").equals("") ? null : data.getProperty("Delete-word");
+
         if ((mDateFromUser != null || mTime != null)) {
             responseOptions(_keyWord, _deleteWord);
         }

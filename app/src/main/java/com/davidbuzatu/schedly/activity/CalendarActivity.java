@@ -36,6 +36,7 @@ import com.davidbuzatu.schedly.component.CustomEvent;
 import com.davidbuzatu.schedly.model.User;
 import com.davidbuzatu.schedly.packet_classes.PacketCalendar;
 import com.davidbuzatu.schedly.service.MonitorIncomingSMSService;
+import com.davidbuzatu.schedly.service.models.TestMessages;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.firestore.DocumentReference;
@@ -127,7 +128,7 @@ public class CalendarActivity extends AppCompatActivity {
             setUpUI();
         }
         checkFirstLogin();
-//        TestMessages.getInstance().test(new StringBuilder("Hello. How are you, David? Can you appoint me at 7:30AM?"));
+//        TestMessages.getInstance().test(new StringBuilder("I want an appointment on 2020-01-29 at 7:30AM"));
     }
 
     private void setPreference(boolean b) {

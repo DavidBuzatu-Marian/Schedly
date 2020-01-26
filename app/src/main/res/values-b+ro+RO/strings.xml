@@ -239,4 +239,8 @@
     <string name="user_profession">profession</string>
     <string name="user_appointments_duration">appointmentsDuration</string>
     <string name="user_display_name">displayName</string>
+
+    <string name="responses_cancel_beginning">În regulă! Programarea dvs. la</string>
+    <string name="resources_cancel_end">a fost anulată</string>
+    <string name="resources_cancel_no_appointment">Îmi pare rău, dar nu aveți o programare la data și ora aceasta.</string>
 </resources>
