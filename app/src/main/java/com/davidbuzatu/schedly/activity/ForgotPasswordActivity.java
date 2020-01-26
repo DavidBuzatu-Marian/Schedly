@@ -1,4 +1,4 @@
-package com.davidbuzatu.schedly;
+package com.davidbuzatu.schedly.activity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,13 +9,14 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.davidbuzatu.schedly.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 
-import static com.davidbuzatu.schedly.MainActivity.PR_SUCCESS;
+import static com.davidbuzatu.schedly.activity.MainActivity.PR_SUCCESS;
 
 public class ForgotPasswordActivity extends AppCompatActivity {
 

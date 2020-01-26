@@ -1,4 +1,4 @@
-package com.davidbuzatu.schedly;
+package com.davidbuzatu.schedly.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -6,6 +6,7 @@ import androidx.appcompat.widget.Toolbar;
 import android.os.Bundle;
 import android.view.View;
 
+import com.davidbuzatu.schedly.R;
 import com.davidbuzatu.schedly.fragment.SettingsFragment;
 
 import java.util.HashMap;

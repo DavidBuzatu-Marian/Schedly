@@ -1,7 +1,6 @@
 package com.davidbuzatu.schedly.fragment;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,17 +14,14 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
 import com.davidbuzatu.schedly.R;
-import com.davidbuzatu.schedly.SettingsActivity;
+import com.davidbuzatu.schedly.activity.SettingsActivity;
 import com.davidbuzatu.schedly.model.DaysOfWeek;
 import com.davidbuzatu.schedly.model.LogOut;
 import com.davidbuzatu.schedly.model.User;
 import com.davidbuzatu.schedly.packet_classes.PacketCardViewSettings;
 import com.davidbuzatu.schedly.packet_classes.PacketSpinnerViewSettings;
-import com.facebook.login.LoginManager;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Map;
 

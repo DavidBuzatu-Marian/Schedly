@@ -6,7 +6,7 @@
     android:id="@+id/act_Calendar_CL_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CalendarActivity">
+    tools:context=".activity.CalendarActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/act_Calendar_ABL"

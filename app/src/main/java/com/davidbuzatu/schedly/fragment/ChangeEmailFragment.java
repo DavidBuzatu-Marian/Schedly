@@ -14,7 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
 import com.davidbuzatu.schedly.R;
-import com.davidbuzatu.schedly.SettingsActivity;
+import com.davidbuzatu.schedly.activity.SettingsActivity;
 import com.davidbuzatu.schedly.model.LogOut;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;

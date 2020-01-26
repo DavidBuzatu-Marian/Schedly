@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    tools:context=".SetWorkingHoursActivity">
+    tools:context=".activity.SetWorkingHoursActivity">
     <View
         android:id="@+id/act_SWHours_V_AnimationFill"
         android:layout_width="fill_parent"

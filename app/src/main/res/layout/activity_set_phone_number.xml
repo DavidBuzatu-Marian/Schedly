@@ -5,7 +5,7 @@
     android:id="@+id/act_SPNumber_RL"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SetPhoneNumberActivity"
+    tools:context=".activity.SetPhoneNumberActivity"
     android:background="@drawable/set_up_background">
 
 

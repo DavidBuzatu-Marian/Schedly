@@ -1,13 +1,11 @@
-package com.davidbuzatu.schedly;
+package com.davidbuzatu.schedly.activity;
 
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
@@ -16,7 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
-import com.davidbuzatu.schedly.model.LogOut;
+import com.davidbuzatu.schedly.R;
 import com.davidbuzatu.schedly.model.User;
 import com.davidbuzatu.schedly.packet_classes.PacketMainLogin;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -31,10 +29,10 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 
-import static com.davidbuzatu.schedly.CalendarActivity.LOG_OUT;
-import static com.davidbuzatu.schedly.MainActivity.EMAIL_CHANGED;
-import static com.davidbuzatu.schedly.MainActivity.PASSWORD_CHANGED;
-import static com.davidbuzatu.schedly.MainActivity.WORKING_HOURS_CHANGED;
+import static com.davidbuzatu.schedly.activity.CalendarActivity.LOG_OUT;
+import static com.davidbuzatu.schedly.activity.MainActivity.EMAIL_CHANGED;
+import static com.davidbuzatu.schedly.activity.MainActivity.PASSWORD_CHANGED;
+import static com.davidbuzatu.schedly.activity.MainActivity.WORKING_HOURS_CHANGED;
 import static com.google.android.play.core.install.model.AppUpdateType.IMMEDIATE;
 
 public class StartSplashActivity extends AppCompatActivity {

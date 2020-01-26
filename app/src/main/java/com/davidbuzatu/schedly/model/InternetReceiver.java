@@ -12,12 +12,10 @@ import android.os.Build;
 
 import androidx.core.app.NotificationCompat;
 import com.davidbuzatu.schedly.R;
-import com.davidbuzatu.schedly.SettingsActivity;
+import com.davidbuzatu.schedly.activity.SettingsActivity;
 import com.davidbuzatu.schedly.service.MonitorIncomingSMSService;
 
-import java.util.HashMap;
-
-import static com.davidbuzatu.schedly.CalendarActivity.SETTINGS_RETURN;
+import static com.davidbuzatu.schedly.activity.CalendarActivity.SETTINGS_RETURN;
 
 public class InternetReceiver extends BroadcastReceiver {
     private static final String ACTION = "android.net.conn.CONNECTIVITY_CHANGE";

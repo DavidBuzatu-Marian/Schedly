@@ -20,7 +20,7 @@ import androidx.preference.PreferenceManager;
 import androidx.preference.SwitchPreference;
 
 import com.davidbuzatu.schedly.R;
-import com.davidbuzatu.schedly.SettingsActivity;
+import com.davidbuzatu.schedly.activity.SettingsActivity;
 import com.davidbuzatu.schedly.model.LogOut;
 import com.davidbuzatu.schedly.model.NetworkChecker;
 import com.davidbuzatu.schedly.model.User;

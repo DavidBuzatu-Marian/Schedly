@@ -1,4 +1,4 @@
-package com.davidbuzatu.schedly;
+package com.davidbuzatu.schedly.activity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.davidbuzatu.schedly.R;
 import com.davidbuzatu.schedly.model.User;
 import com.davidbuzatu.schedly.packet_classes.PacketMainLogin;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -34,7 +35,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.hbb20.CountryCodePicker;
 
 
-import static com.davidbuzatu.schedly.MainActivity.SUWEmailFail;
+import static com.davidbuzatu.schedly.activity.MainActivity.SUWEmailFail;
 
 
 public class SignUpWithEmailActivity extends AppCompatActivity {

@@ -22,7 +22,7 @@
         android:name="com.davidbuzatu.schedly.model.ContextForStrings">
 
         <activity
-            android:name="com.davidbuzatu.schedly.StartSplashActivity"
+            android:name="com.davidbuzatu.schedly.activity.StartSplashActivity"
             android:theme="@style/SplashTheme"
             android:screenOrientation="portrait"
             android:launchMode="singleTop"
@@ -34,10 +34,10 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.davidbuzatu.schedly.SettingsActivity"
+        <activity android:name="com.davidbuzatu.schedly.activity.SettingsActivity"
             android:screenOrientation="portrait"
             android:launchMode="singleTop"/>
-        <activity android:name="com.davidbuzatu.schedly.ForgotPasswordActivity"
+        <activity android:name="com.davidbuzatu.schedly.activity.ForgotPasswordActivity"
             android:screenOrientation="portrait" />
 
         <service
@@ -45,21 +45,21 @@
             android:enabled="true"
             android:label="@string/app_name" />
 
-        <activity android:name="com.davidbuzatu.schedly.ScheduleDurationActivity"
+        <activity android:name="com.davidbuzatu.schedly.activity.ScheduleDurationActivity"
             android:screenOrientation="portrait" />
-        <activity android:name="com.davidbuzatu.schedly.SetWorkingHoursActivity"
+        <activity android:name="com.davidbuzatu.schedly.activity.SetWorkingHoursActivity"
             android:screenOrientation="portrait" />
-        <activity android:name="com.davidbuzatu.schedly.SetProfessionActivity"
+        <activity android:name="com.davidbuzatu.schedly.activity.SetProfessionActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.davidbuzatu.schedly.SetPhoneNumberActivity"
-            android:parentActivityName="com.davidbuzatu.schedly.MainActivity"
+            android:name="com.davidbuzatu.schedly.activity.SetPhoneNumberActivity"
+            android:parentActivityName="com.davidbuzatu.schedly.activity.MainActivity"
             android:screenOrientation="portrait" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.davidbuzatu.schedly.MainActivity" />
+                android:value="com.davidbuzatu.schedly.activity.MainActivity" />
         </activity>
-        <activity android:name="com.davidbuzatu.schedly.CalendarActivity"
+        <activity android:name="com.davidbuzatu.schedly.activity.CalendarActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.DIAL" />
@@ -72,16 +72,16 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name="com.davidbuzatu.schedly.MainActivity"
+        <activity android:name="com.davidbuzatu.schedly.activity.MainActivity"
             android:screenOrientation="portrait"
             android:launchMode="singleTop"/>
         <activity
-            android:name="com.davidbuzatu.schedly.SignUpWithEmailActivity"
-            android:parentActivityName="com.davidbuzatu.schedly.MainActivity"
+            android:name="com.davidbuzatu.schedly.activity.SignUpWithEmailActivity"
+            android:parentActivityName="com.davidbuzatu.schedly.activity.MainActivity"
             android:screenOrientation="portrait" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.davidbuzatu.schedly.MainActivity" />
+                android:value="com.davidbuzatu.schedly.activity.MainActivity" />
         </activity>
 
         <meta-data

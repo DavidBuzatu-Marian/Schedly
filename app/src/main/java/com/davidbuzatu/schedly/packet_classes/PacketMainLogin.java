@@ -9,16 +9,16 @@ import android.widget.ProgressBar;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 
-import com.davidbuzatu.schedly.CalendarActivity;
+import com.davidbuzatu.schedly.activity.CalendarActivity;
 import com.davidbuzatu.schedly.R;
-import com.davidbuzatu.schedly.ScheduleDurationActivity;
-import com.davidbuzatu.schedly.SetPhoneNumberActivity;
-import com.davidbuzatu.schedly.SetProfessionActivity;
-import com.davidbuzatu.schedly.SetWorkingHoursActivity;
+import com.davidbuzatu.schedly.activity.ScheduleDurationActivity;
+import com.davidbuzatu.schedly.activity.SetPhoneNumberActivity;
+import com.davidbuzatu.schedly.activity.SetProfessionActivity;
+import com.davidbuzatu.schedly.activity.SetWorkingHoursActivity;
 import com.davidbuzatu.schedly.model.User;
 
 
-import static com.davidbuzatu.schedly.MainActivity.CA_CANCEL;
+import static com.davidbuzatu.schedly.activity.MainActivity.CA_CANCEL;
 
 public class PacketMainLogin {
     private boolean mDialogExists;

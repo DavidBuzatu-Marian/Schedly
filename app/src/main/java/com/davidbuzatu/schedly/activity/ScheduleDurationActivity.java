@@ -1,15 +1,15 @@
-package com.davidbuzatu.schedly;
+package com.davidbuzatu.schedly.activity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.davidbuzatu.schedly.R;
 import com.davidbuzatu.schedly.model.AnimationTransitionOnActivity;
 import com.davidbuzatu.schedly.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -17,14 +17,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import static com.davidbuzatu.schedly.MainActivity.CA_CANCEL;
 
 public class ScheduleDurationActivity extends AppCompatActivity {
 

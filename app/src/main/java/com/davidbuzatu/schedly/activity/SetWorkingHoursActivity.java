@@ -1,4 +1,4 @@
-package com.davidbuzatu.schedly;
+package com.davidbuzatu.schedly.activity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
+import com.davidbuzatu.schedly.R;
 import com.davidbuzatu.schedly.model.AnimationTransitionOnActivity;
 import com.davidbuzatu.schedly.model.User;
 import com.davidbuzatu.schedly.packet_classes.PacketCardView;

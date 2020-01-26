@@ -24,8 +24,8 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
 import com.davidbuzatu.schedly.R;
-import com.davidbuzatu.schedly.SettingsActivity;
-import com.davidbuzatu.schedly.StartSplashActivity;
+import com.davidbuzatu.schedly.activity.SettingsActivity;
+import com.davidbuzatu.schedly.activity.StartSplashActivity;
 import com.davidbuzatu.schedly.model.BlockedNumbers;
 import com.davidbuzatu.schedly.model.InternetReceiver;
 import com.davidbuzatu.schedly.model.PhoneNumbersFromClients;
@@ -61,7 +61,7 @@ import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.davidbuzatu.schedly.CalendarActivity.SETTINGS_RETURN;
+import static com.davidbuzatu.schedly.activity.CalendarActivity.SETTINGS_RETURN;
 
 public class MonitorIncomingSMSService extends Service implements MessageListener {
 
@@ -183,6 +183,7 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
         mNROfAppointmentsForThisDay = 0;
         initNewPacketService();
         MessageChecker messageChecker = new MessageChecker(newSMSMessage);
+        Log.d("SMS", "Got message" + newSMSMessage.getmSMSBody() + "; " + messageChecker.isMessageForAppointment());
         if (messageChecker.isMessageForAppointment() && !phoneBlocked()) {
             mSMSQueue.add(newSMSMessage);
             setUpBeforeFirebase();

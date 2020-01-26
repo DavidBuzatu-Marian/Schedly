@@ -1,6 +1,5 @@
-package com.davidbuzatu.schedly;
+package com.davidbuzatu.schedly.activity;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,6 +27,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.ImageView;
 
+import com.davidbuzatu.schedly.R;
 import com.davidbuzatu.schedly.adapter.CalendarAdapter;
 import com.davidbuzatu.schedly.adapter.HelperPagerAdapter;
 import com.davidbuzatu.schedly.model.Appointment;
@@ -36,10 +36,7 @@ import com.davidbuzatu.schedly.component.CustomEvent;
 import com.davidbuzatu.schedly.model.User;
 import com.davidbuzatu.schedly.packet_classes.PacketCalendar;
 import com.davidbuzatu.schedly.service.MonitorIncomingSMSService;
-import com.davidbuzatu.schedly.service.models.TestMessages;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -66,9 +63,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
-import static com.davidbuzatu.schedly.MainActivity.EMAIL_CHANGED;
-import static com.davidbuzatu.schedly.MainActivity.PASSWORD_CHANGED;
-import static com.davidbuzatu.schedly.MainActivity.WORKING_HOURS_CHANGED;
+import static com.davidbuzatu.schedly.activity.MainActivity.EMAIL_CHANGED;
+import static com.davidbuzatu.schedly.activity.MainActivity.PASSWORD_CHANGED;
+import static com.davidbuzatu.schedly.activity.MainActivity.WORKING_HOURS_CHANGED;
 
 public class CalendarActivity extends AppCompatActivity {
     private final String TAG = "CalendarActivity";

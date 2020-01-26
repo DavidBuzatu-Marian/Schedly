@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.davidbuzatu.schedly.R;
-import com.davidbuzatu.schedly.StartSplashActivity;
+import com.davidbuzatu.schedly.activity.StartSplashActivity;
 import com.davidbuzatu.schedly.service.MonitorIncomingSMSService;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
