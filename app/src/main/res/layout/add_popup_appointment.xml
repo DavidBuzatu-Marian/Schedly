@@ -90,7 +90,7 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/popup_add_BUT_AddAppoinrmwnr"
+                android:id="@+id/popup_add_BUT_AddAppointment"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:layout_gravity="center"

@@ -98,12 +98,6 @@ public class CalendarActivity extends AppCompatActivity {
         checkEachPermission();
     }
 
-    private void checkFirstLogin() {
-        if(isFirstLogin()) {
-//            showHelperDialog();
-            setPreference(true);
-        }
-    }
 
 
     private void checkEachPermission() {
@@ -130,6 +124,17 @@ public class CalendarActivity extends AppCompatActivity {
         checkFirstLogin();
 //        TestMessages.getInstance().test(new StringBuilder("I want an appointment on 2020-01-29 at 7:30AM"));
     }
+    private void checkFirstLogin() {
+        if(isFirstLogin()) {
+            showHelperDialog();
+            setPreference(false);
+        }
+    }
+
+    private boolean isFirstLogin() {
+        SharedPreferences _userPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        return _userPreferences.getBoolean("firstLogin", false);
+    }
 
     private void setPreference(boolean b) {
         SharedPreferences _userPreferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -145,23 +150,18 @@ public class CalendarActivity extends AppCompatActivity {
         _dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         _dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         HelperPagerAdapter _adapter = new HelperPagerAdapter(this);
-
+        _adapter.setDialog(_dialog);
         setPagerTabs(_dialog, _adapter);
         _dialog.show();
-        _adapter.setDialog(_dialog);
     }
 
     private void setPagerTabs(Dialog dialog, HelperPagerAdapter adapter) {
         ViewPager _pager = dialog.findViewById(R.id.dialog_FLogin_VP);
         TabLayout _tabLayout = dialog.findViewById(R.id.dialog_FLogin_TL);
-        _tabLayout.setupWithViewPager(_pager, true);
+        _tabLayout.setupWithViewPager(_pager, false);
         _pager.setAdapter(adapter);
     }
 
-    private boolean isFirstLogin() {
-        SharedPreferences _userPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        return _userPreferences.getBoolean("firstLogin", false);
-    }
 
     private void setUpUI() {
         mPacketCalendar = new PacketCalendar(this);

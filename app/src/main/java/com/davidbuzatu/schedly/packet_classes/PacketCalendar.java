@@ -110,7 +110,7 @@ public class PacketCalendar {
         } else if (size.y > 1350 && size.y < 1900) {
             mPopWindow = new PopupWindow(inflatedView, size.x - 50, size.y * 3 / 4, true);
         } else {
-            mPopWindow = new PopupWindow(inflatedView, size.x - 50, size.y / 2, true);
+            mPopWindow = new PopupWindow(inflatedView, size.x - 50, size.y / 2 + 200, true);
         }
         mPopWindow.setBackgroundDrawable(mActivity.getDrawable(R.drawable.bkg_appointment_options));
         mPopWindow.setFocusable(true);
@@ -209,22 +209,33 @@ public class PacketCalendar {
 
     private void setUpSpinner(View inflatedView, ArrayList<String> hours) {
         Spinner _hoursSpinner = inflatedView.findViewById(R.id.popup_add_SP_Hours);
+        if(hours.size() == 0) {
+            hours.add("Full day");
+        }
         final ArrayAdapter<String> _adapterHours = new ArrayAdapter<>(mActivity,
                 android.R.layout.simple_dropdown_item_1line, hours);
         _hoursSpinner.setAdapter(_adapterHours);
-        setOnSpinnerItemSelected(_hoursSpinner, _adapterHours);
+        setOnSpinnerItemSelected(_hoursSpinner, _adapterHours, inflatedView);
     }
 
-    private void setOnSpinnerItemSelected(Spinner hoursSpinner, final ArrayAdapter<String> adapterHours) {
+    private void setOnSpinnerItemSelected(Spinner hoursSpinner, final ArrayAdapter<String> adapterHours, final View inflatedView) {
         hoursSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
                 mSelectedAppointmentHour = adapterHours.getItem(position);
+                Button _buttonAddAppointment = inflatedView.findViewById(R.id.popup_add_BUT_AddAppointment);
+                if( mSelectedAppointmentHour.equals("Full day")) {
+                    _buttonAddAppointment.setEnabled(false);
+                } else {
+                    _buttonAddAppointment.setEnabled(true);
+                }
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
                 mSelectedAppointmentHour = null;
+                Button _buttonAddAppointment = inflatedView.findViewById(R.id.popup_add_BUT_AddAppointment);
+                _buttonAddAppointment.setEnabled(false);
             }
         });
     }
@@ -237,7 +248,10 @@ public class PacketCalendar {
     }
 
     private void setUpButtonAddAppointment(View inflatedView, final AutoCompleteTextView txtName, final AutoCompleteTextView txtNumber) {
-        Button _buttonAddAppointment = inflatedView.findViewById(R.id.popup_add_BUT_AddAppoinrmwnr);
+        Button _buttonAddAppointment = inflatedView.findViewById(R.id.popup_add_BUT_AddAppointment);
+        if(mSelectedAppointmentHour == null || mSelectedAppointmentHour.equals("Full day")) {
+            _buttonAddAppointment.setEnabled(false);
+        }
         _buttonAddAppointment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

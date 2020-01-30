@@ -6,7 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-
+import android.view.View.OnClickListener;
 import androidx.annotation.NonNull;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -42,21 +42,22 @@ public class HelperPagerAdapter extends PagerAdapter {
                 break;
         }
         ViewGroup layout = (ViewGroup) inflater.inflate(resID, collection, false);
-        setButtonClose(layout, position);
         collection.addView(layout);
+        if(resID == R.layout.dialog_first_login_helper_sms_page2) {
+            setButtonClose(layout);
+        }
         return layout;
     }
 
-    private void setButtonClose(ViewGroup layout, int position) {
-        if(position == 3) {
-            Button _btnClose = layout.findViewById(R.id.dialog_FLHelper_BUT_Close);
-            _btnClose.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    mDialog.dismiss();
-                }
-            });
-        }
+    private void setButtonClose(ViewGroup layout) {
+        Button _btnClose = layout.findViewById(R.id.dialog_FLHelper_BUT_Close);
+        _btnClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mDialog.dismiss();
+            }
+        });
+
     }
 
     @Override

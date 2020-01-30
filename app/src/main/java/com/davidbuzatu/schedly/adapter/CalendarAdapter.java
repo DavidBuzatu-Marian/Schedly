@@ -144,7 +144,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
             } else if (_size.y > 1350 && _size.y < 1900) {
                 mPopWindow = new PopupWindow(_inflatedView, _size.x - 50, _size.y * 3 / 4, true);
             } else {
-                mPopWindow = new PopupWindow(_inflatedView, _size.x - 50, _size.y / 2, true);
+                mPopWindow = new PopupWindow(_inflatedView, _size.x - 50, _size.y / 2 + 200, true);
             }
             // set a background drawable with rounders corners
             mPopWindow.setBackgroundDrawable(parent.getResources().getDrawable(R.drawable.bkg_appointment_options));
