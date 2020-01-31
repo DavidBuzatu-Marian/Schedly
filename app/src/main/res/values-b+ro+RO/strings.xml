@@ -1,6 +1,5 @@
 <resources>
     <string name="facebook_app_id">293320568283992</string>
-    <string name="fb_login_protocol_scheme">fb293320568283992</string>
 <!--    <string name="server_client_id">125094146390-m0fk6oqclr1edebu3gdaldiq3r52cika.apps.googleusercontent.com</string>-->
     <string name="default_web_client_ID">125094146390-htaonr2jinqn6p806rr16frde0qta1mh.apps.googleusercontent.com</string>
 

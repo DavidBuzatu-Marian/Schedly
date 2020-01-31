@@ -20,7 +20,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:name="com.davidbuzatu.schedly.model.ContextForStrings">
-
+        <receiver android:name=".service.models.SMSBroadcastReceiver">
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SMS_RECEIVED"/>
+            </intent-filter>
+        </receiver>
         <activity
             android:name="com.davidbuzatu.schedly.activity.StartSplashActivity"
             android:theme="@style/SplashTheme"

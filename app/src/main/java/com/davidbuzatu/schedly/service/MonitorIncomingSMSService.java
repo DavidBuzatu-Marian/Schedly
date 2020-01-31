@@ -185,7 +185,6 @@ public class MonitorIncomingSMSService extends Service implements MessageListene
         monitorChanges();
         initNewPacketService();
         MessageChecker messageChecker = new MessageChecker(newSMSMessage);
-        Log.d("Testing", "Got message" + newSMSMessage.getmSMSBody() + "; " + messageChecker.isMessageForAppointment());
         if (messageChecker.isMessageForAppointment() && !phoneBlocked()) {
             mSMSQueue.add(newSMSMessage);
             setUpBeforeFirebase();

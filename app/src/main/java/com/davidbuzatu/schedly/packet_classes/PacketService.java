@@ -126,7 +126,6 @@ public class PacketService {
         mDaySchedule = new String[2];
         mDaySchedule[0] = user.getUserWorkingHours().get(mDayOfTheWeek + "Start");
         mDaySchedule[1] = user.getUserWorkingHours().get(mDayOfTheWeek + "End");
-        Log.d("Testing", mDaySchedule[0] + ";" + mDaySchedule[1]);
         if (mDaySchedule[0].equals("Free")) {
             mSMSBody = new StringBuilder(mResources.getString(R.string.resources_not_working));
             SmsManager.getDefault().sendTextMessage(mPhoneNumber, null, mSMSBody.toString(), null, null);

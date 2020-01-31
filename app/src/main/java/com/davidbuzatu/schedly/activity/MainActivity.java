@@ -337,7 +337,6 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onError(FacebookException error) {
-                Log.d("ErrFacebook", error.toString());
                 loginErrorDialog();
             }
         });
