@@ -32,4 +32,5 @@
     <item name="act_SWHours_Spinner_WednesdayEnd" type="id" />
     <item name="act_SWHours_Spinner_TuesdayEnd" type="id" />
     <item name="act_SWHours_Spinner_MondayEnd" type="id" />
+    <item name="act_Splash_ImageView" type="id"/>
 </resources>

@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
@@ -41,12 +42,15 @@ public class StartSplashActivity extends AppCompatActivity {
     private boolean[] fetched = new boolean[2];
     private final int UPDATE_REQUEST_CODE = 100001;
     private AppUpdateManager appUpdateManager;
+    private ProgressBar mProgressBar;
+    private ImageView mImageView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         checkForUpdate();
         AndroidThreeTen.init(this);
+        addImageAndLoader();
         Bundle _extras = getIntent().getExtras();
         if(_extras != null && _extras.getBoolean("LoggedOut")) {
             mResultCode = LOG_OUT;
@@ -107,6 +111,25 @@ public class StartSplashActivity extends AppCompatActivity {
                         });
     }
 
+    public void addImageAndLoader() {
+        mImageView = new ImageView(this);
+        mProgressBar = new ProgressBar(this);
+        final RelativeLayout layout = new RelativeLayout(this);
+        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(768, 768);
+        lp.addRule(RelativeLayout.CENTER_IN_PARENT);
+        mImageView.setId(R.id.act_Splash_ImageView);
+        mImageView.setImageResource(R.drawable.ic_splash);
+
+        mProgressBar.setIndeterminate(true);
+        mProgressBar.setVisibility(View.VISIBLE);
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(100,100);
+        params.addRule(RelativeLayout.BELOW, R.id.act_Splash_ImageView);
+        params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        layout.addView(mImageView, lp);
+        layout.addView(mProgressBar, params);
+        setContentView(layout);
+    }
+
     private void checkLoggedIn() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if(currentUser == null) {
@@ -114,12 +137,6 @@ public class StartSplashActivity extends AppCompatActivity {
             return;
         }
 
-        final ProgressBar progressBar = new ProgressBar(this);
-        progressBar.setIndeterminate(true);
-        progressBar.setVisibility(View.VISIBLE);
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(100,100);
-        params.addRule(RelativeLayout.CENTER_IN_PARENT);
-        this.addContentView(progressBar, params);
 
         final User user = User.getInstance();
         user.getUserInfo().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -130,7 +147,7 @@ public class StartSplashActivity extends AppCompatActivity {
                 }
                 fetched[0] = true;
                 if (isFinishedFetching()) {
-                    progressBar.setVisibility(View.GONE);
+                    mProgressBar.setVisibility(View.GONE);
                     PacketMainLogin.redirectUser(StartSplashActivity.this);
                 }
             }
@@ -140,7 +157,7 @@ public class StartSplashActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 fetched[1] = true;
                 if(isFinishedFetching()) {
-                    progressBar.setVisibility(View.GONE);
+                    mProgressBar.setVisibility(View.GONE);
                     PacketMainLogin.redirectUser(StartSplashActivity.this);
                 }
             }
