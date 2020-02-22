@@ -53,6 +53,16 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory
+        app:key="policy_category"
+        app:title="@string/preferences_policy">
+
+        <Preference
+            app:key="policy"
+            app:title="@string/preferences_private_policy"/>
+
+    </PreferenceCategory>
+
     <Preference
         app:key="logout"
         app:title="Log Out"

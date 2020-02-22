@@ -44,10 +44,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private Preference mChangeEmailPreference;
     private Preference mChangePasswordPreference, mChangeWorkingHours;
     private Preference mChangePhoneNumber, mChangeDisplayName, mChangeAppointmentsDuration;
-    private Preference mFeedback;
+    private Preference mFeedback, mPolicy;
     private SwitchPreference mDisableMonitorization;
     private FragmentActivity mActivity = getActivity();
-    private boolean mPreferencesCreated = false;
     private Map<String, Object> mBlockedNumbers;
     private User user = User.getInstance();
     private Preference mBlockList;
@@ -56,7 +55,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.preferences, rootKey);
-        mPreferencesCreated = true;
         enablePasswordEmailChange();
         setPreferencesForCurrentUser();
     }
@@ -114,6 +112,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         setWorkingHoursPreference();
         setDurationPreference();
         setFeedbackPreference();
+        setPolicyPreference();
         setBlockListPreference();
         setMonitorization();
         setLogOut();
@@ -212,6 +211,18 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         transaction.replace(R.id.frag_Settings_FL_Holder, fragment);
         transaction.addToBackStack(null);
         transaction.commit();
+    }
+
+    private void setPolicyPreference() {
+        mPolicy = findPreference("policy");
+        assert mPolicy != null;
+        mPolicy.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                startFragment(new ViewPolicyFragment());
+                return false;
+            }
+        });
     }
 
     private void setFeedbackPreference() {
