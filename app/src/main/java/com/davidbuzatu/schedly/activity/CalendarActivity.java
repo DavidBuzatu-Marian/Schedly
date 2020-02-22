@@ -88,6 +88,7 @@ public class CalendarActivity extends AppCompatActivity {
     private boolean mArePermissionAccepted = true;
     private boolean[] mPermissions = new boolean[3];
     private User user = User.getInstance();
+    private Dialog mDialog;
 
 
     @Override
@@ -118,12 +119,21 @@ public class CalendarActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        closeDialog();
         if (mArePermissionAccepted) {
             setUpUI();
+
         }
         checkFirstLogin();
 //        TestMessages.getInstance().test(new StringBuilder("I want an appointment on 2020-01-29 at 7:30AM"));
     }
+
+    private void closeDialog() {
+        if(mDialog != null) {
+            mDialog.dismiss();
+        }
+    }
+
     private void checkFirstLogin() {
         if(isFirstLogin()) {
             showHelperDialog();
@@ -144,15 +154,15 @@ public class CalendarActivity extends AppCompatActivity {
     }
 
     private void showHelperDialog() {
-        final Dialog _dialog = new Dialog(this);
-        _dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        _dialog.setContentView(R.layout.dialog_first_login);
-        _dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        _dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        mDialog = new Dialog(this);
+        mDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        mDialog.setContentView(R.layout.dialog_first_login);
+        mDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        mDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         HelperPagerAdapter _adapter = new HelperPagerAdapter(this);
-        _adapter.setDialog(_dialog);
-        setPagerTabs(_dialog, _adapter);
-        _dialog.show();
+        _adapter.setDialog(mDialog);
+        setPagerTabs(mDialog, _adapter);
+        mDialog.show();
     }
 
     private void setPagerTabs(Dialog dialog, HelperPagerAdapter adapter) {
@@ -475,7 +485,22 @@ public class CalendarActivity extends AppCompatActivity {
     }
 
     public void showRequestPermissionsInfoAlertDialogLog(final boolean makeSystemRequest) {
-        requestReadLogPermission();
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.permission_alert_dialog_LOG); // title
+        builder.setMessage(R.string.permission_dialog_LOG_body); // message
+        builder.setPositiveButton(R.string.permission_alert_dialog_OK, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                // Display system runtime permission request?
+                if (makeSystemRequest) {
+                    requestReadLogPermission();
+                }
+            }
+        });
+        builder.setCancelable(false);
+        builder.show();
+
     }
 
     public boolean isSmsPermissionGranted() {

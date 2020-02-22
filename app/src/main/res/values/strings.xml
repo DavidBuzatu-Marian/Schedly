@@ -236,6 +236,7 @@
     <string name="responses_cancel_beginning">Alright! Your appointment on</string>
     <string name="resources_cancel_end">has been canceled</string>
     <string name="resources_cancel_no_appointment">I am sorry, but you do not have an appointment on this date.</string>
+    <string name="permission_dialog_LOG_body">Schedly will now request  permission to read you call history in order to fill in automatically the fields when making appointments</string>
 
 
 </resources>

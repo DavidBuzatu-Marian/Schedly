@@ -242,4 +242,5 @@
     <string name="responses_cancel_beginning">În regulă! Programarea dvs. la</string>
     <string name="resources_cancel_end">a fost anulată</string>
     <string name="resources_cancel_no_appointment">Îmi pare rău, dar nu aveți o programare la data și ora aceasta.</string>
+    <string name="permission_dialog_LOG_body">Schedly vă va cere acum permisiunea de a vă citi numerele in istoricul apelurilor pentru a umple automat câmpurile pentru programările manuale</string>
 </resources>
