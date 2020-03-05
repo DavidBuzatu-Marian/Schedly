@@ -19,6 +19,7 @@
         android:layout_marginBottom="128dp"
         app:tabIndicatorColor="#CC0000"
         app:tabGravity="center"
+        app:tabBackground="@color/colorPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
         />
 

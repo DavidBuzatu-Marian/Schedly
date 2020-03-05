@@ -2,6 +2,7 @@ package com.davidbuzatu.schedly.packet_classes;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -20,6 +21,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class PacketSpinnerViewSettings extends AppCompatSpinner {
@@ -31,10 +33,12 @@ public class PacketSpinnerViewSettings extends AppCompatSpinner {
     private View mView;
     private Map<String, Object> mUserWorkingDays;
     private final ArrayAdapter<CharSequence> mAdapterHours;
+    private final Context mContext;
     private int mDaysIterator;
 
     public PacketSpinnerViewSettings(Context context, View _view, ArrayAdapter<CharSequence> _adapterHours) {
         super(context);
+        mContext = context;
         mView = _view;
         mAdapterHours = _adapterHours;
         getUserWorkingDays();
@@ -61,10 +65,10 @@ public class PacketSpinnerViewSettings extends AppCompatSpinner {
     private void initializeIDArrays() {
         int _counter = 0;
         for(DaysOfWeek _day: DaysOfWeek.values()) {
-            if(!_day.geteDisplayName().equals("All")) {
+            if(!translate(new Locale("en"), _day.geteDisplayNameResID()).equals("All")) {
                 mIDsArray.put(_day.geteSpinnerStartID(), _counter / 2);
                 mIDsArray.put(_day.geteSpinnerEndID(), _counter / 2);
-                setCheckChanged((CheckBox) mView.findViewById(_day.geteCheckBoxID()), _day.geteDisplayName().substring(0, 3).toUpperCase());
+                setCheckChanged((CheckBox) mView.findViewById(_day.geteCheckBoxID()),translate(new Locale("en"), _day.geteDisplayNameResID()).substring(0, 3).toUpperCase());
                 _counter += 2;
             }
         }
@@ -97,7 +101,7 @@ public class PacketSpinnerViewSettings extends AppCompatSpinner {
     public void setUpSpinners() {
         mDaysIterator = 0;
         for(DaysOfWeek _day: DaysOfWeek.values()) {
-            if(!_day.geteDisplayName().equals("All")) {
+            if(!translate(new Locale("en"), _day.geteDisplayNameResID()).equals("All")) {
                 Spinner _startHours = mView.findViewById(_day.geteSpinnerStartID());
                 Spinner _endHours = mView.findViewById(_day.geteSpinnerEndID());
                 setSpinnerAdaptersAndValues(_startHours, _endHours, _day);
@@ -134,8 +138,8 @@ public class PacketSpinnerViewSettings extends AppCompatSpinner {
     }
 
     private void setSpinnerAdaptersAndValues(Spinner startHours, Spinner endHours, DaysOfWeek _day) {
-        String _dayStart = _day.geteDisplayName() + "Start",
-                _dayEnd = _day.geteDisplayName() + "End";
+        String _dayStart = translate(new Locale("en"), _day.geteDisplayNameResID()) + "Start",
+                _dayEnd = translate(new Locale("en"), _day.geteDisplayNameResID())+ "End";
         startHours.setAdapter(mAdapterHours);
         endHours.setAdapter(mAdapterHours);
         if (!mUserWorkingDays.get(_dayStart).toString().equals("Free")) {
@@ -155,8 +159,8 @@ public class PacketSpinnerViewSettings extends AppCompatSpinner {
         Map<String, Object> daysToAdd = new HashMap<>();
 
         for (DaysOfWeek _day: DaysOfWeek.values()) {
-            if(!_day.geteDisplayName().equals("All")) {
-                putToDays(_day.getFreeStatus(), daysToAdd, _day.geteDisplayName());
+            if(!translate(new Locale("en"), _day.geteDisplayNameResID()).equals("All")) {
+                putToDays(_day.getFreeStatus(), daysToAdd, translate(new Locale("en"),  _day.geteDisplayNameResID()));
                 mDaysIterator++;
             }
         }
@@ -172,5 +176,11 @@ public class PacketSpinnerViewSettings extends AppCompatSpinner {
             daysToAdd.put(dayName + "Start", mStartHours[mDaysIterator]);
             daysToAdd.put(dayName + "End", mEndHours[mDaysIterator]);
         }
+    }
+
+    public String translate(Locale locale, int resId) {
+        Configuration config = new Configuration(getResources().getConfiguration());
+        config.setLocale(locale);
+        return mContext.createConfigurationContext(config).getString(resId);
     }
 }

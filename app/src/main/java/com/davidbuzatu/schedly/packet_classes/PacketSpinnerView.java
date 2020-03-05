@@ -3,6 +3,7 @@ package com.davidbuzatu.schedly.packet_classes;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -16,6 +17,7 @@ import com.davidbuzatu.schedly.R;
 import com.davidbuzatu.schedly.model.DaysOfWeek;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 
@@ -47,7 +49,7 @@ public class PacketSpinnerView extends AppCompatSpinner {
         int _counter = 0;
 
         for(DaysOfWeek _day : DaysOfWeek.values()) {
-            setCheckChanged((CheckBox) mActivity.findViewById(_day.geteCheckBoxID()), _day.geteDisplayName().substring(0, 3).toUpperCase());
+            setCheckChanged((CheckBox) mActivity.findViewById(_day.geteCheckBoxID()), translate(new Locale("en"),_day.geteDisplayNameResID()).substring(0, 3).toUpperCase());
             mIDsArray.put(_day.geteSpinnerStartID(), _counter / 2);
             mIDsArray.put(_day.geteSpinnerEndID(), _counter / 2);
             _counter += 2;
@@ -152,8 +154,8 @@ public class PacketSpinnerView extends AppCompatSpinner {
             /* we have 7 days to get */
             mDaysIterator = 1;
             for (DaysOfWeek _day : DaysOfWeek.values()) {
-                if(!_day.geteDisplayName().equals("All")) {
-                    putToDays(_day.getFreeStatus(), daysToAdd, _day.geteDisplayName());
+                if(!translate(new Locale("en"), _day.geteDisplayNameResID()).equals("All")) {
+                    putToDays(_day.getFreeStatus(), daysToAdd, translate(new Locale("en"), _day.geteDisplayNameResID()));
                     mDaysIterator++;
                 }
             }
@@ -165,13 +167,13 @@ public class PacketSpinnerView extends AppCompatSpinner {
             mDaysIterator = 0;
             for (DaysOfWeek _day: DaysOfWeek.values()) {
                 if(mDaysIterator < 6 && mDaysIterator > 0) {
-                    mWorkingHours.put(_day.geteDisplayName() + "Start", mStartHours[0]);
-                    mWorkingHours.put(_day.geteDisplayName() + "End", mEndHours[0]);
-                    daysToAdd.put(_day.geteDisplayName() + "Start", mStartHours[0]);
-                    daysToAdd.put(_day.geteDisplayName() + "End", mEndHours[0]);
+                    mWorkingHours.put(translate(new Locale("en"), _day.geteDisplayNameResID()) + "Start", mStartHours[0]);
+                    mWorkingHours.put(translate(new Locale("en"), _day.geteDisplayNameResID()) + "End", mEndHours[0]);
+                    daysToAdd.put(translate(new Locale("en"), _day.geteDisplayNameResID()) + "Start", mStartHours[0]);
+                    daysToAdd.put(translate(new Locale("en"), _day.geteDisplayNameResID()) + "End", mEndHours[0]);
                 }
                 else if (mDaysIterator >= 6) {
-                    putToDays(_day.getFreeStatus(), daysToAdd, _day.geteDisplayName());
+                    putToDays(_day.getFreeStatus(), daysToAdd, translate(new Locale("en"), _day.geteDisplayNameResID()));
                 }
                 mDaysIterator++;
             }
@@ -192,6 +194,12 @@ public class PacketSpinnerView extends AppCompatSpinner {
             daysToAdd.put(dayName + "Start", mStartHours[mDaysIterator]);
             daysToAdd.put(dayName + "End", mEndHours[mDaysIterator]);
         }
+    }
+
+    public String translate(Locale locale, int resId) {
+        Configuration config = new Configuration(mActivity.getResources().getConfiguration());
+        config.setLocale(locale);
+        return mActivity.createConfigurationContext(config).getString(resId);
     }
 
     public HashMap<String, String> getWorkingDays() {

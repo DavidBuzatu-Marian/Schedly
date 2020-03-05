@@ -30,7 +30,7 @@ public class PacketCardViewSettings extends CardView {
         DaysOfWeek _previousDay = DaysOfWeek.MON;
         mRootRelativeLayout = mView.findViewById(R.id.frag_CWHours_RL_root);
         for (DaysOfWeek _day : DaysOfWeek.values()) {
-            if (!_day.geteDisplayName().equals("All")) {
+            if (!_day.geteDisplayName().equals(getResources().getString(R.string.act_SWHours_TV_AllDay))) {
                 CardView _cardView = new CardView(mView.getContext());
                 RelativeLayout.LayoutParams _layoutParamsCV = new RelativeLayout.LayoutParams(
                         LayoutParams.MATCH_PARENT,
@@ -44,7 +44,7 @@ public class PacketCardViewSettings extends CardView {
                 _relativeLayoutInCard.setLayoutParams(_layoutParamsCV);
                 _relativeLayoutInCard.setPadding(2, 4, 2, 4);
 
-                if (_day.geteDisplayName().equals("Monday")) {
+                if (_day.geteDisplayName().equals(getResources().getString(R.string.act_SWHours_TV_Monday))) {
                     _layoutParamsCV.addRule(RelativeLayout.ALIGN_PARENT_TOP);
                 } else {
                     _layoutParamsCV.addRule(RelativeLayout.BELOW, _previousDay.getCardViewId());

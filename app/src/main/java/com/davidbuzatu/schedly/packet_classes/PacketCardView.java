@@ -36,22 +36,20 @@ public class PacketCardView extends CardView {
                     LayoutParams.MATCH_PARENT,
                     LayoutParams.WRAP_CONTENT
             );
-            RelativeLayout.LayoutParams _layoutParamsCB =  newRLLayoutParams();
-            RelativeLayout.LayoutParams _layoutParamsTV =  newRLLayoutParams();
-            RelativeLayout.LayoutParams _layoutParamsSPS =  newRLLayoutParams();
-            RelativeLayout.LayoutParams _layoutParamsSPE =  newRLLayoutParams();
+            RelativeLayout.LayoutParams _layoutParamsCB = newRLLayoutParams();
+            RelativeLayout.LayoutParams _layoutParamsTV = newRLLayoutParams();
+            RelativeLayout.LayoutParams _layoutParamsSPS = newRLLayoutParams();
+            RelativeLayout.LayoutParams _layoutParamsSPE = newRLLayoutParams();
 
             RelativeLayout _relativeLayoutInCard = new RelativeLayout(mActivity);
             _relativeLayoutInCard.setLayoutParams(_layoutParamsCV);
             _relativeLayoutInCard.setPadding(2, 4, 2, 4);
 
-            if(_day.geteDisplayName().equals("Saturday")) {
+            if (_day.geteDisplayName().equals(getResources().getString(R.string.act_SWHours_TV_Saturday))) {
                 _layoutParamsCV.addRule(RelativeLayout.BELOW, DaysOfWeek.ALL.getCardViewId());
-            }
-            else if(_day.geteDisplayName().equals("Monday") || _day.geteDisplayName().equals("All")) {
+            } else if (_day.geteDisplayName().equals(getResources().getString(R.string.act_SWHours_TV_Monday)) || _day.geteDisplayName().equals(getResources().getString(R.string.act_SWHours_TV_AllDay))) {
                 _layoutParamsCV.addRule(RelativeLayout.BELOW, R.id.act_SWHours_CB_DiffHours);
-            }
-            else {
+            } else {
                 _layoutParamsCV.addRule(RelativeLayout.BELOW, _previousDay.getCardViewId());
             }
 
@@ -105,7 +103,7 @@ public class PacketCardView extends CardView {
         _checkBox.setText(R.string.act_SWHours_CB_FreeDay);
         relativeLayoutInCard.addView(_checkBox, layoutParamsCB);
         layoutParamsCB.addRule(RelativeLayout.ALIGN_PARENT_START);
-        layoutParamsCB.setMargins(0,  0, 12, 0);
+        layoutParamsCB.setMargins(0, 0, 12, 0);
         layoutParamsCB.addRule(RelativeLayout.CENTER_VERTICAL);
         _checkBox.setLayoutParams(layoutParamsCB);
     }
@@ -131,8 +129,8 @@ public class PacketCardView extends CardView {
 
     private void initializeMap() {
         int _counter = 0;
-        for(DaysOfWeek _day: DaysOfWeek.values()) {
-            if(_counter < 6 && _counter > 0) {
+        for (DaysOfWeek _day : DaysOfWeek.values()) {
+            if (_counter < 6 && _counter > 0) {
                 mActivity.findViewById(_day.getCardViewId()).setVisibility(View.GONE);
             }
             _counter++;
@@ -141,8 +139,8 @@ public class PacketCardView extends CardView {
 
     public void setVisibilityOnCheck(boolean isChecked) {
         int _counter = 0;
-        for(DaysOfWeek _day: DaysOfWeek.values()) {
-            if(_counter < 6 && _counter > 0) {
+        for (DaysOfWeek _day : DaysOfWeek.values()) {
+            if (_counter < 6 && _counter > 0) {
                 if (isChecked) {
                     mActivity.findViewById(_day.getCardViewId()).setVisibility(View.VISIBLE);
                 } else {
@@ -151,13 +149,12 @@ public class PacketCardView extends CardView {
             }
             _counter++;
         }
-        if(isChecked) {
+        if (isChecked) {
             mActivity.findViewById(DaysOfWeek.ALL.getCardViewId()).setVisibility(View.GONE);
             RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mActivity.findViewById(DaysOfWeek.SAT.getCardViewId()).getLayoutParams();
             params.addRule(RelativeLayout.BELOW, DaysOfWeek.FRI.getCardViewId());
             mActivity.findViewById(DaysOfWeek.SAT.getCardViewId()).setLayoutParams(params);
-        }
-        else {
+        } else {
             mActivity.findViewById(DaysOfWeek.ALL.getCardViewId()).setVisibility(View.VISIBLE);
             RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mActivity.findViewById(DaysOfWeek.SAT.getCardViewId()).getLayoutParams();
             params.addRule(RelativeLayout.BELOW, DaysOfWeek.ALL.getCardViewId());

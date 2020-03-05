@@ -27,7 +27,7 @@
     <string name="act_SWHours_CB_DiffHours">Orar diferit pentru fiecare zi</string>
     <string name="act_SWHours_Spinner_TitleStart">Ora deschiderii</string>
     <string name="act_SWHours_Spinner_TitleEnd">Ora închiderii</string>
-    <string name="act_SWHours_TV_AllDay">Toate zilele săptămânii</string>
+    <string name="act_SWHours_TV_AllDay">L-V</string>
     <string name="act_SWHours_TV_Sunday">Duminică</string>
     <string name="act_SWHours_TV_Saturday">Sâmbătă</string>
     <string name="act_SWHours_CB_FreeDay">Liber</string>
@@ -245,4 +245,5 @@
     <string name="permission_dialog_LOG_body">Schedly vă va cere acum permisiunea de a vă citi numerele in istoricul apelurilor pentru a umple automat câmpurile pentru programările manuale</string>
     <string name="preferences_policy">Politica</string>
     <string name="preferences_private_policy">Politica de confidențialitate</string>
+    <string name="settings_policy_bar_title">Politica de confidențialitate</string>
 </resources>
