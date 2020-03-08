@@ -167,7 +167,7 @@
     <string name="settings_working_days_bar_title">Change working days</string>
     <string name="toast_add_appointment_phone_number">Phone number is required!</string>
     <string name="snackbar_add_appointment_failed">Appointment failed. Please check your connection or submit the error</string>
-    <string name="add_appointment_manual_success_beg">You\'ve been scheduled on</string>
+    <string name="add_appointment_manual_success_beg">You\'ve been scheduled on </string>
     <string name="add_appointment_manual_success_at"> at: </string>
     <string name="add_appointment_manual_success_end">. If something is wrong, please contact me</string>
     <string name="toast_add_appointment_hours">Hour for schedule is required!</string>

@@ -287,7 +287,7 @@ public class PacketCalendar {
                         @Override
                         public void onSuccess(Void aVoid) {
                             mPopWindow.dismiss();
-//                            sendMessage(phoneNumber);
+                            sendMessage(phoneNumber);
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -300,12 +300,14 @@ public class PacketCalendar {
     }
 
     private void sendMessage(String phoneNumber) {
-        SmsManager.getDefault().sendTextMessage(phoneNumber, null,
-                mActivity.getString(R.string.add_appointment_manual_success_beg)
-                        + mCompleteDate
-                        + mActivity.getString(R.string.add_appointment_manual_success_at)
-                        + mSelectedAppointmentHour
-                        + mActivity.getString(R.string.add_appointment_manual_success_end),
+        StringBuilder message = new StringBuilder(mActivity.getString(R.string.add_appointment_manual_success_beg));
+        message.append(" ").append(mCompleteDate)
+                .append(" ").append(mActivity.getString(R.string.add_appointment_manual_success_at))
+                .append(" ").append(mSelectedAppointmentHour)
+                .append(mActivity.getString(R.string.add_appointment_manual_success_end));
+        SmsManager.getDefault().sendTextMessage(phoneNumber,
+                null,
+                message.toString(),
                 null, null);
     }
 

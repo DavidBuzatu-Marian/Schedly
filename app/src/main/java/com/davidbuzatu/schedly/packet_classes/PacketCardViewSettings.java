@@ -2,6 +2,7 @@ package com.davidbuzatu.schedly.packet_classes;
 
 import android.content.Context;
 import android.graphics.Typeface;
+import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.RelativeLayout;

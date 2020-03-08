@@ -3,6 +3,7 @@ package com.davidbuzatu.schedly.packet_classes;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -13,6 +14,8 @@ import android.widget.Spinner;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatSpinner;
 
+import com.davidbuzatu.schedly.R;
+import com.davidbuzatu.schedly.model.ContextForStrings;
 import com.davidbuzatu.schedly.model.DaysOfWeek;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -53,7 +56,7 @@ public class PacketSpinnerViewSettings extends AppCompatSpinner {
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if(task.isSuccessful()) {
+                        if (task.isSuccessful()) {
                             mUserWorkingDays = task.getResult().getData();
                             setUpSpinners();
                         }
@@ -64,11 +67,13 @@ public class PacketSpinnerViewSettings extends AppCompatSpinner {
 
     private void initializeIDArrays() {
         int _counter = 0;
-        for(DaysOfWeek _day: DaysOfWeek.values()) {
-            if(!translate(new Locale("en"), _day.geteDisplayNameResID()).equals("All")) {
+        for (DaysOfWeek _day : DaysOfWeek.values()) {
+            String _dayTranslated = translate(new Locale("en"), _day.geteDisplayNameResID());
+            if (!_dayTranslated.equals(getResources().getString(R.string.act_SWHours_TV_AllDay))) {
                 mIDsArray.put(_day.geteSpinnerStartID(), _counter / 2);
                 mIDsArray.put(_day.geteSpinnerEndID(), _counter / 2);
-                setCheckChanged((CheckBox) mView.findViewById(_day.geteCheckBoxID()),translate(new Locale("en"), _day.geteDisplayNameResID()).substring(0, 3).toUpperCase());
+                Log.d("Err", mView.findViewById(_day.geteCheckBoxID()) + " " + _dayTranslated);
+                setCheckChanged((CheckBox) mView.findViewById(_day.geteCheckBoxID()), _dayTranslated.substring(0, 3).toUpperCase());
                 _counter += 2;
             }
         }
@@ -78,12 +83,11 @@ public class PacketSpinnerViewSettings extends AppCompatSpinner {
         checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked) {
+                if (isChecked) {
                     setDayVisibility(true, day);
                     mStartHours[mIDsArray.get(DaysOfWeek.valueOf(day).geteSpinnerStartID())] = "Free";
                     mEndHours[mIDsArray.get(DaysOfWeek.valueOf(day).geteSpinnerEndID())] = "Free";
-                }
-                else {
+                } else {
                     setDayVisibility(false, day);
                     mStartHours[mIDsArray.get(DaysOfWeek.valueOf(day).geteSpinnerStartID())] = ((Spinner) mView.findViewById(DaysOfWeek.valueOf(day).geteSpinnerStartID())).getSelectedItem().toString();
                     mEndHours[mIDsArray.get(DaysOfWeek.valueOf(day).geteSpinnerEndID())] = ((Spinner) mView.findViewById(DaysOfWeek.valueOf(day).geteSpinnerEndID())).getSelectedItem().toString();
@@ -100,13 +104,14 @@ public class PacketSpinnerViewSettings extends AppCompatSpinner {
 
     public void setUpSpinners() {
         mDaysIterator = 0;
-        for(DaysOfWeek _day: DaysOfWeek.values()) {
-            if(!translate(new Locale("en"), _day.geteDisplayNameResID()).equals("All")) {
+        for (DaysOfWeek _day : DaysOfWeek.values()) {
+            if (!translate(new Locale("en"), _day.geteDisplayNameResID()).equals(getResources().getString(R.string.act_SWHours_TV_AllDay))) {
                 Spinner _startHours = mView.findViewById(_day.geteSpinnerStartID());
                 Spinner _endHours = mView.findViewById(_day.geteSpinnerEndID());
                 setSpinnerAdaptersAndValues(_startHours, _endHours, _day);
                 _startHours.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     private int counter;
+
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                         counter = mIDsArray.get(parent.getId());
@@ -139,7 +144,7 @@ public class PacketSpinnerViewSettings extends AppCompatSpinner {
 
     private void setSpinnerAdaptersAndValues(Spinner startHours, Spinner endHours, DaysOfWeek _day) {
         String _dayStart = translate(new Locale("en"), _day.geteDisplayNameResID()) + "Start",
-                _dayEnd = translate(new Locale("en"), _day.geteDisplayNameResID())+ "End";
+                _dayEnd = translate(new Locale("en"), _day.geteDisplayNameResID()) + "End";
         startHours.setAdapter(mAdapterHours);
         endHours.setAdapter(mAdapterHours);
         if (!mUserWorkingDays.get(_dayStart).toString().equals("Free")) {
@@ -158,9 +163,9 @@ public class PacketSpinnerViewSettings extends AppCompatSpinner {
         mDaysIterator = 0;
         Map<String, Object> daysToAdd = new HashMap<>();
 
-        for (DaysOfWeek _day: DaysOfWeek.values()) {
-            if(!translate(new Locale("en"), _day.geteDisplayNameResID()).equals("All")) {
-                putToDays(_day.getFreeStatus(), daysToAdd, translate(new Locale("en"),  _day.geteDisplayNameResID()));
+        for (DaysOfWeek _day : DaysOfWeek.values()) {
+            if (!translate(new Locale("en"), _day.geteDisplayNameResID()).equals(getResources().getString(R.string.act_SWHours_TV_AllDay))) {
+                putToDays(_day.getFreeStatus(), daysToAdd, translate(new Locale("en"), _day.geteDisplayNameResID()));
                 mDaysIterator++;
             }
         }
@@ -168,11 +173,10 @@ public class PacketSpinnerViewSettings extends AppCompatSpinner {
     }
 
     public void putToDays(boolean isChecked, Map<String, Object> daysToAdd, String dayName) {
-        if(isChecked) {
+        if (isChecked) {
             daysToAdd.put(dayName + "Start", "Free");
             daysToAdd.put(dayName + "End", "Free");
-        }
-        else {
+        } else {
             daysToAdd.put(dayName + "Start", mStartHours[mDaysIterator]);
             daysToAdd.put(dayName + "End", mEndHours[mDaysIterator]);
         }

@@ -1,5 +1,7 @@
 package com.davidbuzatu.schedly.model;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import com.davidbuzatu.schedly.R;

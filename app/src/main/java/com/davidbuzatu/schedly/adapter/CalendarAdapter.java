@@ -229,7 +229,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
 
                                     mPopWindow.dismiss();
 
-//                                    sendMessage(_phoneNumber, _hour);
+                                    sendMessage(_phoneNumber, _hour);
                                 }
                             })
                             .setNegativeButton(android.R.string.no, null).show();
@@ -238,12 +238,14 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         }
 
         private void sendMessage(String phoneNumber, String hour) {
-            SmsManager.getDefault().sendTextMessage(phoneNumber, null,
-                    mActivity.getString(R.string.edit_appointment_cancel_message_start)
-                            + mCompleteDate
-                            + mActivity.getString(R.string.add_appointment_manual_success_at)
-                            + hour 
-                            + mActivity.getString(R.string.edit_appointment_message_end),
+            StringBuilder message = new StringBuilder(mActivity.getString(R.string.edit_appointment_cancel_message_start));
+            message.append(" ").append(mCompleteDate)
+                    .append(" ").append(mActivity.getString(R.string.add_appointment_manual_success_at))
+                    .append(" ").append(hour)
+                    .append(" ").append(mActivity.getString(R.string.edit_appointment_message_end));
+            SmsManager.getDefault().sendTextMessage(phoneNumber,
+                    null,
+                    message.toString(),
                     null, null);
         }
 
@@ -252,8 +254,8 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
             TextView _textViewPhoneNumber = inflatedView.findViewById(R.id.popup_appointment_TV_PhoneNumber);
             TextView _textViewAppointmentInfo = inflatedView.findViewById(R.id.popup_appointment_TV_AppointmentInfo);
             String _textForInfoCard;
-            if(mAppointmentType != null) {
-                 _textForInfoCard = mActivity.getString(R.string.edit_appointment_info_app_start) + mTextViewHour.getText() + "\nIt is of type: " + mAppointmentType.toUpperCase();
+            if (mAppointmentType != null) {
+                _textForInfoCard = mActivity.getString(R.string.edit_appointment_info_app_start) + mTextViewHour.getText() + "\nIt is of type: " + mAppointmentType.toUpperCase();
             } else {
                 _textForInfoCard = mActivity.getString(R.string.edit_appointment_info_app_start) + mTextViewHour.getText();
             }
