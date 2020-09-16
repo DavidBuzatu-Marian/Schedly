@@ -8,7 +8,8 @@ For a client, it's as simple as writing a normal SMS:
 
 And that's it. Scehdly will now inform the service provider through the mobile app.
 
-And you, as a client, didn't even had to download an app. How great is that?
+**And you, as a client, didn't even had to download an app. How great is that?**
+
 
 As a service-provider, after you've installed the app:
 1. Log-In with Google, Facebook or Email
