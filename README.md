@@ -1,6 +1,19 @@
 # Schedly
 
-A mobile app which enables its users to get rid of the need of stopping their work in order to schedule persons
+A mobile app which enables its users to get rid of the need of stopping their work in order to schedule persons.
+For a client, it's as simple as writing a normal SMS:
+1. Write a message to your service provider - hairdresser, dentist, etc., specifying a date/an hour or both for an appointment.
+2. Schedly will automatically respond, using SMS, as if it was your contact.
+3. Continue the process in as few as 3 messages to successfully reserve your place.
+
+And that's it. Scehdly will now inform the service provider through the mobile app.
+
+And you, as a client, didn't even had to download an app. How great is that?
+
+As a service-provider, after you've installed the app:
+1. Log-In with Google, Facebook or Email
+2. Set-up your mobile phone, working days and hours, and, finally, the amount of time a service needs.
+3. Turn on SMS monitoring and you are good to go. Leave your phone on the desk for the whole day.
 
 ## Images from the app
 <img src="https://i.ibb.co/b7TbtKG/68510019-397148280932001-5469068117567078400-n.png">
